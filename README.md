@@ -1,2 +1,2 @@
-# PatientDetailsService
-The Patient Details Service is the regional source of truth for Patient Details thorough out the Midland region. The Patient Details Service encapsulates all software, infrastructure/network, data, configurations and processes required to operate the Patient Details as an autonomous service. The Patient Details Service may merge, rename or disappear as more detail is understood regarding the Patient Domain Model.  
+# Patient-Demographic-Service
+The Patient Demographic Service is the regional source of truth for Patient Demographic Details thorough out the Midland region. The Patient Details Service encapsulates all software, infrastructure/network, data, configurations and processes required to operate the Patient Details as an autonomous service. The Patient Details Service may merge, rename or disappear as more detail is understood regarding the Patient Domain Model.  
