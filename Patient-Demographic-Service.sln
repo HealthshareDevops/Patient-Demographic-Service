@@ -1,0 +1,41 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31919.166
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{AE0745A4-F9FC-484F-B8B5-1F81E622AC01}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{BBF356E2-DABF-415A-A379-7CAA49DC523B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "cloudformation", "cloudformation", "{BEF5EE27-83FC-436E-8BAD-6336698AF9A6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MessageProcessorLambda", "src\MessageProcessorLambda\MessageProcessorLambda.csproj", "{0220C9E9-84D1-473E-9B96-52D10771B321}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MessageProcessorLambda.Tests", "tests\MessageProcessorLambda.Tests\MessageProcessorLambda.Tests.csproj", "{B3A238A1-7F29-4BAC-9B97-E9844AD508F2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0220C9E9-84D1-473E-9B96-52D10771B321}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0220C9E9-84D1-473E-9B96-52D10771B321}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0220C9E9-84D1-473E-9B96-52D10771B321}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0220C9E9-84D1-473E-9B96-52D10771B321}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3A238A1-7F29-4BAC-9B97-E9844AD508F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3A238A1-7F29-4BAC-9B97-E9844AD508F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3A238A1-7F29-4BAC-9B97-E9844AD508F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3A238A1-7F29-4BAC-9B97-E9844AD508F2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{0220C9E9-84D1-473E-9B96-52D10771B321} = {AE0745A4-F9FC-484F-B8B5-1F81E622AC01}
+		{B3A238A1-7F29-4BAC-9B97-E9844AD508F2} = {BBF356E2-DABF-415A-A379-7CAA49DC523B}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B5629C52-4E6C-4F79-B0FE-8C35C7997B0A}
+	EndGlobalSection
+EndGlobal
