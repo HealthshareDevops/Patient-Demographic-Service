@@ -90,18 +90,3 @@ Resources:
     Type: AWS::SQS::Queue
     Properties:
       QueueName: MessageQueue
-
-Outputs:
-  QueueName:
-    Description: "The name of the queue"
-    Value: !GetAtt MessageQueue.QueueName
-  ApiEndpoint:
-    Description: Endpoint for this stage of the api
-    Value: !Join
-      - ''
-      - - https://
-        - !Ref MessageApiGateway
-        - .execute-api.
-        - !Ref 'AWS::Region'
-        - .amazonaws.com/
-        - sandbox
