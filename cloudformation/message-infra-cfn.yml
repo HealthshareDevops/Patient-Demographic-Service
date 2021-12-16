@@ -95,7 +95,7 @@ Outputs:
   QueueName:
     Description: "The name of the queue"
     Value: !GetAtt MessageQueue.QueueName
-   ApiEndpoint:
+  ApiEndpoint:
     Description: Endpoint for this stage of the api
     Value: !Join
       - ''
