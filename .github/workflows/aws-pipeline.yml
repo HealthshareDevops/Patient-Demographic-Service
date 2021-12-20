@@ -9,6 +9,7 @@ on:
 
 env:
   NETCORE_VERSION: '3.1.x'
+  PROJECT_NAME: 'MessageProcessorLambda'
   
 jobs:
 
@@ -16,6 +17,11 @@ jobs:
     if: startsWith(github.ref, 'refs/heads/feature/') && github.event_name == 'push'
     
     runs-on: ubuntu-latest
+
+     env:
+      ENVIRONMENT_NAME: sandbox
+      AWS_S3_BUCKET: patient-demographic-service-sandbox-s3
+      AWS_STACKNAME: patient-demographic-service-sandbox-stack
 
     steps:
     - uses: actions/checkout@v2
@@ -44,7 +50,7 @@ jobs:
       uses: papeloto/action-zip@v1
       with:
         files: ./src/MessageProcessorLambda/bin/Release/netcoreapp3.1/publish/
-        dest: ./dist/MessageProcessorLambda-${{github.run_number}}.zip
+        dest: ./dist/${{env.PROJECT_NAME}}-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.zip
 
     - name: Configure AWS credentials from sandbox account
       uses: aws-actions/configure-aws-credentials@v1
@@ -60,5 +66,8 @@ jobs:
         name: apigateway-sqs-stack
         template: "./cloudformation/message-infra-cfn.yml"
         no-fail-on-empty-changeset: "1"
+        parameter-overrides: >-
+          BucketName=${{env.AWS_S3_BUCKET}},
+          CodeKey=${{env.PROJECT_NAME}}-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.zip
         capabilities: "CAPABILITY_IAM, CAPABILITY_NAMED_IAM, CAPABILITY_AUTO_EXPAND"
 
