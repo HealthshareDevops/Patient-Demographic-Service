@@ -63,7 +63,7 @@ jobs:
       - name: Deploy to AWS CloudFormation
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
-          name: apigateway-sqs-stack
+          name: ${{env.AWS_STACKNAME}}
           template: "./cloudformation/message-infra-cfn.yml"
           no-fail-on-empty-changeset: "1"
           parameter-overrides: >-
