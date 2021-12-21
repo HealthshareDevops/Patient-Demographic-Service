@@ -1,0 +1,149 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: "Creates API Gateway and SQS to receive and store patient demographic payloads/messages."
+Parameters: 
+  BucketName:
+    Type: String
+    Default: nripen-test-123
+  CodeKey:
+    Type: String
+    Default: SQSDemo.zip
+Resources:
+  
+  MessageApiGateway:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Description: API Gateway to receive patient demographic information / payloads / messages from different sources
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+      Name: PatientDemographic-Message-APIGateway
+  
+  MessageApiGatewayRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - apigateway.amazonaws.com
+        Version: 2012-10-17
+      Path: /
+      Policies:
+        - PolicyDocument:
+            Statement:
+              - Action: sqs:SendMessage
+                Effect: Allow
+                Resource: !GetAtt MessageQueue.Arn
+              - Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Effect: Allow
+                Resource: '*'
+            Version: 2012-10-17
+          PolicyName: PatientDemographic-ApiG-SQS-SendMessage-Policy
+      RoleName: PatientDemographic-ApiG-SQS-SendMessage-Role
+  
+  MessageApiGatewayMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: POST
+      Integration:
+        Credentials: !GetAtt 'MessageApiGatewayRole.Arn'
+        IntegrationHttpMethod: POST
+        IntegrationResponses:
+          - StatusCode: '200'
+        PassthroughBehavior: NEVER
+        RequestParameters:
+          integration.request.header.Content-Type: '''application/x-www-form-urlencoded'''
+        RequestTemplates:
+          application/json: Action=SendMessage&MessageBody=$input.body
+        Type: AWS
+        Uri: !Join
+          - ''
+          - - 'arn:aws:apigateway:'
+            - !Ref 'AWS::Region'
+            - :sqs:path/
+            - !Ref 'AWS::AccountId'
+            - /
+            - !GetAtt MessageQueue.QueueName
+      MethodResponses:
+        - ResponseModels:
+            application/json: Empty
+          StatusCode: '200'
+      ResourceId: !Ref MessageApiGatewayResource
+      RestApiId: !Ref MessageApiGateway
+  
+  MessageApiGatewayResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt MessageApiGateway.RootResourceId
+      PathPart: enqueue
+      RestApiId: !Ref MessageApiGateway
+  
+  MessageApiDeployment: 
+    Type: AWS::ApiGateway::Deployment
+    DependsOn:
+      - MessageApiGatewayMethod
+    Properties: 
+      RestApiId: !Ref MessageApiGateway
+      StageName: sandbox
+  
+  MessageQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: MessageQueue
+  
+  MessageLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: PatientDemographic-Message-Lambda-Role
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - 
+            Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaSQSQueueExecutionRole
+      Policies:
+        - 
+          PolicyName: AWSLambdaBasicExecutionRole
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - 
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Effect: Allow
+                Resource: '*'
+
+  MessageLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: MessageLambda
+      Role: !GetAtt MessageLambdaRole.Arn
+      Code:
+        S3Bucket: !Ref BucketName
+        S3Key: !Ref CodeKey
+      Runtime: dotnetcore3.1
+      Handler: SQSDemo::SQSDemo.Function::FunctionHandler
+  
+  MessageLambdaEventSourceMapping:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      BatchSize: 10
+      Enabled: true
+      EventSourceArn: !GetAtt MessageQueue.Arn
+      FunctionName: !GetAtt MessageLambda.Arn
