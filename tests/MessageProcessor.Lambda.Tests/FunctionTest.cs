@@ -7,9 +7,9 @@ using Xunit;
 using Amazon.Lambda.TestUtilities;
 using Amazon.Lambda.SQSEvents;
 
-using MessageProcessorLambda;
+using MessageProcessor.Lambda;
 
-namespace MessageProcessorLambda.Tests
+namespace MessageProcessor.Lambda.Tests
 {
     public class FunctionTest
     {

@@ -11,6 +11,6 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\MessageProcessorLambda\MessageProcessorLambda.csproj" />
+    <ProjectReference Include="..\..\src\MessageProcessor.Lambda\MessageProcessor.Lambda.csproj" />
   </ItemGroup>
 </Project>
