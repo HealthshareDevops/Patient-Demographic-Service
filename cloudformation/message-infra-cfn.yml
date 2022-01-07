@@ -115,6 +115,7 @@ Resources:
       Path: /
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaSQSQueueExecutionRole
+        - arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess
       Policies:
         - 
           PolicyName: AWSLambdaBasicExecutionRole
