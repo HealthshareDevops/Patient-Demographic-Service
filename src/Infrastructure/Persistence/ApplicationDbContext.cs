@@ -1,5 +1,6 @@
 ﻿using Application.Common.Interfaces;
 using Domain.Entities;
+using Domain.Enums;
 using Infrastructure.Persistence.Configurations;
 using Microsoft.EntityFrameworkCore;
 using System.Threading;
@@ -10,7 +11,13 @@ namespace Infrastructure.Persistence
     public class ApplicationDbContext : DbContext, IApplicationDbContext
     {
         private readonly string _connectionString;
+
         public DbSet<Patient> Patients { get; set; }
+
+        // Enums
+        public DbSet<Title> Titles { get; set; }
+        public DbSet<Suffix> Suffixes { get; set; }
+        public DbSet<NameSource> NameSources { get; set; }
 
         public ApplicationDbContext(string connectionString)
         {
@@ -31,6 +38,10 @@ namespace Infrastructure.Persistence
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new PatientConfiguration());
+            modelBuilder.ApplyConfiguration(new HumanNameConfiguration());
+            modelBuilder.ApplyConfiguration(new TitleConfiguration());
+            modelBuilder.ApplyConfiguration(new SuffixConfiguration());
+            modelBuilder.ApplyConfiguration(new NameSourceConfiguration());
         }
     }
 }

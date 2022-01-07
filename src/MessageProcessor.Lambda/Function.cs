@@ -17,6 +17,7 @@ namespace MessageProcessor.Lambda
     public class Function
     {
         public static IConfiguration Configuration;
+
         private readonly IMediator _mediator;
 
         /// <summary>
@@ -26,9 +27,9 @@ namespace MessageProcessor.Lambda
         /// </summary>
         public Function()
         {
-            Configuration = new ConfigurationBuilder().AddJsonFile("").Build();
+            Configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").AddSystemsManager("/PatientDemographicService/sandbox").Build();
 
-            _mediator = Startup.ConfigureServices().GetService<IMediator>();
+            _mediator = Startup.ConfigureServices(Configuration).GetService<IMediator>();
         }
         
         /// <summary>

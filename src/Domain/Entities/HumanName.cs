@@ -1,4 +1,4 @@
-﻿using Domain.Common;
+﻿using CSharpFunctionalExtensions;
 using Domain.Enums;
 using Domain.ValueObjects;
 
@@ -11,7 +11,7 @@ namespace Domain.Entities
         public Suffix Suffix { get; private set; }
         public bool IsPreferred { get; private set; }
         public bool IsProtected { get; private set; }
-        public NameSource Source { get; private set; }
+        public NameSource NameSource { get; private set; }
         public Date EffectiveFrom { get; private set; }
         public Date EffectiveTo { get; private set; }
 
@@ -22,7 +22,7 @@ namespace Domain.Entities
             Suffix suffix,
             bool isPreferred,
             bool isProtected,
-            NameSource source,
+            NameSource nameSource,
             Date effectiveFrom,
             Date effectiveTo)
         {
@@ -31,7 +31,7 @@ namespace Domain.Entities
             Suffix = suffix;
             IsPreferred = isPreferred;
             IsProtected = isProtected;
-            Source = source;
+            NameSource = nameSource;
             EffectiveFrom = effectiveFrom;
             EffectiveTo = effectiveTo;
         }

@@ -1,4 +1,4 @@
-﻿using Domain.Common;
+﻿using CSharpFunctionalExtensions;
 using System.Linq;
 
 namespace Domain.Enums
