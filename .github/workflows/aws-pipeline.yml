@@ -48,7 +48,7 @@ jobs:
         run: mkdir -p ./dist
 
       - name: zip-files
-        uses: papeloto/action-zip@v1
+        uses: vimtor/action-zip@v1
         with:
           files: ./src/MessageProcessor.WebAPI/bin/Release/netcoreapp3.1/publish/
           dest: ./dist/${{env.PROJECT_NAME}}-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.zip
