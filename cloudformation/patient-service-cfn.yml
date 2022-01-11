@@ -81,7 +81,6 @@ Resources:
           - !Ref PatientServiceApiGateway
           - '/*/*/*'
 
-
   PatientServiceApiGateway:
     Type: AWS::ApiGateway::RestApi
     Properties:

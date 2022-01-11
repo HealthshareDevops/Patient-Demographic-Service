@@ -61,3 +61,14 @@ jobs:
       
       - name: Copy files to the test website with the AWS CLI
         run: aws s3 cp ./dist/${{ env.PROJECT_NAME }}-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.zip s3://${{env.AWS_S3_BUCKET}}
+
+      - name: Deploy to AWS CloudFormation
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        with:
+          name: ${{env.AWS_STACKNAME}}
+          template: "./cloudformation/patient-service-serverless.template"
+          no-fail-on-empty-changeset: "1"
+          parameter-overrides: >-
+            BucketName=${{env.AWS_S3_BUCKET}},
+            CodeKey=${{env.PROJECT_NAME}}-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.zip
+          capabilities: "CAPABILITY_IAM, CAPABILITY_NAMED_IAM, CAPABILITY_AUTO_EXPAND"
