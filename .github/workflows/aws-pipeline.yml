@@ -47,10 +47,11 @@ jobs:
       - name: Create directory `dist`
         run: mkdir -p ./dist
 
-      - name: Zip files
-        uses: montudor/action-zip@v1
-        with: 
-          args: zip -qq -r ./dist/${{env.PROJECT_NAME}}-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.zip ./src/PatientService.WebAPI/bin/Release/netcoreapp3.1/publish/
+      - name: zip-files
+        uses: vimtor/action-zip@v1
+        with:
+          files: ./src/PatientService.WebAPI/bin/Release/netcoreapp3.1/publish/
+          dest: ./dist/${{env.PROJECT_NAME}}-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.zip
     
       - name: Configure AWS credentials from sandbox account
         uses: aws-actions/configure-aws-credentials@v1
