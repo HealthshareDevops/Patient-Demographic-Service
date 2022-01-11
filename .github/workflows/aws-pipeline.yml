@@ -21,8 +21,8 @@ jobs:
     env:
       PROJECT_NAME: PatientServiceWebApi
       ENVIRONMENT_NAME: sandbox
-      AWS_S3_BUCKET: patient-demographic-service-sandbox-s3
-      AWS_STACKNAME: patient-demographic-service-sandbox-stack
+      AWS_S3_BUCKET: patient-demographic-service-sandbox
+      AWS_STACKNAME: patient-service-sandbox-stack
 
     steps:
       - uses: actions/checkout@v2
@@ -46,3 +46,19 @@ jobs:
       
       - name: Create directory `dist`
         run: mkdir -p ./dist
+
+      - name: zip-files
+        uses: papeloto/action-zip@v1
+        with:
+          files: ./src/MessageProcessor.WebAPI/bin/Release/netcoreapp3.1/publish/
+          dest: ./dist/${{env.PROJECT_NAME}}-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.zip
+
+      - name: Configure AWS credentials from sandbox account
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{secrets.SANDBOX_AWS_ACCESS_KEY}}
+          aws-secret-access-key: ${{secrets.SANDBOX_AWS_SECRET_KEY}}
+          aws-region: ap-southeast-2
+      
+      - name: Copy files to the test website with the AWS CLI
+        run: aws s3 cp ./dist/${{ env.PROJECT_NAME }}-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.zip s3://${{env.AWS_S3_BUCKET}}
