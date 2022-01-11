@@ -15,7 +15,7 @@ namespace PatientService.WebAPI.Controllers
             };
             return pat;
 
-            //return await Mediator.Send(new GetPatientQuery() { Nhi = nhi });
+            ////return await Mediator.Send(new GetPatientQuery() { Nhi = nhi });
         }
     }
 }
