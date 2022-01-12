@@ -3,10 +3,8 @@ Description: "Creates API Gateway and SQS to receive and store patient demograph
 Parameters: 
   BucketName:
     Type: String
-    Default: nripen-test-123
   CodeKey:
     Type: String
-    Default: SQSDemo.zip
     
 Resources:
   
@@ -140,7 +138,7 @@ Resources:
         S3Bucket: !Ref BucketName
         S3Key: !Ref CodeKey
       Runtime: dotnetcore3.1
-      Handler: SQSDemo::SQSDemo.Function::FunctionHandler
+      Handler: MessageProcessor.Lambda::MessageProcessor.Lambda.Function::FunctionHandler
   
   MessageLambdaEventSourceMapping:
     Type: AWS::Lambda::EventSourceMapping

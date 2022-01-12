@@ -3,6 +3,10 @@
   "Transform": "AWS::Serverless-2016-10-31",
   "Description": "An AWS Serverless Application that uses the ASP.NET Core framework running in Amazon Lambda.",
   "Parameters": { 
+    "Environment": {
+      "Type": "String"
+      "Default": "sandbox"
+    },
     "BucketName": {
       "Type": "String"
     },
@@ -12,7 +16,13 @@
   },
   "Conditions": {},
   "Resources": {
-    "AspNetCoreFunction": {
+    "PatientServiceAPIGateway": {
+      "Type": "AWS::Serverless::Api",
+      "Properties": {
+        "StageName": { "Ref": "Environment" }
+      }
+    },
+    "PatientServiceLambda": {
       "Type": "AWS::Serverless::Function",
       "Properties": {
         "Handler": "PatientService.WebAPI::PatientService.WebAPI.LambdaEntryPoint::FunctionHandlerAsync",
@@ -32,14 +42,20 @@
             "Type": "Api",
             "Properties": {
               "Path": "/{proxy+}",
-              "Method": "ANY"
+              "Method": "ANY",
+              "RestApiId": {
+                "Ref": "PatientServiceAPIGateway"
+              }
             }
           },
           "RootResource": {
             "Type": "Api",
             "Properties": {
               "Path": "/",
-              "Method": "ANY"
+              "Method": "ANY",
+              "RestApiId": {
+                "Ref": "PatientServiceAPIGateway"
+              }
             }
           }
         }
@@ -50,7 +66,7 @@
     "ApiURL": {
       "Description": "API endpoint URL for Prod environment",
       "Value": {
-        "Fn::Sub": "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+        "Fn::Sub": "https://${PatientServiceAPIGateway}.execute-api.${AWS::Region}.amazonaws.com/${Environment}/"
       }
     }
   }

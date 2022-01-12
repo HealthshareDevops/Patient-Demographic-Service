@@ -14,7 +14,10 @@ namespace MessageProcessor.ConsoleApp
         static async Task Main(string[] args)
         {
             Console.WriteLine("Hello World!");
-            Configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").AddSystemsManager("/PatientDemographicService/sandbox").Build();
+            Configuration = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                //.AddSystemsManager("/PatientDemographicService/sandbox")
+                .Build();
 
             var mediator = Startup.ConfigureServices(Configuration).GetService<IMediator>();
 
