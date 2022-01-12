@@ -60,7 +60,7 @@ namespace MessageProcessor.Lambda
         {
             context.Logger.LogLine($"INFO: Processed message {message.Body}");
             
-            var createPatientCommand = JsonSerializer.Deserialize<CreatePatientCommand>((message.Body);
+            var createPatientCommand = JsonSerializer.Deserialize<CreatePatientCommand>(message.Body);
             var response = await _mediator.Send(createPatientCommand);
             
             context.Logger.LogLine($"INFO: {response}");
