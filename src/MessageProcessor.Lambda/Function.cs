@@ -4,8 +4,8 @@ using Application.Commands.CreatePatient;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using System;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 
@@ -60,7 +60,7 @@ namespace MessageProcessor.Lambda
         {
             context.Logger.LogLine($"INFO: Processed message {message.Body}");
             
-            var createPatientCommand = JsonConvert.DeserializeObject<CreatePatientCommand>(message.Body);
+            var createPatientCommand = JsonSerializer.Deserialize<CreatePatientCommand>((message.Body);
             var response = await _mediator.Send(createPatientCommand);
             
             context.Logger.LogLine($"INFO: {response}");
