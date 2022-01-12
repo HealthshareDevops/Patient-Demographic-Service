@@ -20,7 +20,7 @@ jobs:
     env:
       PROJECT_NAME: MessageProcessorLambda
       ENVIRONMENT_NAME: sandbox
-      AWS_S3_BUCKET: patient-demographic-service-sandbox
+      AWS_S3_BUCKET: mhip-patient-demographic-service-sandbox
       AWS_STACKNAME: MessageProcessorLambda-sandbox
 
     steps:
