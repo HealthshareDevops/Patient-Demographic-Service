@@ -56,4 +56,5 @@ jobs:
       
       - uses: actions/upload-artifact@v2
         with:
-          name: ${{github.workspace}}/dist/${{env.PROJECT_NAME}}-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.zip
+          name: my-artifact
+          path: ./dist/${{env.PROJECT_NAME}}-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.zip
