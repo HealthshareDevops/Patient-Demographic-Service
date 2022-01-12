@@ -46,11 +46,14 @@ jobs:
       
       - name: Create directory `dist`
         run: mkdir -p ./dist
-
-      - name: Testing some command
-        run: |
-          echo ${{github.workspace}} 
-          ls ${{github.workspace}}
-
       
-        
+      - name: Zip files
+        uses: montudor/action-zip@v1
+      
+      - name: Zip Output 
+        run: zip -qq -r ${{github.workspace}}/dist/${{env.PROJECT_NAME}}-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.zip .
+        working-directory: ./src/PatientService.WebAPI/bin/Release/netcoreapp3.1/publish/
+      
+      - uses: actions/upload-artifact@v2
+        with:
+          name: ${{github.workspace}}/dist/${{env.PROJECT_NAME}}-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.zip
