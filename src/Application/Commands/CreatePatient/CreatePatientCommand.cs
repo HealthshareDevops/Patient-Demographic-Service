@@ -101,6 +101,7 @@ namespace Application.Commands.CreatePatient
             catch (Exception e)
             {
                 LambdaLogger.Log($"ERROR: Error occurred in CreatePatientCommandHandler {e.Message}");
+                LambdaLogger.Log($"ERROR: Error occurred in CreatePatientCommandHandler InnerException {e.InnerException.Message}");
                 throw e;
             }
         }
