@@ -8,11 +8,9 @@ Parameters:
   ParamStoreLambdaSecurityGroupIds: 
     Type: AWS::SSM::Parameter::Value<CommaDelimitedList>
     Description: "VPC security group ids to attach to lambda"
-    Default: "/PatientDemographicService/sandbox/CloudFormation/Lambda-Security-GroupIds"
   ParamStoreLambdaSubnetIds: 
     Type: AWS::SSM::Parameter::Value<CommaDelimitedList>
     Description: "The VPC subnet ids to attach to lambda"
-    Default: "/PatientDemographicService/sandbox/CloudFormation/Lambda-SubnetIds"
 
 Resources:
   

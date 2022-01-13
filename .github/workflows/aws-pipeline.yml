@@ -10,7 +10,7 @@ on:
 
 env:
   NETCORE_VERSION: '3.1.x'
-  DOMAIN_NAME: PatientDemographicService
+  SOLUTION_NAME: PatientDemographicService
   
 jobs:
   build-MessageProcessorLambda-sandbox:
@@ -73,7 +73,9 @@ jobs:
           no-fail-on-empty-changeset: "1"
           parameter-overrides: >-
             BucketName=${{env.AWS_S3_BUCKET}},
-            CodeKey=${{env.PROJECT_NAME}}-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.zip
+            CodeKey=${{env.PROJECT_NAME}}-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.zip,
+            ParamStoreLambdaSecurityGroupIds=/${{SOLUTION_NAME}}/${{ENVIRONMENT_NAME}}/CloudFormation/Lambda-Security-GroupIds,
+            ParamStoreLambdaSubnetIds=/${{SOLUTION_NAME}}/${{ENVIRONMENT_NAME}}/CloudFormation/Lambda-SubnetIds
           capabilities: "CAPABILITY_IAM, CAPABILITY_NAMED_IAM, CAPABILITY_AUTO_EXPAND"
 
 
