@@ -103,7 +103,8 @@ Resources:
   MessageQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: MessageQueue
+      QueueName: PatientDemographic-MessageQueue
+      VisibilityTimeout: 180
   
   MessageLambdaRole:
     Type: AWS::IAM::Role
@@ -141,18 +142,18 @@ Resources:
   MessageLambda:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: MessageLambda
+      FunctionName: PatientDemographic-MessageLambda
       Role: !GetAtt MessageLambdaRole.Arn
       Code:
         S3Bucket: !Ref BucketName
         S3Key: !Ref CodeKey
       Runtime: dotnetcore3.1
       Handler: MessageProcessor.Lambda::MessageProcessor.Lambda.Function::FunctionHandler
+      Timeout: 180
       VpcConfig:
         SecurityGroupIds: !Ref ParamStoreLambdaSecurityGroupIds
         SubnetIds: !Ref ParamStoreLambdaSubnetIds
 
-  
   MessageLambdaEventSourceMapping:
     Type: AWS::Lambda::EventSourceMapping
     Properties:

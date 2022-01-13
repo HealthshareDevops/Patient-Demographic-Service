@@ -62,14 +62,15 @@ namespace MessageProcessor.Lambda
 
         private async Task ProcessMessageAsync(SQSEvent.SQSMessage message, ILambdaContext context)
         {
-            context.Logger.LogLine($"INFO: Processed message MessageId: {message.MessageId}");
-            context.Logger.LogLine($"INFO: Processed message Body: {message.Body}");
+            context.Logger.LogLine($"INFO: MessageProcessor.Lambda.ProcessMessageAsync start...");
+            context.Logger.LogLine($"INFO: Processing MessageId: {message.MessageId}");
+            context.Logger.LogLine($"INFO: Message Body: {message.Body}");
             
             var createPatientCommand = JsonSerializer.Deserialize<CreatePatientCommand>(message.Body);
             var response = await _mediator.Send(createPatientCommand);
             
             context.Logger.LogLine($"INFO: {response}");
-
+            context.Logger.LogLine($"INFO: MessageProcessor.Lambda.ProcessMessageAsync end...");
             await Task.CompletedTask;
         }
     }
