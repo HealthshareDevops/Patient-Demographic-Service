@@ -5,7 +5,15 @@ Parameters:
     Type: String
   CodeKey:
     Type: String
-    
+  ParamStoreLambdaSecurityGroupIds: 
+    Type: AWS::SSM::Parameter::Value<CommaDelimitedList>
+    Description: "VPC security group ids to attach to lambda"
+    Default: "/PatientDemographicService/sandbox/CloudFormation/Lambda-Security-GroupIds"
+  ParamStoreLambdaSubnetIds: 
+    Type: AWS::SSM::Parameter::Value<CommaDelimitedList>
+    Description: "The VPC subnet ids to attach to lambda"
+    Default: "/PatientDemographicService/sandbox/CloudFormation/Lambda-SubnetIds"
+
 Resources:
   
   MessageApiGateway:
@@ -139,6 +147,10 @@ Resources:
         S3Key: !Ref CodeKey
       Runtime: dotnetcore3.1
       Handler: MessageProcessor.Lambda::MessageProcessor.Lambda.Function::FunctionHandler
+      VpcConfig:
+        SecurityGroupIds: !Ref ParamStoreLambdaSecurityGroupIds
+        SubnetIds: !Ref ParamStoreLambdaSubnetIds
+
   
   MessageLambdaEventSourceMapping:
     Type: AWS::Lambda::EventSourceMapping
