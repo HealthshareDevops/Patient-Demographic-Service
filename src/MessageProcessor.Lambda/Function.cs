@@ -46,6 +46,7 @@ namespace MessageProcessor.Lambda
         {
             try
             {
+                
                 context.Logger.LogLine($"INFO: MessageProcessor.Lamba.FunctionHandler is called.");
                 
                 foreach (var message in evnt.Records)
@@ -61,7 +62,8 @@ namespace MessageProcessor.Lambda
 
         private async Task ProcessMessageAsync(SQSEvent.SQSMessage message, ILambdaContext context)
         {
-            context.Logger.LogLine($"INFO: Processed message {message.Body}");
+            context.Logger.LogLine($"INFO: Processed message MessageId: {message.MessageId}");
+            context.Logger.LogLine($"INFO: Processed message Body: {message.Body}");
             
             var createPatientCommand = JsonSerializer.Deserialize<CreatePatientCommand>(message.Body);
             var response = await _mediator.Send(createPatientCommand);
