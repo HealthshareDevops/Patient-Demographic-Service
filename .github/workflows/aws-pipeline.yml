@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 env:
-  NETCORE_VERSION: '3.1.x',
+  NETCORE_VERSION: '3.1.x'
   DOMAIN_NAME: PatientDemographicService
   
 jobs:
