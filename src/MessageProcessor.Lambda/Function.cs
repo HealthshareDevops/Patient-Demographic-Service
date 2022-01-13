@@ -27,7 +27,10 @@ namespace MessageProcessor.Lambda
         /// </summary>
         public Function()
         {
-            Configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").AddSystemsManager("/PatientDemographicService/sandbox").Build();
+            Configuration = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                .AddSystemsManager("/PatientDemographicService/sandbox")
+                .Build();
 
             _mediator = Startup.ConfigureServices(Configuration).GetService<IMediator>();
         }
