@@ -12,6 +12,14 @@
     },
     "CodeKey": {
       "Type": "String"
+    },
+    "ParamStoreLambdaSecurityGroupIds": {
+      "Type": "AWS::SSM::Parameter::Value<CommaDelimitedList>",
+      "Description": "VPC security group ids to attach to lambda"
+    },
+    "ParamStoreLambdaSubnetIds": {
+      "Type": "AWS::SSM::Parameter::Value<CommaDelimitedList>",
+      "Description": "The VPC subnet ids to attach to lambda"
     }
   },
   "Conditions": {},
@@ -36,8 +44,14 @@
         "Role": null,
         "Policies": [
           "AWSLambda_FullAccess",
-          "AmazonSSMReadOnlyAccess"
+          "AmazonSSMReadOnlyAccess",
+          "AWSLambdaBasicExecutionRole",
+          "AWSLambdaVPCAccessExecutionRole"
         ],
+        "VpcConfig": {
+          "SecurityGroupIds": {"Ref": "ParamStoreLambdaSecurityGroupIds" },
+          "SubnetIds": {"Ref": "ParamStoreLambdaSubnetIds" }
+        },
         "Events": {
           "ProxyResource": {
             "Type": "Api",
