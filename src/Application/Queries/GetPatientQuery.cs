@@ -1,4 +1,5 @@
-﻿using Application.Common.Exceptions;
+﻿using Amazon.Lambda.Core;
+using Application.Common.Exceptions;
 using Application.Common.Interfaces;
 using Domain.Entities;
 using MediatR;
@@ -24,6 +25,7 @@ namespace Application.Queries
 
         public async Task<PatientDto> Handle(GetPatientQuery request, CancellationToken cancellationToken)
         {
+            LambdaLogger.Log($"INFO: GetPatientQueryHandler start...");
             var response = await _dbContext.Patients
                 .Include(x => x.HumanNames)
                     .ThenInclude(n => n.Suffix)
@@ -33,8 +35,11 @@ namespace Application.Queries
 
             if (response is null)
             {
+                LambdaLogger.Log($"INFO: Nhi: {request.Nhi} not found.");
                 throw new NotFoundException(nameof(Patient), request.Nhi);
             }
+
+            LambdaLogger.Log($"INFO: Nhi: {request.Nhi} found info.");
             
             return PatientDto.ToPatientDto(response);
         }

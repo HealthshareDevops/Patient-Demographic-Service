@@ -1,4 +1,5 @@
-﻿using Application.Queries;
+﻿using Amazon.Lambda.Core;
+using Application.Queries;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -7,15 +8,10 @@ namespace PatientService.WebAPI.Controllers
     public class PatientsController : ApiControllerBase
     {
         [HttpGet("{nhi}")]
-        public PatientDto Get(string nhi)
+        public async Task<PatientDto> Get(string nhi)
         {
-            var pat = new PatientDto
-            {
-                Nhi = nhi
-            };
-            return pat;
-
-            ////return await Mediator.Send(new GetPatientQuery() { Nhi = nhi });
+            LambdaLogger.Log($"INFO: PatientsController.Get(nhi: {nhi}) called.");
+            return await Mediator.Send(new GetPatientQuery() { Nhi = nhi });
         }
     }
 }

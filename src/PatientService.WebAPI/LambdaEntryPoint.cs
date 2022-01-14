@@ -1,7 +1,5 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
 namespace PatientService.WebAPI
@@ -35,6 +33,10 @@ namespace PatientService.WebAPI
         protected override void Init(IWebHostBuilder builder)
         {
             builder
+                .ConfigureAppConfiguration((context, builder) =>
+                {
+                    builder.AddSystemsManager("/PatientDemographicService/sandbox");
+                })
                 .UseStartup<Startup>();
         }
 
