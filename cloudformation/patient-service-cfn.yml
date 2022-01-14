@@ -1,0 +1,142 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: "Creates API Gateway and Lambda for Patient API"
+Parameters: 
+  BucketName:
+    Type: String
+    Default: patient-demographic-service-0000
+  CodeKey:
+    Type: String
+    Default: PatientService-1.zip
+
+Resources:
+  PatientServiceLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: PatientDemographic-PatientService-Lambda-Role
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - 
+            Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      Policies:
+        - 
+          PolicyName: AWSLambdaBasicExecutionRole
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - 
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Effect: Allow
+                Resource: '*'
+
+  PatientServiceLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: PatientServiceLambda
+      Role: !GetAtt PatientServiceLambdaRole.Arn
+      Code:
+        S3Bucket: !Ref BucketName
+        S3Key: !Ref CodeKey
+      Runtime: dotnetcore3.1
+      Handler: PatientService.WebAPI::PatientService.WebAPI.LambdaEntryPoint::FunctionHandlerAsync
+
+  PatientServiceLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt PatientServiceLambda.Arn
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Join
+        - ''
+        - - 'arn:aws:execute-api:'
+          - !Ref 'AWS::Region'
+          - ':'
+          - !Ref 'AWS::AccountId'
+          - ':'
+          - !Ref PatientServiceApiGateway
+          - '/*/*/'
+
+  PatientServiceLambdaProxyResourcePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt PatientServiceLambda.Arn
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Join
+        - ''
+        - - 'arn:aws:execute-api:'
+          - !Ref 'AWS::Region'
+          - ':'
+          - !Ref 'AWS::AccountId'
+          - ':'
+          - !Ref PatientServiceApiGateway
+          - '/*/*/*'
+
+  PatientServiceApiGateway:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Description: API Gateway to get patient demographic information.
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+      Name: PatientDemographic-PatientService-APIGateway
+
+  PatientServiceProxyResource: 
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt PatientServiceApiGateway.RootResourceId
+      PathPart: '{proxy+}'
+      RestApiId: !Ref PatientServiceApiGateway
+
+  PatientServiceRootMethod: 
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: ANY
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Join
+          - ''
+          - - 'arn:aws:apigateway:'
+            - !Ref AWS::Region
+            - ':lambda:path/2015-03-31/functions/'
+            - !GetAtt PatientServiceLambda.Arn
+            - '/invocations'
+      ResourceId: !GetAtt PatientServiceApiGateway.RootResourceId
+      RestApiId: !Ref PatientServiceApiGateway
+
+  PatientServiceProxyMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: ANY
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Join
+          - ''
+          - - 'arn:aws:apigateway:'
+            - !Ref AWS::Region
+            - ':lambda:path/2015-03-31/functions/'
+            - !GetAtt PatientServiceLambda.Arn
+            - '/invocations'
+      ResourceId: !Ref PatientServiceProxyResource
+      RestApiId: !Ref PatientServiceApiGateway
+
+  PatientServiceApiDeployment: 
+    Type: AWS::ApiGateway::Deployment
+    DependsOn:
+      - PatientServiceProxyMethod
+    Properties: 
+      RestApiId: !Ref PatientServiceApiGateway
+      StageName: sandbox

@@ -2,8 +2,8 @@
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using System;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace MessageProcessor.ConsoleApp
@@ -14,7 +14,10 @@ namespace MessageProcessor.ConsoleApp
         static async Task Main(string[] args)
         {
             Console.WriteLine("Hello World!");
-            Configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").AddSystemsManager("/PatientDemographicService/sandbox").Build();
+            Configuration = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                //.AddSystemsManager("/PatientDemographicService/sandbox")
+                .Build();
 
             var mediator = Startup.ConfigureServices(Configuration).GetService<IMediator>();
 
@@ -33,10 +36,10 @@ namespace MessageProcessor.ConsoleApp
                 EffectiveTo = ""
             };
             
-            var payloadJsonString = JsonConvert.SerializeObject(payload);
+            var payloadJsonString = JsonSerializer.Serialize(payload);
             Console.WriteLine($"Payload: {payloadJsonString}");
 
-            var createPatientCommand = JsonConvert.DeserializeObject<CreatePatientCommand>(payloadJsonString);
+            var createPatientCommand = JsonSerializer.Deserialize<CreatePatientCommand>(payloadJsonString);
 
 
             var response = await mediator.Send(createPatientCommand);

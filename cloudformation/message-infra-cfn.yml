@@ -3,10 +3,15 @@ Description: "Creates API Gateway and SQS to receive and store patient demograph
 Parameters: 
   BucketName:
     Type: String
-    Default: nripen-test-123
   CodeKey:
     Type: String
-    Default: SQSDemo.zip
+  ParamStoreLambdaSecurityGroupIds: 
+    Type: AWS::SSM::Parameter::Value<CommaDelimitedList>
+    Description: "VPC security group ids to attach to lambda"
+  ParamStoreLambdaSubnetIds: 
+    Type: AWS::SSM::Parameter::Value<CommaDelimitedList>
+    Description: "The VPC subnet ids to attach to lambda"
+
 Resources:
   
   MessageApiGateway:
@@ -96,7 +101,8 @@ Resources:
   MessageQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: MessageQueue
+      QueueName: PatientDemographic-MessageQueue
+      VisibilityTimeout: 180
   
   MessageLambdaRole:
     Type: AWS::IAM::Role
@@ -116,6 +122,7 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaSQSQueueExecutionRole
         - arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
       Policies:
         - 
           PolicyName: AWSLambdaBasicExecutionRole
@@ -133,14 +140,18 @@ Resources:
   MessageLambda:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: MessageLambda
+      FunctionName: PatientDemographic-MessageLambda
       Role: !GetAtt MessageLambdaRole.Arn
       Code:
         S3Bucket: !Ref BucketName
         S3Key: !Ref CodeKey
       Runtime: dotnetcore3.1
-      Handler: SQSDemo::SQSDemo.Function::FunctionHandler
-  
+      Handler: MessageProcessor.Lambda::MessageProcessor.Lambda.Function::FunctionHandler
+      Timeout: 180
+      VpcConfig:
+        SecurityGroupIds: !Ref ParamStoreLambdaSecurityGroupIds
+        SubnetIds: !Ref ParamStoreLambdaSubnetIds
+
   MessageLambdaEventSourceMapping:
     Type: AWS::Lambda::EventSourceMapping
     Properties:

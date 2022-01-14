@@ -1,10 +1,12 @@
-﻿using Application.Common.Exceptions;
+﻿using Amazon.Lambda.Core;
+using Application.Common.Exceptions;
 using Application.Common.Interfaces;
 using CSharpFunctionalExtensions;
 using Domain.Entities;
 using Domain.Enums;
 using Domain.ValueObjects;
 using MediatR;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -36,48 +38,72 @@ namespace Application.Commands.CreatePatient
 
         public async Task<long> Handle(CreatePatientCommand request, CancellationToken cancellationToken)
         {
-            // ToDo: Validation code.
-
-
-            Result<Nhi> nhi = Nhi.Create(request.Nhi);
-            if (nhi.IsFailure)
+            LambdaLogger.Log($"INFO: CreatePatientCommandHandler start...");
+            try
             {
-                throw new ValidationException(nhi.Error);
+                // ToDo: Validation code.
+                LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Request validation completed.");
+
+                Result<Nhi> nhi = Nhi.Create(request.Nhi);
+                if (nhi.IsFailure)
+                {
+                    LambdaLogger.Log($"ERROR: CreatePatientCommandHandler: Nhi failure.");
+                    throw new ValidationException(nhi.Error);
+                }
+                LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Nhi created.");
+                // Create HumanName
+                var title = Title.FromCode(request.Title);
+                var suffix = Suffix.FromCode(request.Suffix);
+                var namesource = NameSource.FromCode(request.NameSource);
+
+                LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Title, Suffix, NameSource created.");
+                
+                Result<Name> name = Name.Create(request.GivenName, request.MiddleName, request.FamilyName);
+                if (name.IsFailure)
+                {
+                    LambdaLogger.Log($"ERROR: CreatePatientCommandHandler: Name failure.");
+                    throw new ValidationException(name.Error);
+                }
+                LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Name created.");
+
+                Result<Date> effectiveFrom = Date.Create(request.EffectiveFrom);
+                if (effectiveFrom.IsFailure)
+                {
+                    LambdaLogger.Log($"ERROR: CreatePatientCommandHandler: EffectiveFrom date failure.");
+                    throw new ValidationException(effectiveFrom.Error);
+                }
+                LambdaLogger.Log($"INFO: CreatePatientCommandHandler: EffectiveFrom date created.");
+                
+                Result<Date> effectiveTo = Date.Create(request.EffectiveTo);
+                if (effectiveTo.IsFailure)
+                {
+                    LambdaLogger.Log($"ERROR: CreatePatientCommandHandler: EffectiveTo date failure.");
+                    throw new ValidationException(effectiveTo.Error);
+                }
+                LambdaLogger.Log($"INFO: CreatePatientCommandHandler: EffectiveTo date created.");
+               
+                var humanName = new HumanName(title, name.Value, suffix, request.IsPreferred, request.IsProtected, namesource, effectiveFrom.Value, effectiveTo.Value);
+                LambdaLogger.Log($"INFO: CreatePatientCommandHandler: HumanName object created.");
+
+
+
+                var patnt = new Patient(nhi.Value, humanName);
+                LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object created.");
+
+                LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object DB Saving.");
+                _dbContext.Patients.Attach(patnt);
+                await _dbContext.SaveChangesAsync(cancellationToken);
+                LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object DB Saved. Patient Id: {patnt.Id}");
+
+                LambdaLogger.Log($"INFO: CreatePatientCommandHandler end...");
+                return patnt.Id;
             }
-
-            // Create HumanName
-            var title = Title.FromCode(request.Title);
-            var suffix = Suffix.FromCode(request.Suffix);
-            var namesource = NameSource.FromCode(request.NameSource);
-
-            Result<Name> name = Name.Create(request.GivenName, request.MiddleName, request.FamilyName);
-            if (name.IsFailure)
+            catch (Exception e)
             {
-                throw new ValidationException(name.Error);
+                LambdaLogger.Log($"ERROR: Error occurred in CreatePatientCommandHandler {e.Message}");
+                LambdaLogger.Log($"ERROR: Error occurred in CreatePatientCommandHandler InnerException {e.InnerException.Message}");
+                throw e;
             }
-            Result<Date> effectiveFrom = Date.Create(request.EffectiveFrom);
-            if (effectiveFrom.IsFailure)
-            {
-                throw new ValidationException(effectiveFrom.Error);
-            }
-            Result<Date> effectiveTo = Date.Create(request.EffectiveTo);
-            if (effectiveTo.IsFailure)
-            {
-                throw new ValidationException(effectiveTo.Error);
-            }
-            var humanName = new HumanName(title, name.Value, suffix, request.IsPreferred, request.IsProtected, namesource, effectiveFrom.Value, effectiveTo.Value);
-            // HumanName
-
-
-
-            var patnt = new Patient(nhi.Value, humanName);
-
-            _dbContext.Patients.Attach(patnt);
-            await _dbContext.SaveChangesAsync(cancellationToken);
-            
-           
-            
-            return patnt.Id;
         }
     }
 }

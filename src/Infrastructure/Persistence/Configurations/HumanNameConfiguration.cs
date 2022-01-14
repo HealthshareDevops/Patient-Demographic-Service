@@ -9,6 +9,7 @@ namespace Infrastructure.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<HumanName> builder)
         {
+            builder.ToTable("HumanNames");
             builder.Property(p => p.Id);
             builder.HasOne(p => p.Title)
                 .WithMany();

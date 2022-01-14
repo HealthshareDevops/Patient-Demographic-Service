@@ -4,8 +4,8 @@ using Application.Commands.CreatePatient;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using System;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 
@@ -27,7 +27,10 @@ namespace MessageProcessor.Lambda
         /// </summary>
         public Function()
         {
-            Configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").AddSystemsManager("/PatientDemographicService/sandbox").Build();
+            Configuration = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                .AddSystemsManager("/PatientDemographicService/sandbox")
+                .Build();
 
             _mediator = Startup.ConfigureServices(Configuration).GetService<IMediator>();
         }
@@ -43,6 +46,7 @@ namespace MessageProcessor.Lambda
         {
             try
             {
+                
                 context.Logger.LogLine($"INFO: MessageProcessor.Lamba.FunctionHandler is called.");
                 
                 foreach (var message in evnt.Records)
@@ -58,13 +62,15 @@ namespace MessageProcessor.Lambda
 
         private async Task ProcessMessageAsync(SQSEvent.SQSMessage message, ILambdaContext context)
         {
-            context.Logger.LogLine($"INFO: Processed message {message.Body}");
+            context.Logger.LogLine($"INFO: MessageProcessor.Lambda.ProcessMessageAsync start...");
+            context.Logger.LogLine($"INFO: Processing MessageId: {message.MessageId}");
+            context.Logger.LogLine($"INFO: Message Body: {message.Body}");
             
-            var createPatientCommand = JsonConvert.DeserializeObject<CreatePatientCommand>(message.Body);
+            var createPatientCommand = JsonSerializer.Deserialize<CreatePatientCommand>(message.Body);
             var response = await _mediator.Send(createPatientCommand);
             
             context.Logger.LogLine($"INFO: {response}");
-
+            context.Logger.LogLine($"INFO: MessageProcessor.Lambda.ProcessMessageAsync end...");
             await Task.CompletedTask;
         }
     }
