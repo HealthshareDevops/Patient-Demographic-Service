@@ -53,7 +53,7 @@ namespace Application.Commands.CreatePatient
                     LambdaLogger.Log($"ERROR: CreatePatientCommandHandler: Nhi failure.");
                     throw new ValidationException(nhi.Error);
                 }
-                LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Nhi created.");
+                LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Nhi created. {nhi.Value}");
                 // Create HumanName
                 var title = Title.FromCode(request.Title);
                 var suffix = Suffix.FromCode(request.Suffix);
