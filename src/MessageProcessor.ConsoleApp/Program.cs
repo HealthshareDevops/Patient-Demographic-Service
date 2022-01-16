@@ -16,7 +16,7 @@ namespace MessageProcessor.ConsoleApp
             Console.WriteLine("Hello World!");
             Configuration = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json")
-                //.AddSystemsManager("/PatientDemographicService/sandbox")
+                .AddSystemsManager("/PatientDemographicService/sandbox")
                 .Build();
 
             var mediator = Startup.ConfigureServices(Configuration).GetService<IMediator>();

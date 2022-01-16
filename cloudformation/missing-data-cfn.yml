@@ -1,0 +1,72 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: "The cloudformation templates to create queue and lambda function for handling missing data in the message in found in processing message."
+
+Parameters: 
+  
+  BucketName:
+    Type: String
+    Default: mhip-patient-demographic-service-sandbox
+  CodeKey:
+    Type: String
+    Default: MissingDataLambda.zip
+
+Resources:
+
+  MissingDataQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: PatientDemographic-MissingDataQueue
+      VisibilityTimeout: 180
+
+  MissingDataFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: PatientDemographic-MissingDataFunction-Role
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - 
+            Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaSQSQueueExecutionRole
+        - arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+      Policies:
+        - 
+          PolicyName: AWSLambdaBasicExecutionRole
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - 
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Effect: Allow
+                Resource: '*'
+
+  MissingDataFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: PatientDemographic-MissingDataFunction
+      Role: !GetAtt MissingDataFunctionRole.Arn
+      Code:
+        S3Bucket: !Ref BucketName
+        S3Key: !Ref CodeKey
+      Runtime: dotnetcore3.1
+      Handler: MissingData.Lambda::MissingData.Lambda.Function::FunctionHandler
+      Timeout: 180
+  
+  MissingDataFunctionEventSourceMapping:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      BatchSize: 10
+      Enabled: true
+      EventSourceArn: !GetAtt MissingDataQueue.Arn
+      FunctionName: !GetAtt MissingDataFunction.Arn

@@ -1,4 +1,5 @@
 ﻿using Amazon.Lambda.Core;
+using Amazon.SQS;
 using Application.Common.Exceptions;
 using Application.Common.Interfaces;
 using CSharpFunctionalExtensions;
@@ -30,10 +31,12 @@ namespace Application.Commands.CreatePatient
     public class CreatePatientCommandHandler : IRequestHandler<CreatePatientCommand, long>
     {
         private readonly IApplicationDbContext _dbContext;
+        private readonly IAmazonSQS _sqsClient;
 
         public CreatePatientCommandHandler(IApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
+            _sqsClient = new AmazonSQSClient();
         }
 
         public async Task<long> Handle(CreatePatientCommand request, CancellationToken cancellationToken)
@@ -94,6 +97,11 @@ namespace Application.Commands.CreatePatient
                 _dbContext.Patients.Attach(patnt);
                 await _dbContext.SaveChangesAsync(cancellationToken);
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object DB Saved. Patient Id: {patnt.Id}");
+
+                LambdaLogger.Log($"INFO: Sending message to SQS start...");
+                var qUrl = "https://sqs.ap-southeast-2.amazonaws.com/428762063575/PatientDemographic-MissingDataQueue";
+                var response = await _sqsClient.SendMessageAsync(qUrl, "Hello world from Console Application.");
+                LambdaLogger.Log($"INFO: Sending message to SQS end...");
 
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler end...");
                 return patnt.Id;
