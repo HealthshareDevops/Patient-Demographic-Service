@@ -32,9 +32,9 @@ namespace Application.Commands.CreatePatient
     public class CreatePatientCommandHandler : IRequestHandler<CreatePatientCommand, long>
     {
         private readonly IApplicationDbContext _dbContext;
-        private readonly IQueueService _queueService;
+        private readonly IMissingDataQueueService _queueService;
 
-        public CreatePatientCommandHandler(IApplicationDbContext dbContext, IQueueService queueService)
+        public CreatePatientCommandHandler(IApplicationDbContext dbContext, IMissingDataQueueService queueService)
         {
             _dbContext = dbContext;
             _queueService = queueService;

@@ -2,7 +2,7 @@
 
 namespace Application.Common.Interfaces
 {
-    public interface IQueueService
+    public interface IMissingDataQueueService
     {
         Task<bool> SendMessageAsync(string message);
     }

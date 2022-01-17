@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Services
 {
-    public class SqsQueueService : IQueueService
+    public class SqsMissingDataQueueService : IMissingDataQueueService
     {
         private readonly IAmazonSQS _sqsClient;
         private readonly SqsSettings _sqsSettings;
-        public SqsQueueService(IAmazonSQS sqsClient, IOptions<SqsSettings> sqsOptions)
+        public SqsMissingDataQueueService(IAmazonSQS sqsClient, IOptions<SqsSettings> sqsOptions)
         {
             _sqsClient = sqsClient;
             _sqsSettings = sqsOptions.Value;

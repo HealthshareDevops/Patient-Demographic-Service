@@ -18,7 +18,7 @@ namespace Infrastructure
             LambdaLogger.Log($"INFO: DefaultConnection: {configuration.GetConnectionString("DefaultConnection")}");
             services.AddScoped<IApplicationDbContext>(s => new ApplicationDbContext(configuration.GetConnectionString("DefaultConnection")));
             services.AddScoped<IHello, Hello>();
-            services.AddScoped<IQueueService, SqsQueueService>();
+            services.AddScoped<IMissingDataQueueService, SqsMissingDataQueueService>();
             
             return services;
         }
