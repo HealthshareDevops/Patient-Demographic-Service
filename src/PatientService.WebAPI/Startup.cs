@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NSwag;
 
 namespace PatientService.WebAPI
 {
@@ -29,6 +30,13 @@ namespace PatientService.WebAPI
             services.AddOpenApiDocument(configure =>
             {
                 configure.Title = "TMT Interoperability Platform API";
+                configure.AddSecurity("API Key", new OpenApiSecurityScheme
+                {
+                    Type = OpenApiSecuritySchemeType.ApiKey,
+                    Name = "x-api-key",
+                    Description = "AWS API Key",
+                    In = OpenApiSecurityApiKeyLocation.Header
+                });
             });
         }
 
