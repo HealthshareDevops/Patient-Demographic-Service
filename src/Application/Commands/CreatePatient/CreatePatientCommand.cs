@@ -47,6 +47,7 @@ namespace Application.Commands.CreatePatient
                 // ToDo: Validation code.
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Request validation completed.");
 
+                LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Nhi: {request.Nhi}.");
                 Result<Nhi> nhi = Nhi.Create(request.Nhi);
                 if (nhi.IsFailure)
                 {
