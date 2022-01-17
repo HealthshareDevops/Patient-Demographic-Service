@@ -7,6 +7,7 @@ using Domain.Entities;
 using Domain.Enums;
 using Domain.ValueObjects;
 using MediatR;
+using Microsoft.Extensions.Options;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,12 +32,12 @@ namespace Application.Commands.CreatePatient
     public class CreatePatientCommandHandler : IRequestHandler<CreatePatientCommand, long>
     {
         private readonly IApplicationDbContext _dbContext;
-        private readonly IAmazonSQS _sqsClient;
+        private readonly IQueueService _queueService;
 
-        public CreatePatientCommandHandler(IApplicationDbContext dbContext)
+        public CreatePatientCommandHandler(IApplicationDbContext dbContext, IQueueService queueService)
         {
             _dbContext = dbContext;
-            _sqsClient = new AmazonSQSClient();
+            _queueService = queueService;
         }
 
         public async Task<long> Handle(CreatePatientCommand request, CancellationToken cancellationToken)
@@ -100,8 +101,7 @@ namespace Application.Commands.CreatePatient
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object DB Saved. Patient Id: {patnt.Id}");
 
                 LambdaLogger.Log($"INFO: Sending message to SQS start...");
-                var qUrl = "https://sqs.ap-southeast-2.amazonaws.com/428762063575/PatientDemographic-MissingDataQueue";
-                var response = await _sqsClient.SendMessageAsync(qUrl, "Hello world from Console Application.");
+                var response = await _queueService.SendMessageAsync("Hello world from Console Application.");
                 LambdaLogger.Log($"INFO: Sending message to SQS end...");
 
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler end...");

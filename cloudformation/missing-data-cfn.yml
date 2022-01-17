@@ -2,13 +2,19 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: "The cloudformation templates to create queue and lambda function for handling missing data in the message in found in processing message."
 
 Parameters: 
-  
+  Environment: 
+    Type: String
+    Default: sandbox
   BucketName:
     Type: String
-    Default: mhip-patient-demographic-service-sandbox
   CodeKey:
     Type: String
-    Default: MissingDataLambda.zip
+  ParamStoreLambdaSecurityGroupIds: 
+    Type: AWS::SSM::Parameter::Value<CommaDelimitedList>
+    Description: "VPC security group ids to attach to lambda"
+  ParamStoreLambdaSubnetIds: 
+    Type: AWS::SSM::Parameter::Value<CommaDelimitedList>
+    Description: "The VPC subnet ids to attach to lambda"
 
 Resources:
 
@@ -62,6 +68,9 @@ Resources:
       Runtime: dotnetcore3.1
       Handler: MissingData.Lambda::MissingData.Lambda.Function::FunctionHandler
       Timeout: 180
+      VpcConfig:
+        SecurityGroupIds: !Ref ParamStoreLambdaSecurityGroupIds
+        SubnetIds: !Ref ParamStoreLambdaSubnetIds
   
   MissingDataFunctionEventSourceMapping:
     Type: AWS::Lambda::EventSourceMapping
