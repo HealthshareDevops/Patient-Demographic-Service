@@ -1,4 +1,5 @@
 ﻿using Amazon.Lambda.Core;
+using Amazon.SQS;
 using Application.Common.Exceptions;
 using Application.Common.Interfaces;
 using CSharpFunctionalExtensions;
@@ -6,6 +7,7 @@ using Domain.Entities;
 using Domain.Enums;
 using Domain.ValueObjects;
 using MediatR;
+using Microsoft.Extensions.Options;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,10 +32,12 @@ namespace Application.Commands.CreatePatient
     public class CreatePatientCommandHandler : IRequestHandler<CreatePatientCommand, long>
     {
         private readonly IApplicationDbContext _dbContext;
+        private readonly IMissingDataQueueService _queueService;
 
-        public CreatePatientCommandHandler(IApplicationDbContext dbContext)
+        public CreatePatientCommandHandler(IApplicationDbContext dbContext, IMissingDataQueueService queueService)
         {
             _dbContext = dbContext;
+            _queueService = queueService;
         }
 
         public async Task<long> Handle(CreatePatientCommand request, CancellationToken cancellationToken)
@@ -44,13 +48,14 @@ namespace Application.Commands.CreatePatient
                 // ToDo: Validation code.
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Request validation completed.");
 
+                LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Nhi: {request.Nhi}.");
                 Result<Nhi> nhi = Nhi.Create(request.Nhi);
                 if (nhi.IsFailure)
                 {
                     LambdaLogger.Log($"ERROR: CreatePatientCommandHandler: Nhi failure.");
                     throw new ValidationException(nhi.Error);
                 }
-                LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Nhi created.");
+                LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Nhi: {nhi.Value} created.");
                 // Create HumanName
                 var title = Title.FromCode(request.Title);
                 var suffix = Suffix.FromCode(request.Suffix);
@@ -94,6 +99,10 @@ namespace Application.Commands.CreatePatient
                 _dbContext.Patients.Attach(patnt);
                 await _dbContext.SaveChangesAsync(cancellationToken);
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object DB Saved. Patient Id: {patnt.Id}");
+
+                LambdaLogger.Log($"INFO: Sending message to SQS start...");
+                var response = await _queueService.SendMessageAsync("Hello world from Console Application.");
+                LambdaLogger.Log($"INFO: Sending message to SQS end...");
 
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler end...");
                 return patnt.Id;

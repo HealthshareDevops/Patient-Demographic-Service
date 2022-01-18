@@ -1,6 +1,9 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: "Creates API Gateway and SQS to receive and store patient demographic payloads/messages."
 Parameters: 
+  Environment: 
+    Type: String
+    Default: sandbox
   BucketName:
     Type: String
   CodeKey:
