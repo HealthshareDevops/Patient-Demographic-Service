@@ -106,6 +106,14 @@ Resources:
     Properties:
       QueueName: PatientDemographic-MessageQueue
       VisibilityTimeout: 180
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt DeadLetterMessageQueue.Arn
+        maxReceiveCount: 1
+  
+  DeadLetterMessageQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: PatientDemographic-DeadLetterMessageQueue
   
   MessageLambdaRole:
     Type: AWS::IAM::Role
