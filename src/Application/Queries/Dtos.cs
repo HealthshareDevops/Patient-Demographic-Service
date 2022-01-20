@@ -7,6 +7,9 @@ namespace Application.Queries
     {
         public string Nhi { get; set; }
         public List<NameDto> Names { get; set; } = new List<NameDto>();
+        public string BirthDate { get; set; }
+        public string BirthDateSource { get; set; }
+        public string Gender { get; set; }
 
         public static PatientDto ToPatientDto(Patient patnt)
         {
@@ -30,6 +33,9 @@ namespace Application.Queries
             {
                 Nhi = patnt.Nhi,
                 Names = nameDtos,
+                BirthDate = patnt.BirthDate,
+                BirthDateSource = patnt.BirthDateSource.Code,
+                Gender = patnt.Gender.Code
             };
         }
     }

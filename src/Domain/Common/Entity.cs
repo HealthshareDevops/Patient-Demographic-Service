@@ -1,81 +1,81 @@
-﻿using System;
+﻿//using System;
 
-namespace Domain.Common
-{
-    public abstract class Entity
-    {
-        //private readonly List<IDomainEvent> _domainEvents = new List<IDomainEvent>();
-        //public IReadOnlyList<IDomainEvent> DomainEvents => _domainEvents;
+//namespace Domain.Common
+//{
+//    public abstract class Entity
+//    {
+//        //private readonly List<IDomainEvent> _domainEvents = new List<IDomainEvent>();
+//        //public IReadOnlyList<IDomainEvent> DomainEvents => _domainEvents;
 
-        public long Id { get; }
+//        public long Id { get; }
 
-        protected Entity()
-        {
-        }
+//        protected Entity()
+//        {
+//        }
 
-        protected Entity(long id)
-            : this()
-        {
-            Id = id;
-        }
+//        protected Entity(long id)
+//            : this()
+//        {
+//            Id = id;
+//        }
 
-        //protected void RaiseDomainEvent(IDomainEvent domainEvent)
-        //{
-        //    _domainEvents.Add(domainEvent);
-        //}
+//        //protected void RaiseDomainEvent(IDomainEvent domainEvent)
+//        //{
+//        //    _domainEvents.Add(domainEvent);
+//        //}
 
-        //public void ClearDomainEvents()
-        //{
-        //    _domainEvents.Clear();
-        //}
+//        //public void ClearDomainEvents()
+//        //{
+//        //    _domainEvents.Clear();
+//        //}
 
-        public override bool Equals(object obj)
-        {
+//        public override bool Equals(object obj)
+//        {
 
-            if (!(obj is Entity other))
-                return false;
+//            if (!(obj is Entity other))
+//                return false;
 
-            if (ReferenceEquals(this, other))
-                return true;
+//            if (ReferenceEquals(this, other))
+//                return true;
 
-            if (GetRealType() != other.GetRealType())
-                return false;
+//            if (GetRealType() != other.GetRealType())
+//                return false;
 
-            if (Id == 0 || other.Id == 0)
-                return false;
+//            if (Id == 0 || other.Id == 0)
+//                return false;
 
-            return Id == other.Id;
-        }
+//            return Id == other.Id;
+//        }
 
-        public static bool operator ==(Entity a, Entity b)
-        {
-            if (a is null && b is null)
-                return true;
+//        public static bool operator ==(Entity a, Entity b)
+//        {
+//            if (a is null && b is null)
+//                return true;
 
-            if (a is null || b is null)
-                return false;
+//            if (a is null || b is null)
+//                return false;
 
-            return a.Equals(b);
-        }
+//            return a.Equals(b);
+//        }
 
-        public static bool operator !=(Entity a, Entity b)
-        {
-            return !(a == b);
-        }
+//        public static bool operator !=(Entity a, Entity b)
+//        {
+//            return !(a == b);
+//        }
 
-        public override int GetHashCode()
-        {
-            return (GetRealType().ToString() + Id).GetHashCode();
-        }
+//        public override int GetHashCode()
+//        {
+//            return (GetRealType().ToString() + Id).GetHashCode();
+//        }
 
-        private Type GetRealType()
-        {
-            Type type = GetType();
+//        private Type GetRealType()
+//        {
+//            Type type = GetType();
 
-            if (type.ToString().Contains("Castle.Proxies."))
-                return type.BaseType;
+//            if (type.ToString().Contains("Castle.Proxies."))
+//                return type.BaseType;
 
-            return type;
-        }
-    }
-}
+//            return type;
+//        }
+//    }
+//}

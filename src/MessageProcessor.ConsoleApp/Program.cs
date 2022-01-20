@@ -16,24 +16,27 @@ namespace MessageProcessor.ConsoleApp
             Console.WriteLine("Hello World!");
             Configuration = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json")
-                .AddSystemsManager("/PatientDemographicService/sandbox")
+                //.AddSystemsManager("/PatientDemographicService/sandbox")
                 .Build();
 
             var mediator = Startup.ConfigureServices(Configuration).GetService<IMediator>();
 
             var payload = new
             {
-                Nhi = "ZZZ0008",
+                Nhi = "ZZZ0016",
                 Title = "SIR",
                 GivenName = "John",
                 MiddleName = "",
-                FamilyName = "Doe",
+                FamilyName = "Key",
                 Suffix = "1ST",
                 IsPreferred = true,
                 IsProtected = true,
                 NameSource = "BRCT",
                 EffectiveFrom = "",
-                EffectiveTo = ""
+                EffectiveTo = "",
+                BirthDate = "19920118",
+                BirthDateSource = "BRCT",
+                Gender = "M"
             };
             
             var payloadJsonString = JsonSerializer.Serialize(payload);

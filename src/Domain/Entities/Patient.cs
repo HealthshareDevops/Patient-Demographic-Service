@@ -1,13 +1,14 @@
 ﻿using CSharpFunctionalExtensions;
+using Domain.Common;
+using Domain.Enums;
 using Domain.ValueObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Domain.Entities
 {
-    public class Patient : Entity
+    public class Patient : Entity, IAuditableEntity
     {
         // 2.1 NHI number
         public Nhi Nhi { get; private set; }
@@ -21,12 +22,24 @@ namespace Domain.Entities
         private readonly List<HumanName> _humanNames = new List<HumanName>();
         public virtual IReadOnlyList<HumanName> HumanNames => _humanNames.ToList();
 
+        // 2.3 Birth date and place
+        public BirthDate BirthDate { get; private set; }
+        public BirthDateSource BirthDateSource { get; private set; }
+
+        // 2.4 Gender
+        public Gender Gender { get; private set; }
+        
         protected Patient() { }
 
-        public Patient(Nhi nhi, HumanName humanName)
+        public Patient(Nhi nhi, HumanName humanName, BirthDate birthDate, BirthDateSource birthDateSource, Gender gender)
         {
-            Nhi = nhi;
+            Nhi = nhi ?? throw new ArgumentNullException(nameof(nhi));
+            
             AddName(humanName);
+
+            Gender = gender ?? throw new ArgumentNullException(nameof(gender));
+
+            SetBirthDateAndPlaceInfo(birthDate, birthDateSource);
         }
 
         public void AddName(HumanName humanName)
@@ -34,5 +47,10 @@ namespace Domain.Entities
             _humanNames.Add(humanName);
         }
 
+        private void SetBirthDateAndPlaceInfo(BirthDate birthDate, BirthDateSource birthDateSource)
+        {
+            BirthDate = birthDate ?? throw new ArgumentNullException(nameof(birthDate));
+            BirthDateSource = birthDateSource ?? throw new ArgumentNullException(nameof(birthDateSource));
+        }
     }
 }

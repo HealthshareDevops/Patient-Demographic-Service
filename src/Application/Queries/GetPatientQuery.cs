@@ -31,6 +31,8 @@ namespace Application.Queries
                     .ThenInclude(n => n.Suffix)
                 .Include(x => x.HumanNames)
                     .ThenInclude(n => n.Title)
+                .Include(x => x.BirthDateSource)
+                .Include(x => x.Gender)
                 .FirstOrDefaultAsync(x => x.Nhi == request.Nhi);
 
             if (response is null)
