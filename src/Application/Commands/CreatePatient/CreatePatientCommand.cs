@@ -1,5 +1,4 @@
 ﻿using Amazon.Lambda.Core;
-using Amazon.SQS;
 using Application.Common.Exceptions;
 using Application.Common.Interfaces;
 using CSharpFunctionalExtensions;
@@ -7,7 +6,6 @@ using Domain.Entities;
 using Domain.Enums;
 using Domain.ValueObjects;
 using MediatR;
-using Microsoft.Extensions.Options;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,6 +25,9 @@ namespace Application.Commands.CreatePatient
         public string NameSource { get; set; }
         public string EffectiveFrom { get; set; }
         public string EffectiveTo { get; set; }
+        public string BirthDate { get; set; }
+        public string BirthDateSource { get; set; }
+        public string Gender { get; set; }
     }
 
     public class CreatePatientCommandHandler : IRequestHandler<CreatePatientCommand, long>
@@ -90,9 +91,24 @@ namespace Application.Commands.CreatePatient
                 var humanName = new HumanName(title, name.Value, suffix, request.IsPreferred, request.IsProtected, namesource, effectiveFrom.Value, effectiveTo.Value);
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: HumanName object created.");
 
+                Result<BirthDate> birthDate = BirthDate.Create(request.BirthDate);
+                if (birthDate.IsFailure)
+                {
+                    throw new ValidationException(birthDate.Error);
+                }
+                var birthDateSource = BirthDateSource.FromCode(request.BirthDateSource);
+                if (birthDateSource is null)
+                {
+                    throw new ValidationException("BirthDateSource is not valid.");
+                }
 
+                var gender = Gender.FromCode(request.Gender);
+                if (gender is null)
+                {
+                    throw new ValidationException("Gender is not valid..");
+                }
 
-                var patnt = new Patient(nhi.Value, humanName);
+                var patnt = new Patient(nhi.Value, humanName, birthDate.Value, birthDateSource, gender);
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object created.");
 
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object DB Saving.");
@@ -100,9 +116,10 @@ namespace Application.Commands.CreatePatient
                 await _dbContext.SaveChangesAsync(cancellationToken);
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object DB Saved. Patient Id: {patnt.Id}");
 
-                LambdaLogger.Log($"INFO: Sending message to SQS start...");
-                var response = await _queueService.SendMessageAsync("Hello world from Console Application.");
-                LambdaLogger.Log($"INFO: Sending message to SQS end...");
+                // ToDo: If there are any missing data, send message to MissingData Queue.
+                //LambdaLogger.Log($"INFO: Sending message to SQS start...");
+                //var response = await _queueService.SendMessageAsync("Hello world from Console Application.");
+                //LambdaLogger.Log($"INFO: Sending message to SQS end...");
 
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler end...");
                 return patnt.Id;
@@ -110,7 +127,7 @@ namespace Application.Commands.CreatePatient
             catch (Exception e)
             {
                 LambdaLogger.Log($"ERROR: Error occurred in CreatePatientCommandHandler {e.Message}");
-                LambdaLogger.Log($"ERROR: Error occurred in CreatePatientCommandHandler InnerException {e.InnerException.Message}");
+                LambdaLogger.Log($"ERROR: Error occurred in CreatePatientCommandHandler InnerException {e.InnerException?.Message}");
                 throw e;
             }
         }
