@@ -105,7 +105,7 @@ namespace Application.Commands.CreatePatient
                 var gender = Gender.FromCode(request.Gender);
                 if (gender is null)
                 {
-                    throw new ValidationException("Gender is not valid.");
+                    throw new ValidationException("Gender is not valid..");
                 }
 
                 var patnt = new Patient(nhi.Value, humanName, birthDate.Value, birthDateSource, gender);
