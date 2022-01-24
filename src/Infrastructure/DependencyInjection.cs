@@ -12,6 +12,7 @@ namespace Infrastructure
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
+            services.Configure<CognitoSettings>(configuration.GetSection(nameof(CognitoSettings)));
             services.Configure<SqsSettings>(configuration.GetSection(nameof(SqsSettings)));
            
             services.AddAWSService<IAmazonSQS>();

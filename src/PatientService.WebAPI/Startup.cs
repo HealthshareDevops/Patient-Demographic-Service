@@ -1,12 +1,21 @@
 using Application;
 using Infrastructure;
+using Infrastructure.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using NSwag;
+using NSwag.AspNetCore;
+using NSwag.Generation.Processors.Security;
+using System;
+using System.Linq;
+using System.Net;
 
 namespace PatientService.WebAPI
 {
@@ -18,7 +27,7 @@ namespace PatientService.WebAPI
         }
 
         public static IConfiguration Configuration { get; private set; }
-
+        
         // This method gets called by the runtime. Use this method to add services to the container
         public void ConfigureServices(IServiceCollection services)
         {
@@ -26,17 +35,56 @@ namespace PatientService.WebAPI
             services.AddInfrastructure(Configuration);
 
             services.AddControllers();
+            
+            // To get an cognito settings inside ConfigureServices method, 
+            // Build an intermediate service provider.
+            var sp = services.BuildServiceProvider();
+            var iOptions = sp.GetService<IOptions<CognitoSettings>>();
+            var cognitoSettings = iOptions.Value;
+            
+            // Authenticating jwt in bearer
+            services.AddAuthentication("Bearer")
+                .AddJwtBearer(options => {
+                    options.SaveToken = true;
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKeyResolver = (s, securityToken, identifier, parameters) =>
+                        {
+                            // Get JsonWebKeySet from AWS
+                            var json = new WebClient().DownloadString($"{cognitoSettings.Issuer}/.well-known/jwks.json");
+                            // Serialize the result
+                            return JsonConvert.DeserializeObject<JsonWebKeySet>(json).Keys;
+                        },
+                        ValidateIssuer = true,
+                        ValidIssuer = $"{cognitoSettings.Issuer}",
+                        ValidateLifetime = true,
+                        LifetimeValidator = (before, expires, token, param) => expires > DateTime.UtcNow,
+                        ValidateAudience = false,
+                        ValidAudience = $"{cognitoSettings.ClientId}",
+                    };
+                });
 
+            // Swagger / OpenAPI
             services.AddOpenApiDocument(configure =>
             {
                 configure.Title = "TMT Interoperability Platform API";
-                //configure.AddSecurity("API Key", new OpenApiSecurityScheme
-                //{
-                //    Type = OpenApiSecuritySchemeType.ApiKey,
-                //    Name = "x-api-key",
-                //    Description = "AWS API Key",
-                //    In = OpenApiSecurityApiKeyLocation.Header
-                //});
+                configure.AddSecurity("bearer", Enumerable.Empty<string>(), new OpenApiSecurityScheme
+                {
+                    Type = OpenApiSecuritySchemeType.OAuth2,
+                    Description = "OAuth2 Authentication",
+                    Flow = OpenApiOAuth2Flow.AccessCode,
+                    Flows = new OpenApiOAuthFlows()
+                    {
+                        AuthorizationCode = new OpenApiOAuthFlow()
+                        {
+                            AuthorizationUrl = $"{cognitoSettings.Domain}/oauth2/authorize",
+                            TokenUrl = $"{cognitoSettings.Domain}/oauth2/token"
+                        }
+                    }
+                });
+                configure.OperationProcessors.Add(
+                    new AspNetCoreOperationSecurityScopeProcessor("bearer"));
             });
         }
 
@@ -52,6 +100,7 @@ namespace PatientService.WebAPI
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
@@ -63,8 +112,22 @@ namespace PatientService.WebAPI
                 });
             });
 
+            // To get an cognito settings inside Configure method. 
+            // CognitoSettings object is created in ConfigureMethod as well.
+            // ToDo: Initialize/create only once.
+            var iOptions = app.ApplicationServices.GetService<IOptions<CognitoSettings>>();
+            var cognitoSettings = iOptions.Value;
+            
             app.UseOpenApi();
-            app.UseSwaggerUi3();
+            app.UseSwaggerUi3(configure => {
+                configure.OAuth2Client = new OAuth2ClientSettings
+                {
+                    ClientId = cognitoSettings.ClientId,
+                    ClientSecret = cognitoSettings.ClientSecret,
+                    AppName = "PatientDemographicService",
+                    UsePkceWithAuthorizationCodeGrant = true
+                };
+            });
         }
     }
 }

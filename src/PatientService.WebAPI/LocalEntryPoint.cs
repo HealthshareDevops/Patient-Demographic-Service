@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
 namespace PatientService.WebAPI
@@ -13,11 +14,22 @@ namespace PatientService.WebAPI
             CreateHostBuilder(args).Build().Run();
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
+        public static IHostBuilder CreateHostBuilder(string[] args)
+        {
+            //var config = new ConfigurationBuilder()
+            //    .AddJsonFile("appsettings.json", optional: false)
+            //    .Build();
+
+            var builder = Host.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration((context, builder) =>
+                    {
+                        builder.AddSystemsManager("/PatientDemographicService/sandbox");
+                    })
                 .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
+                    {
+                        webBuilder.UseStartup<Startup>();
+                    });
+            return builder;
+        }
     }
 }
