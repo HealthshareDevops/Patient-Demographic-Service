@@ -44,52 +44,52 @@ namespace PatientService.WebAPI
             var iOptions = sp.GetService<IOptions<CognitoSettings>>();
             var cognitoSettings = iOptions.Value;
             
-            // Authenticating jwt in bearer
-            services.AddAuthentication("Bearer")
-                .AddJwtBearer(options => {
-                    options.SaveToken = true;
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKeyResolver = (s, securityToken, identifier, parameters) =>
-                        {
-                            // Get JsonWebKeySet from AWS
-                            var json = new WebClient().DownloadString($"{cognitoSettings.Issuer}/.well-known/jwks.json");
+            //// Authenticating jwt in bearer
+            //services.AddAuthentication("Bearer")
+            //    .AddJwtBearer(options => {
+            //        options.SaveToken = true;
+            //        options.TokenValidationParameters = new TokenValidationParameters
+            //        {
+            //            ValidateIssuerSigningKey = true,
+            //            IssuerSigningKeyResolver = (s, securityToken, identifier, parameters) =>
+            //            {
+            //                // Get JsonWebKeySet from AWS
+            //                var json = new WebClient().DownloadString($"{cognitoSettings.Issuer}/.well-known/jwks.json");
                             
-                            // Serialize the result
-                           var jsonWebKeySet = new JsonWebKeySet(json);
-                           return jsonWebKeySet.Keys;
-                            //return JsonConvert.DeserializeObject<JsonWebKeySet>(json).Keys;
-                        },
-                        ValidateIssuer = true,
-                        ValidIssuer = $"{cognitoSettings.Issuer}",
-                        ValidateLifetime = true,
-                        LifetimeValidator = (before, expires, token, param) => expires > DateTime.UtcNow,
-                        ValidateAudience = false,
-                        ValidAudience = $"{cognitoSettings.ClientId}",
-                    };
-                });
+            //                // Serialize the result
+            //               var jsonWebKeySet = new JsonWebKeySet(json);
+            //               return jsonWebKeySet.Keys;
+            //                //return JsonConvert.DeserializeObject<JsonWebKeySet>(json).Keys;
+            //            },
+            //            ValidateIssuer = true,
+            //            ValidIssuer = $"{cognitoSettings.Issuer}",
+            //            ValidateLifetime = true,
+            //            LifetimeValidator = (before, expires, token, param) => expires > DateTime.UtcNow,
+            //            ValidateAudience = false,
+            //            ValidAudience = $"{cognitoSettings.ClientId}",
+            //        };
+            //    });
 
             // Swagger / OpenAPI
             services.AddOpenApiDocument(configure =>
             {
                 configure.Title = "TMT Interoperability Platform API";
-                configure.AddSecurity("bearer", Enumerable.Empty<string>(), new OpenApiSecurityScheme
-                {
-                    Type = OpenApiSecuritySchemeType.OAuth2,
-                    Description = "OAuth2 Authentication",
-                    Flow = OpenApiOAuth2Flow.AccessCode,
-                    Flows = new OpenApiOAuthFlows()
-                    {
-                        AuthorizationCode = new OpenApiOAuthFlow()
-                        {
-                            AuthorizationUrl = $"{cognitoSettings.Domain}/oauth2/authorize",
-                            TokenUrl = $"{cognitoSettings.Domain}/oauth2/token"
-                        }
-                    }
-                });
-                configure.OperationProcessors.Add(
-                    new AspNetCoreOperationSecurityScopeProcessor("bearer"));
+            //    configure.AddSecurity("bearer", Enumerable.Empty<string>(), new OpenApiSecurityScheme
+            //    {
+            //        Type = OpenApiSecuritySchemeType.OAuth2,
+            //        Description = "OAuth2 Authentication",
+            //        Flow = OpenApiOAuth2Flow.AccessCode,
+            //        Flows = new OpenApiOAuthFlows()
+            //        {
+            //            AuthorizationCode = new OpenApiOAuthFlow()
+            //            {
+            //                AuthorizationUrl = $"{cognitoSettings.Domain}/oauth2/authorize",
+            //                TokenUrl = $"{cognitoSettings.Domain}/oauth2/token"
+            //            }
+            //        }
+            //    });
+            //    configure.OperationProcessors.Add(
+            //        new AspNetCoreOperationSecurityScopeProcessor("bearer"));
             });
         }
 
@@ -105,7 +105,7 @@ namespace PatientService.WebAPI
 
             app.UseRouting();
 
-            app.UseAuthentication();
+            //app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
@@ -124,15 +124,16 @@ namespace PatientService.WebAPI
             var cognitoSettings = iOptions.Value;
             
             app.UseOpenApi();
-            app.UseSwaggerUi3(configure => {
-                configure.OAuth2Client = new OAuth2ClientSettings
-                {
-                    ClientId = cognitoSettings.ClientId,
-                    ClientSecret = cognitoSettings.ClientSecret,
-                    AppName = "PatientDemographicService",
-                    UsePkceWithAuthorizationCodeGrant = true
-                };
-            });
+            app.UseSwaggerUi3();
+            //app.UseSwaggerUi3(configure => {
+            //    configure.OAuth2Client = new OAuth2ClientSettings
+            //    {
+            //        ClientId = cognitoSettings.ClientId,
+            //        ClientSecret = cognitoSettings.ClientSecret,
+            //        AppName = "PatientDemographicService",
+            //        UsePkceWithAuthorizationCodeGrant = true
+            //    };
+            //});
         }
     }
 }

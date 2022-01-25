@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PatientService.WebAPI.Controllers
 {
-    [Authorize]
+  
     public class PatientsController : ApiControllerBase
     {
         [HttpGet("{nhi}")]
