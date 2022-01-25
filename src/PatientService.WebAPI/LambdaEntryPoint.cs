@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using System;
 
 namespace PatientService.WebAPI
 {
@@ -32,10 +33,11 @@ namespace PatientService.WebAPI
         /// <param name="builder"></param>
         protected override void Init(IWebHostBuilder builder)
         {
+            var paramsStore = Environment.GetEnvironmentVariable("PARAMETERSTORE_PATH");
             builder
                 .ConfigureAppConfiguration((context, builder) =>
                 {
-                    builder.AddSystemsManager("/PatientDemographicService/sandbox");
+                    builder.AddSystemsManager(paramsStore);
                 })
                 .UseStartup<Startup>();
         }

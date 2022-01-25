@@ -3,6 +3,10 @@
   "Transform": "AWS::Serverless-2016-10-31",
   "Description": "An AWS Serverless Application that uses the ASP.NET Core framework running in Amazon Lambda.",
   "Parameters": { 
+    "ProjectName": {
+        "Type": "String",
+        "Default": "PatientDemographicService"
+    },
     "Environment": {
       "Type": "String",
       "Default": "sandbox"
@@ -45,6 +49,9 @@
           "AWSLambdaBasicExecutionRole",
           "AWSLambdaVPCAccessExecutionRole"
         ],
+        "Environment": {
+          "Variables": { "PARAMETERSTORE_PATH": {"Fn::Sub": "/${ProjectName}/${Environment}" }}
+        },
         "VpcConfig": {
           "SecurityGroupIds": {"Ref": "ParamStoreLambdaSecurityGroupIds" },
           "SubnetIds": {"Ref": "ParamStoreLambdaSubnetIds" }
