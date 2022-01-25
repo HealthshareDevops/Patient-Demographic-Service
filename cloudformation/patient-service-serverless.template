@@ -19,11 +19,11 @@
     },
     "ParamStoreLambdaSecurityGroupIds": {
       "Type": "AWS::SSM::Parameter::Value<CommaDelimitedList>",
-      "Description": "VPC security group ids to attach to lambda"
+      "Description": "VPC security group ids to attach to the lambda"
     },
     "ParamStoreLambdaSubnetIds": {
       "Type": "AWS::SSM::Parameter::Value<CommaDelimitedList>",
-      "Description": "The VPC subnet ids to attach to lambda"
+      "Description": "The VPC subnet ids to attach to the lambda"
     }
   },
   "Conditions": {},
