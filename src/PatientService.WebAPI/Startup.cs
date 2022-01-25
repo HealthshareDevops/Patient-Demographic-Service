@@ -9,13 +9,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
 using NSwag;
 using NSwag.AspNetCore;
 using NSwag.Generation.Processors.Security;
+using PatientService.WebAPI.Filters;
 using System;
 using System.Linq;
 using System.Net;
+using System.Text.Json;
 
 namespace PatientService.WebAPI
 {
@@ -33,6 +34,8 @@ namespace PatientService.WebAPI
         {
             services.AddApplication();
             services.AddInfrastructure(Configuration);
+
+            services.AddControllers(options => options.Filters.Add<ApiExceptionFilterAttribute>());
 
             services.AddControllers();
             
@@ -54,7 +57,8 @@ namespace PatientService.WebAPI
                             // Get JsonWebKeySet from AWS
                             var json = new WebClient().DownloadString($"{cognitoSettings.Issuer}/.well-known/jwks.json");
                             // Serialize the result
-                            return JsonConvert.DeserializeObject<JsonWebKeySet>(json).Keys;
+                            return JsonSerializer.Deserialize<JsonWebKeySet>(json).Keys;
+                            //return JsonConvert.DeserializeObject<JsonWebKeySet>(json).Keys;
                         },
                         ValidateIssuer = true,
                         ValidIssuer = $"{cognitoSettings.Issuer}",

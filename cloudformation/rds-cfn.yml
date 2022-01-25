@@ -1,0 +1,22 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: "AWS CloudFormation template to create RDS DBInstance."
+Resources:
+  PatientDemographicDbSubnetGroup:
+
+  Type : AWS::RDS::DBSubnetGroup
+  "Properties" : 
+      "DBSubnetGroupDescription" : String,
+      "DBSubnetGroupName" : String,
+      "SubnetIds" : [ String, ... ],
+      "Tags" : [ Tag, ... ]
+    
+  PatientDemographicDb:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBName: db-mhip-patient-demographic-service
+      DBInstanceClass: db.t3.small
+      Engine: sqlserver-ex
+      EngineVersion: 15.00.4153.1.v1
+      MasterUsername: sa
+      MasterPassword: Password.1
+
