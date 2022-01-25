@@ -1,22 +1,37 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: "AWS CloudFormation template to create RDS DBInstance."
+Parameters:
+  DbSubnetIds:
+    Type: CommaDelimitedList
+    Default: subnet-06f71f5d93e6c52de, subnet-057204348c10c3129, subnet-0ede04bfe554ef89b
+  DbUsername: 
+    Type: String
+    Default: sa
+  DbPassword:
+    Type: String
+    Default: Password.1
+  DbVPCSecurityGroups:
+    Type: CommaDelimitedList
+    Default: sg-0ae61df3597cda0a9
 Resources:
   PatientDemographicDbSubnetGroup:
-
-  Type : AWS::RDS::DBSubnetGroup
-  "Properties" : 
-      "DBSubnetGroupDescription" : String,
-      "DBSubnetGroupName" : String,
-      "SubnetIds" : [ String, ... ],
-      "Tags" : [ Tag, ... ]
-    
+    Type: AWS::RDS::DBSubnetGroup
+    Properties: 
+      DBSubnetGroupDescription: Subnet group for routable traffic
+      DBSubnetGroupName: PatientDemographic-D-general-subnetgroup
+      SubnetIds: !Ref DbSubnetIds
   PatientDemographicDb:
     Type: AWS::RDS::DBInstance
     Properties:
-      DBName: db-mhip-patient-demographic-service
+      AllocatedStorage: 20
+      DBInstanceIdentifier: db-mhip-patient-demographic-service
       DBInstanceClass: db.t3.small
       Engine: sqlserver-ex
       EngineVersion: 15.00.4153.1.v1
-      MasterUsername: sa
-      MasterPassword: Password.1
+      MasterUsername: !Ref DbUsername
+      MasterUserPassword: !Ref DbPassword
+      DBSubnetGroupName: !Ref PatientDemographicDbSubnetGroup
+      StorageType: gp2
+      VPCSecurityGroups: !Ref DbVPCSecurityGroups
+
 
