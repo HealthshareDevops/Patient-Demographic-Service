@@ -199,7 +199,7 @@ jobs:
           template: "./cloudformation/patient-service-serverless.template"
           no-fail-on-empty-changeset: "1"
           parameter-overrides: >-
-            Projectname=$${{env.SOLUTION_NAME}},
+            ProjectName=$${{env.SOLUTION_NAME}},
             Environment=${{env.ENVIRONMENT_NAME}},
             BucketName=${{env.AWS_S3_BUCKET}},
             CodeKey=${{env.PROJECT_NAME}}-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.zip,
