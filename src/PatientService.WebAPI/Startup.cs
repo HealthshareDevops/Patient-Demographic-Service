@@ -16,7 +16,6 @@ using PatientService.WebAPI.Filters;
 using System;
 using System.Linq;
 using System.Net;
-using System.Text.Json;
 
 namespace PatientService.WebAPI
 {
@@ -56,8 +55,10 @@ namespace PatientService.WebAPI
                         {
                             // Get JsonWebKeySet from AWS
                             var json = new WebClient().DownloadString($"{cognitoSettings.Issuer}/.well-known/jwks.json");
+                            
                             // Serialize the result
-                            return JsonSerializer.Deserialize<JsonWebKeySet>(json).Keys;
+                           var jsonWebKeySet = new JsonWebKeySet(json);
+                           return jsonWebKeySet.Keys;
                             //return JsonConvert.DeserializeObject<JsonWebKeySet>(json).Keys;
                         },
                         ValidateIssuer = true,
