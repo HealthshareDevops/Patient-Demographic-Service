@@ -2,11 +2,11 @@
   "AWSTemplateFormatVersion": "2010-09-09",
   "Transform": "AWS::Serverless-2016-10-31",
   "Description": "An AWS Serverless Application that uses the ASP.NET Core framework running in Amazon Lambda.",
-  "ProjectName": {
-    "Type": "String",
-    "Default": "PatientDemographicService"
-  },
   "Parameters": { 
+    "ProjectName": {
+      "Type": "String",
+      "Default": "PatientDemographicService"
+    },
     "Environment": {
       "Type": "String",
       "Default": "sandbox"
