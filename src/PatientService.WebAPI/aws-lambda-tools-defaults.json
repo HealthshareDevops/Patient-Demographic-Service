@@ -6,13 +6,13 @@
         "dotnet lambda help",
         "All the command line options for the Lambda command can be specified in this file."
     ],
-    "profile"     : "default",
+    "profile"     : "428762063575_AWSAdministratorAccess",
     "region"      : "ap-southeast-2",
     "configuration" : "Release",
     "framework"     : "netcoreapp3.1",
     "s3-prefix"     : "PatientService.WebAPI/",
     "template"      : "serverless.template",
-    "template-parameters" : "",
-    "s3-bucket"           : "cf-templates-11hg10t3jzraf-ap-southeast-2",
-    "stack-name"          : "helloworld"
+    "template-parameters" : "\"ProjectName\"=\"PatientDemographicService-test\";\"Environment\"=\"sandbox-test\";\"BucketName\"=\"hello\";\"CodeKey\"=\"world\";\"ParamStoreLambdaSecurityGroupIds\"=\"/PatientDemographicService/sandbox/CloudFormation/Lambda-Security-GroupIds\";\"ParamStoreLambdaSubnetIds\"=\"/PatientDemographicService/sandbox/CloudFormation/Lambda-SubnetIds\"",
+    "s3-bucket"           : "hello-world-np-000",
+    "stack-name"          : "helloworld-test"
 }
