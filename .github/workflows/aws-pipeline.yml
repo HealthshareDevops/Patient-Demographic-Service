@@ -155,6 +155,7 @@ jobs:
       ENVIRONMENT_NAME: sandbox
       AWS_S3_BUCKET: mhip-patient-demographic-service-sandbox
       AWS_STACKNAME: PatientServiceWebAPI-sandbox
+      PROJECT_DIR: ./src/PatientService.WebAPI/
 
     steps:
       - uses: actions/checkout@v2
@@ -164,21 +165,21 @@ jobs:
         with:
           dotnet-version: ${{ env.NETCORE_VERSION }}
 
-      - name: Restore dependencies ./src/PatientService.WebAPI/
-        run: dotnet restore
-        working-directory: ./src/PatientService.WebAPI/
+      - name: Restore dependencies ${{env.PROJECT_DIR}}
+        run: dotnet restore 
+        working-directory: ${{env.PROJECT_DIR}}
 
-      - name: Build ./src/PatientService.WebAPI
+      - name: Build ${{env.PROJECT_DIR}}
         run: dotnet build --no-restore
-        working-directory: ./src/PatientService.WebAPI/
+        working-directory: ${{env.PROJECT_DIR}}
 
-      - name: Test ./src/PatientService.WebAPI
+      - name: Test ${{env.PROJECT_DIR}}
         run: dotnet test --no-build --verbosity normal
-        working-directory: ./src/PatientService.WebAPI/
+        working-directory: ${{env.PROJECT_DIR}}
 
-      - name: Publish
+      - name: Publish ${{env.PROJECT_DIR}}
         run: dotnet publish --output "./bin/Release/netcoreapp3.1/publish" --configuration "Release" --framework "netcoreapp3.1" /p:GenerateRuntimeConfigurationFiles=true --runtime linux-x64 --self-contained false 
-        working-directory: ./src/PatientService.WebAPI/
+        working-directory: ${{env.PROJECT_DIR}}
 
       - name: Create directory `dist-webapi`
         run: mkdir -p ./dist-webapi
