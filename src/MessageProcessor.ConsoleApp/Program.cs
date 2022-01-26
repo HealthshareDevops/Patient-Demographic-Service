@@ -23,7 +23,7 @@ namespace MessageProcessor.ConsoleApp
 
             var payload = new
             {
-                Nhi = "ZZZ0008",
+                Nhi = "ZZZ0024",
                 Title = "SIR",
                 GivenName = "Jack",
                 MiddleName = "",
