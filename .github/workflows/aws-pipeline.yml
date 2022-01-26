@@ -188,9 +188,9 @@ jobs:
       
       - name: zip-files
 	      uses: vimtor/action-zip@v1
-		      with:
-			      files: ./src/PatientService.WebAPI/bin/Release/netcoreapp3.1/publish/
-			      dest: ./dist-webapi/${{env.PROJECT_NAME}}-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.zip
+        with:
+          files: ./src/PatientService.WebAPI/bin/Release/netcoreapp3.1/publish/
+          dest: ./dist-webapi/${{env.PROJECT_NAME}}-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.zip
     
       - name: Configure AWS credentials from sandbox account
         uses: aws-actions/configure-aws-credentials@v1
