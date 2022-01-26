@@ -178,16 +178,9 @@ jobs:
       
       - name: Create directory `dist-webapi`
         run: mkdir -p ./dist-webapi
-
-      # - name: Install zip
-      #   uses: montudor/action-zip@v1
-      
-      # - name: Zip output 
-      #   run: zip -qq -r ${{github.workspace}}/dist/${{env.PROJECT_NAME}}-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.zip .
-      #   working-directory: ./src/PatientService.WebAPI/bin/Release/netcoreapp3.1/publish/
       
       - name: zip-files
-	      uses: vimtor/action-zip@v1
+        uses: vimtor/action-zip@v1
         with:
           files: ./src/PatientService.WebAPI/bin/Release/netcoreapp3.1/publish/
           dest: ./dist-webapi/${{env.PROJECT_NAME}}-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.zip
