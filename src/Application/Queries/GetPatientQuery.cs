@@ -4,6 +4,7 @@ using Application.Common.Interfaces;
 using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -25,25 +26,32 @@ namespace Application.Queries
 
         public async Task<PatientDto> Handle(GetPatientQuery request, CancellationToken cancellationToken)
         {
-            LambdaLogger.Log($"INFO: GetPatientQueryHandler start...");
-            var response = await _dbContext.Patients
-                .Include(x => x.HumanNames)
-                    .ThenInclude(n => n.Suffix)
-                .Include(x => x.HumanNames)
-                    .ThenInclude(n => n.Title)
-                .Include(x => x.BirthDateSource)
-                .Include(x => x.Gender)
-                .FirstOrDefaultAsync(x => x.Nhi == request.Nhi);
-
-            if (response is null)
+            try
             {
-                LambdaLogger.Log($"INFO: Nhi: {request.Nhi} not found.");
-                throw new NotFoundException(nameof(Patient), request.Nhi);
-            }
+                LambdaLogger.Log($"INFO: GetPatientQueryHandler start...");
+                var response = await _dbContext.Patients
+                    .Include(x => x.HumanNames)
+                        .ThenInclude(n => n.Suffix)
+                    .Include(x => x.HumanNames)
+                        .ThenInclude(n => n.Title)
+                    .Include(x => x.BirthDateSource)
+                    .Include(x => x.Gender)
+                    .FirstOrDefaultAsync(x => x.Nhi == request.Nhi);
 
-            LambdaLogger.Log($"INFO: Nhi: {request.Nhi} found info.");
-            
-            return PatientDto.ToPatientDto(response);
+                if (response is null)
+                {
+                    LambdaLogger.Log($"INFO: Nhi: {request.Nhi} not found.");
+                    throw new NotFoundException(nameof(Patient), request.Nhi);
+                }
+
+                LambdaLogger.Log($"INFO: Nhi: {request.Nhi} found info.");
+
+                return PatientDto.ToPatientDto(response);
+            } catch(Exception ex)
+            {
+                LambdaLogger.Log($"ERROR: Error occurred. {ex.Message}");
+                throw ex;
+            }
         }
     }
 }

@@ -1,0 +1,31 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: "AWS CloudFormation template to create RDS DBInstance."
+Parameters:
+  DbUsername: 
+    Type: String
+    Default: sa
+  DbPassword:
+    Type: String
+    Default: Password.1
+  DbSubnetGroup:
+    Type: String
+    Default: patient-demographic-d-rds-subnetgroup
+  DbVPCSecurityGroups:
+    Type: CommaDelimitedList
+    Default: sg-04615d2f0df19bb91
+Resources:
+  PatientDemographicDb:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      AllocatedStorage: 20
+      DBInstanceIdentifier: PatientDemographic-D-database
+      DBInstanceClass: db.t3.small
+      Engine: sqlserver-ex
+      EngineVersion: 15.00.4153.1.v1
+      MasterUsername: !Ref DbUsername
+      MasterUserPassword: !Ref DbPassword
+      DBSubnetGroupName: !Ref DbSubnetGroup
+      StorageType: gp2
+      VPCSecurityGroups: !Ref DbVPCSecurityGroups
+
+

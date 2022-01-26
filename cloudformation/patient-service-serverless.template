@@ -3,6 +3,10 @@
   "Transform": "AWS::Serverless-2016-10-31",
   "Description": "An AWS Serverless Application that uses the ASP.NET Core framework running in Amazon Lambda.",
   "Parameters": { 
+    "ProjectName": {
+      "Type": "String",
+      "Default": "PatientDemographicService"
+    },
     "Environment": {
       "Type": "String",
       "Default": "sandbox"
@@ -15,11 +19,11 @@
     },
     "ParamStoreLambdaSecurityGroupIds": {
       "Type": "AWS::SSM::Parameter::Value<CommaDelimitedList>",
-      "Description": "VPC security group ids to attach to lambda"
+      "Description": "VPC security group ids to attach to the lambda"
     },
     "ParamStoreLambdaSubnetIds": {
       "Type": "AWS::SSM::Parameter::Value<CommaDelimitedList>",
-      "Description": "The VPC subnet ids to attach to lambda"
+      "Description": "The VPC subnet ids to attach to the lambda"
     }
   },
   "Conditions": {},
@@ -48,6 +52,9 @@
           "AWSLambdaBasicExecutionRole",
           "AWSLambdaVPCAccessExecutionRole"
         ],
+        "Environment": {
+          "Variables": { "PARAMETERSTORE_PATH": {"Fn::Sub": "/${ProjectName}/${Environment}" }}
+        },
         "VpcConfig": {
           "SecurityGroupIds": {"Ref": "ParamStoreLambdaSecurityGroupIds" },
           "SubnetIds": {"Ref": "ParamStoreLambdaSubnetIds" }
