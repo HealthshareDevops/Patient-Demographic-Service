@@ -27,9 +27,10 @@ namespace MessageProcessor.Lambda
         /// </summary>
         public Function()
         {
+            var paramsStore = Environment.GetEnvironmentVariable("PARAMETERSTORE_PATH");
             Configuration = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json")
-                .AddSystemsManager("/PatientDemographicService/sandbox")
+                .AddSystemsManager(paramsStore)
                 .Build();
 
             _mediator = Startup.ConfigureServices(Configuration).GetService<IMediator>();

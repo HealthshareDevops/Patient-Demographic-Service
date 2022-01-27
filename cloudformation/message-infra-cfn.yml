@@ -1,6 +1,9 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: "Creates API Gateway and SQS to receive and store patient demographic payloads/messages."
 Parameters: 
+  ProjectName: 
+    Type: String
+    Default: PatientDemographicService
   Environment: 
     Type: String
     Default: sandbox
@@ -157,6 +160,13 @@ Resources:
       Code:
         S3Bucket: !Ref BucketName
         S3Key: !Ref CodeKey
+      Environment:
+        Variables:
+          PARAMETERSTORE_PATH: !Sub
+            - /
+            - !Ref ProjectName
+            - /
+            - !Ref Environment
       Runtime: dotnetcore3.1
       Handler: MessageProcessor.Lambda::MessageProcessor.Lambda.Function::FunctionHandler
       Timeout: 180
