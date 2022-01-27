@@ -162,8 +162,9 @@ Resources:
         S3Key: !Ref CodeKey
       Environment:
         Variables:
-          PARAMETERSTORE_PATH: !Sub
-            - /
+          PARAMETERSTORE_PATH: !Join
+          - ''
+          - - /
             - !Ref ProjectName
             - /
             - !Ref Environment
