@@ -10,10 +10,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using NSwag;
-using NSwag.AspNetCore;
-using NSwag.Generation.Processors.Security;
 using PatientService.WebAPI.Filters;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 
@@ -67,30 +66,31 @@ namespace PatientService.WebAPI
                         ValidateLifetime = true,
                         LifetimeValidator = (before, expires, token, param) => expires > DateTime.UtcNow,
                         ValidateAudience = false,
-                        ValidAudience = $"{cognitoSettings.ClientId}",
+                        //ValidAudience = $"{cognitoSettings.ClientId}",
                     };
                 });
 
             // Swagger / OpenAPI
             services.AddOpenApiDocument(configure =>
             {
-                configure.Title = "TMT Interoperability Platform API";
-                configure.AddSecurity("bearer", Enumerable.Empty<string>(), new OpenApiSecurityScheme
+                configure.Title = "TMT Interoperability Platform - Patient Demographic Service API";
+                configure.AddSecurity("Bearer", Enumerable.Empty<string>(), new OpenApiSecurityScheme
                 {
                     Type = OpenApiSecuritySchemeType.OAuth2,
-                    Description = "OAuth2 Authentication",
-                    Flow = OpenApiOAuth2Flow.AccessCode,
+                    Description = "OAuth2 authentication",
                     Flows = new OpenApiOAuthFlows()
                     {
-                        AuthorizationCode = new OpenApiOAuthFlow()
+                        ClientCredentials = new OpenApiOAuthFlow()
                         {
-                            AuthorizationUrl = $"{cognitoSettings.Domain}/oauth2/authorize",
-                            TokenUrl = $"{cognitoSettings.Domain}/oauth2/token"
+                            TokenUrl = $"{cognitoSettings.Domain}/oauth2/token",
+                            Scopes = new Dictionary<string, string>
+                            {
+                                { "PatientDemographicServiceAPI/api.write", "Access write operations" },
+                                { "PatientDemographicServiceAPI/api.read", "Access read operations" }
+                            }
                         }
                     }
-                });
-                configure.OperationProcessors.Add(
-                    new AspNetCoreOperationSecurityScopeProcessor("bearer"));
+                });  
             });
         }
 
@@ -118,24 +118,8 @@ namespace PatientService.WebAPI
                 });
             });
 
-            // To get an cognito settings inside Configure method. 
-            // CognitoSettings object is created in ConfigureMethod as well.
-            // ToDo: Initialize/create only once.
-            var iOptions = app.ApplicationServices.GetService<IOptions<CognitoSettings>>();
-            var cognitoSettings = iOptions.Value;
-            
             app.UseOpenApi();
-            //app.UseSwaggerUi3();
-            app.UseSwaggerUi3(configure =>
-            {
-                configure.OAuth2Client = new OAuth2ClientSettings
-                {
-                    ClientId = cognitoSettings.ClientId,
-                    ClientSecret = cognitoSettings.ClientSecret,
-                    AppName = "PatientDemographicService",
-                    UsePkceWithAuthorizationCodeGrant = true
-                };
-            });
+            app.UseSwaggerUi3();
         }
     }
 }
