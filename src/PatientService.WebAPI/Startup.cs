@@ -65,8 +65,7 @@ namespace PatientService.WebAPI
                         ValidIssuer = $"{cognitoSettings.Issuer}",
                         ValidateLifetime = true,
                         LifetimeValidator = (before, expires, token, param) => expires > DateTime.UtcNow,
-                        ValidateAudience = false,
-                        //ValidAudience = $"{cognitoSettings.ClientId}",
+                        ValidateAudience = false
                     };
                 });
 
