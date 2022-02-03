@@ -230,7 +230,15 @@ jobs:
   build-infra-sandbox:
     if: startsWith(github.ref, 'refs/heads/feature/') && github.event_name == 'push'
 
+    runs-on: ubuntu-latest
+
+    env:
+      ENVIRONMENT_NAME: sandbox
+      AWS_STACKNAME: PatientDemographicService-Infra-sandbox
+
     steps:
+      - uses: actions/checkout@v2
+      
       - name: Configure AWS credentials from sandbox account
         uses: aws-actions/configure-aws-credentials@v1
         with:
