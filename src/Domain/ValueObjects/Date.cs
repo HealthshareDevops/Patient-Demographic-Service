@@ -39,7 +39,7 @@ namespace Domain.ValueObjects
 
         public static implicit operator string(Date date)
         {
-            return date.Value;
+            return date is null ? string.Empty: date.Value;
         }
     }
 }
