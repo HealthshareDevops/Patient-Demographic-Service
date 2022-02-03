@@ -25,7 +25,7 @@ Resources:
     Type: AWS::Cognito::UserPoolDomain
     Properties:
       UserPoolId: !Ref PatientDemographicUserPool
-      Domain: mhip-patient-demographic-userpool-sandbox
+      Domain: !Sub 'mhip-patient-demographic-userpool-${Environment}'
   PatientDemographicResourceServer:
     Type: AWS::Cognito::UserPoolResourceServer
     Properties: 
