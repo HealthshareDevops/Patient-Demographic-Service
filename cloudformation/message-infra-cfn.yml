@@ -11,6 +11,9 @@ Parameters:
     Type: String
   CodeKey:
     Type: String
+  ParamStoreKMSMasterKeyIdARN: 
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /PatientDemographicService/sandbox/CloudFormation/KMS-Master-KeyIdARN
   ParamStoreLambdaSecurityGroupIds: 
     Type: AWS::SSM::Parameter::Value<CommaDelimitedList>
     Description: "VPC security group ids to attach to lambda"
@@ -112,11 +115,13 @@ Resources:
       RedrivePolicy:
         deadLetterTargetArn: !GetAtt DeadLetterMessageQueue.Arn
         maxReceiveCount: 1
+      KmsMasterKeyId: !Ref ParamStoreKMSMasterKeyIdARN
   
   DeadLetterMessageQueue:
     Type: AWS::SQS::Queue
     Properties:
       QueueName: PatientDemographic-DeadLetterMessageQueue
+      KmsMasterKeyId: !Ref ParamStoreKMSMasterKeyIdARN
   
   MessageLambdaRole:
     Type: AWS::IAM::Role
