@@ -37,3 +37,17 @@ Resources:
           ScopeDescription: 'Access read operations'
         - ScopeName: api.write
           ScopeDescription: 'Access write operations'
+  PatientDemographicUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      AllowedOAuthFlows: 
+        - client_credentials
+      AllowedOAuthFlowsUserPoolClient: true
+      AllowedOAuthScopes:
+        - PatientDemographicServiceAPI/api.read
+        - PatientDemographicServiceAPI/api.write
+      ClientName: !Sub '${ProjectName}-${Environment}-UserPoolClient'
+      GenerateSecret: true
+      SupportedIdentityProviders:
+        - COGNITO
+      UserPoolId: !Ref PatientDemographicUserPool
