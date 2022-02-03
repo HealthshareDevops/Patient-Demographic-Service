@@ -42,6 +42,7 @@ Resources:
     Properties:
       AllowedOAuthFlows: 
         - client_credentials
+      AllowedOAuthFlowsUserPoolClient: true
       AllowedOAuthScopes:
         - PatientDemographicServiceAPI/api.read
         - PatientDemographicServiceAPI/api.write
