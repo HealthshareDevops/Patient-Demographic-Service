@@ -255,7 +255,7 @@ jobs:
           no-fail-on-empty-changeset: "1"
           parameter-overrides: >-
             ProjectName=${{env.SOLUTION_NAME}},
-            Environment=${{env.ENVIRONMENT_NAME}},
+            Environment=${{env.ENVIRONMENT_NAME}}
           capabilities: "CAPABILITY_IAM, CAPABILITY_NAMED_IAM, CAPABILITY_AUTO_EXPAND"
 
 
