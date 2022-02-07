@@ -149,7 +149,7 @@ Resources:
         - !Ref ParamStoreLambdaKMSPolicyARN
       Policies:
         - 
-          PolicyName: AWSLambdaBasicExecutionRole
+          PolicyName: PatientDemographic-Message-Lambda-Policy
           PolicyDocument:
             Version: 2012-10-17
             Statement:
