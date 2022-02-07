@@ -14,9 +14,6 @@ Parameters:
   ParamStoreKMSMasterKeyIdARN: 
     Type: AWS::SSM::Parameter::Value<String>
     Default: /PatientDemographicService/sandbox/CloudFormation/KMS-Master-KeyIdARN
-  ParamStoreLambdaKMSPolicyARN:
-    Type: AWS::SSM::Parameter::Value<String>
-    Default: /PatientDemographicService/sandbox/CloudFormation/Lambda-KMS-PolicyARN
   ParamStoreLambdaSecurityGroupIds: 
     Type: AWS::SSM::Parameter::Value<CommaDelimitedList>
     Description: "VPC security group ids to attach to lambda"
@@ -146,7 +143,6 @@ Resources:
         - arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess
         - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
         - arn:aws:iam::aws:policy/AmazonSQSFullAccess
-        - !Ref ParamStoreLambdaKMSPolicyARN
       Policies:
         - 
           PolicyName: PatientDemographic-Message-Lambda-Policy
