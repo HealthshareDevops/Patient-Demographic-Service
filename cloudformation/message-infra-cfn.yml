@@ -160,6 +160,13 @@ Resources:
                   - logs:PutLogEvents
                 Effect: Allow
                 Resource: '*'
+              - 
+                Action:
+                  - kms:DescribeKey
+                  - kms:GenerateDataKey
+                  - kms:Decrypt
+                Effect: Allow
+                Resource: !Ref ParamStoreKMSMasterKeyIdARN
 
   MessageLambda:
     Type: AWS::Lambda::Function
