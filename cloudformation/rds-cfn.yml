@@ -1,6 +1,9 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: "AWS CloudFormation template to create RDS DBInstance."
 Parameters:
+  DbIdentifierName:
+    Type: String
+    Default: patientdemographic-d-database
   DbUsername: 
     Type: String
     Default: sa
@@ -13,18 +16,23 @@ Parameters:
   DbVPCSecurityGroups:
     Type: CommaDelimitedList
     Default: sg-04615d2f0df19bb91
+  ParamStoreKMSMasterKeyIdARN: 
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /PatientDemographicService/sandbox/CloudFormation/KMS-Master-KeyIdARN
 Resources:
   PatientDemographicDb:
     Type: AWS::RDS::DBInstance
     Properties:
       AllocatedStorage: 20
-      DBInstanceIdentifier: PatientDemographic-D-database
+      DBInstanceIdentifier: !Ref DbIdentifierName
       DBInstanceClass: db.t3.small
-      Engine: sqlserver-ex
+      DBSubnetGroupName: !Ref DbSubnetGroup
+      Engine: sqlserver-web
       EngineVersion: 15.00.4153.1.v1
+      KmsKeyId: !Ref ParamStoreKMSMasterKeyIdARN
       MasterUsername: !Ref DbUsername
       MasterUserPassword: !Ref DbPassword
-      DBSubnetGroupName: !Ref DbSubnetGroup
+      StorageEncrypted: true
       StorageType: gp2
       VPCSecurityGroups: !Ref DbVPCSecurityGroups
 
