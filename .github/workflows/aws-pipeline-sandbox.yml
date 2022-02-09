@@ -1,4 +1,4 @@
-name: Patient demographic service CI/CD pipeline for sandbox environment
+name: Patient demographic service CI/CD pipeline for sandbox environment.
 
 on:
   push:
