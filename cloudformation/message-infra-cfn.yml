@@ -52,6 +52,12 @@ Resources:
                 Effect: Allow
                 Resource: !GetAtt MessageQueue.Arn
               - Action:
+                  - kms:DescribeKey
+                  - kms:GenerateDataKey
+                  - kms:Decrypt
+                Effect: Allow
+                Resource: !Ref ParamStoreKMSMasterKeyIdARN
+              - Action:
                   - logs:CreateLogGroup
                   - logs:CreateLogStream
                   - logs:PutLogEvents
