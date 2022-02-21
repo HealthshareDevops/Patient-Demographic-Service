@@ -1,18 +1,65 @@
 BEGIN TRANSACTION;
 GO
 
-CREATE TABLE [BirthDateSources] (
+/**
+  * Tables
+**/
+CREATE TABLE [AddressFormats] (
     [Id] bigint NOT NULL IDENTITY,
     [Code] nvarchar(max) NULL,
+    [Description] nvarchar(max) NULL,
+    [Comment] nvarchar(max) NULL,
+    CONSTRAINT [PK_AddressFormats] PRIMARY KEY ([Id])
+);
+GO
+
+CREATE TABLE [AddressTypes] (
+    [Id] bigint NOT NULL IDENTITY,
+    [Code] nvarchar(max) NULL,
+    [Description] nvarchar(max) NULL,
+    [Comment] nvarchar(max) NULL,
+    [HL7PostalAddressUse] nvarchar(max) NULL,
+    CONSTRAINT [PK_AddressTypes] PRIMARY KEY ([Id])
+);
+GO
+
+CREATE TABLE [BirthDateSources] (
+    [Id] bigint NOT NULL IDENTITY,
+    [Code] nvarchar(4) NULL,
     [Description] nvarchar(max) NULL,
     [Comment] nvarchar(max) NULL,
     CONSTRAINT [PK_BirthDateSources] PRIMARY KEY ([Id])
 );
 GO
 
+CREATE TABLE [Countries] (
+    [Id] bigint NOT NULL IDENTITY,
+    [Code] nvarchar(max) NOT NULL,
+    [Description] nvarchar(max) NULL,
+    [Comment] nvarchar(max) NULL,
+    CONSTRAINT [PK_Countries] PRIMARY KEY ([Id])
+);
+GO
+
+CREATE TABLE [Domiciles]
+(
+	[Id] BIGINT NOT NULL IDENTITY, 
+    [Code] NVARCHAR(4) NOT NULL, 
+    [Description] NVARCHAR(MAX) NULL, 
+    [TLA] NVARCHAR(10) NULL, 
+    [Status] NVARCHAR(10) NULL, 
+    [YearOfCensus] NVARCHAR(10) NULL, 
+    [RetiredYear] NVARCHAR(10) NULL, 
+    [AU13] NVARCHAR(10) NULL, 
+    [DHB] NVARCHAR(10) NULL, 
+    [RHAReg] NVARCHAR(10) NULL,
+    CONSTRAINT [PK_Domiciles] PRIMARY KEY ([Id])
+);
+GO
+
 CREATE TABLE [Genders] (
     [Id] bigint NOT NULL IDENTITY,
-    [Code] nvarchar(max) NULL,
+    [Code] nvarchar(1) NULL,
     [Description] nvarchar(max) NULL,
     [Comment] nvarchar(max) NULL,
     [HL7AdministrativeGender] nvarchar(max) NULL,
@@ -22,7 +69,7 @@ GO
 
 CREATE TABLE [NameSources] (
     [Id] bigint NOT NULL IDENTITY,
-    [Code] nvarchar(max) NULL,
+    [Code] nvarchar(4) NULL,
     [Description] nvarchar(max) NULL,
     [Comment] nvarchar(max) NULL,
     CONSTRAINT [PK_NameSources] PRIMARY KEY ([Id])
@@ -31,7 +78,7 @@ GO
 
 CREATE TABLE [Suffixes] (
     [Id] bigint NOT NULL IDENTITY,
-    [Code] nvarchar(max) NULL,
+    [Code] nvarchar(5) NULL,
     [Comment] nvarchar(max) NULL,
     CONSTRAINT [PK_Suffixes] PRIMARY KEY ([Id])
 );
@@ -39,7 +86,7 @@ GO
 
 CREATE TABLE [Titles] (
     [Id] bigint NOT NULL IDENTITY,
-    [Code] nvarchar(max) NULL,
+    [Code] nvarchar(10) NULL,
     [Description] nvarchar(max) NULL,
     [Comment] nvarchar(max) NULL,
     CONSTRAINT [PK_Titles] PRIMARY KEY ([Id])
@@ -48,8 +95,8 @@ GO
 
 CREATE TABLE [Patients] (
     [Id] bigint NOT NULL IDENTITY,
-    [Nhi] nvarchar(450) NOT NULL,
-    [BirthDate] nvarchar(max) NOT NULL,
+    [Nhi] nvarchar(7) NOT NULL,
+    [BirthDate] nvarchar(8) NOT NULL,
     [BirthDateSourceId] bigint NULL,
     [GenderId] bigint NULL,
     [CreatedBy] nvarchar(max) NULL,
@@ -62,18 +109,45 @@ CREATE TABLE [Patients] (
 );
 GO
 
+CREATE TABLE [Addresses] (
+    [Id] bigint NOT NULL IDENTITY,
+    [AddressFormatId] bigint NULL,
+    [BuildingName] nvarchar(max) NULL,
+    [StreetAddress] nvarchar(100) NOT NULL,
+    [AdditionalStreetAddress] nvarchar(100) NULL,
+    [Suburb] nvarchar(50) NULL,
+    [TownOrCity] nvarchar(50) NULL,
+    [PostCode] nvarchar(15) NULL,
+    [CountryId] bigint NULL,
+    [IsProtected] bit NOT NULL,
+    [IsPermanent] bit NOT NULL,
+    [EffectiveFrom] nvarchar(8) NULL,
+    [EffectiveTo] nvarchar(8) NULL,
+    [DomicileId] bigint NULL,
+    [IsPrimary] bit NOT NULL,
+    [AddressTypeId] bigint NULL,
+    [PatientId] bigint NULL,
+    CONSTRAINT [PK_Addresses] PRIMARY KEY ([Id]),
+    CONSTRAINT [FK_Addresses_AddressFormats_AddressFormatId] FOREIGN KEY ([AddressFormatId]) REFERENCES [AddressFormats] ([Id]) ON DELETE NO ACTION,
+    CONSTRAINT [FK_Addresses_AddressTypes_AddressTypeId] FOREIGN KEY ([AddressTypeId]) REFERENCES [AddressTypes] ([Id]) ON DELETE NO ACTION,
+    CONSTRAINT [FK_Addresses_Countries_CountryId] FOREIGN KEY ([CountryId]) REFERENCES [Countries] ([Id]) ON DELETE NO ACTION,
+    CONSTRAINT [FK_Addresses_Domiciles_DomicileId] FOREIGN KEY ([DomicileId]) REFERENCES [Domiciles] ([Id]) ON DELETE NO ACTION,
+    CONSTRAINT [FK_Addresses_Patients_PatientId] FOREIGN KEY ([PatientId]) REFERENCES [Patients] ([Id]) ON DELETE CASCADE
+);
+GO
+
 CREATE TABLE [HumanNames] (
     [Id] bigint NOT NULL IDENTITY,
     [TitleId] bigint NULL,
-    [GivenName] nvarchar(max) NULL,
-    [MiddleName] nvarchar(max) NULL,
-    [FamilyName] nvarchar(max) NULL,
+    [GivenName] nvarchar(50) NULL,
+    [MiddleName] nvarchar(100) NULL,
+    [FamilyName] nvarchar(100) NULL,
     [SuffixId] bigint NULL,
     [IsPreferred] bit NOT NULL,
     [IsProtected] bit NOT NULL,
     [NameSourceId] bigint NULL,
-    [EffectiveFrom] nvarchar(max) NULL,
-    [EffectiveTo] nvarchar(max) NULL,
+    [EffectiveFrom] nvarchar(8) NULL,
+    [EffectiveTo] nvarchar(8) NULL,
     [PatientId] bigint NULL,
     CONSTRAINT [PK_HumanNames] PRIMARY KEY ([Id]),
     CONSTRAINT [FK_HumanNames_NameSources_NameSourceId] FOREIGN KEY ([NameSourceId]) REFERENCES [NameSources] ([Id]) ON DELETE NO ACTION,
@@ -81,6 +155,18 @@ CREATE TABLE [HumanNames] (
     CONSTRAINT [FK_HumanNames_Suffixes_SuffixId] FOREIGN KEY ([SuffixId]) REFERENCES [Suffixes] ([Id]) ON DELETE NO ACTION,
     CONSTRAINT [FK_HumanNames_Titles_TitleId] FOREIGN KEY ([TitleId]) REFERENCES [Titles] ([Id]) ON DELETE NO ACTION
 );
+GO
+
+/**
+  *  Indices
+**/
+CREATE INDEX [IX_Addresses_AddressFormatId] ON [Addresses] ([AddressFormatId]);
+GO
+
+CREATE INDEX [IX_Addresses_AddressTypeId] ON [Addresses] ([AddressTypeId]);
+GO
+
+CREATE INDEX [IX_Addresses_PatientId] ON [Addresses] ([PatientId]);
 GO
 
 CREATE INDEX [IX_HumanNames_PatientId] ON [HumanNames] ([PatientId]);
@@ -107,7 +193,28 @@ GO
 COMMIT;
 GO
 
+/**
+   * Seeding
+**/
 BEGIN TRANSACTION;
+GO
+
+IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Comment', N'Description') AND [object_id] = OBJECT_ID(N'[AddressFormats]'))
+    SET IDENTITY_INSERT [AddressFormats] ON;
+INSERT INTO [AddressFormats] ([Id], [Code], [Comment], [Description])
+VALUES (CAST(1 AS bigint), N'CIQ', N'', N'NZ CIQ Address Profile'),
+(CAST(2 AS bigint), N'POST', N'', N'NZ Post Address Standard');
+IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Comment', N'Description') AND [object_id] = OBJECT_ID(N'[AddressFormats]'))
+    SET IDENTITY_INSERT [AddressFormats] OFF;
+GO
+
+IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Comment', N'Description', N'HL7PostalAddressUse') AND [object_id] = OBJECT_ID(N'[AddressTypes]'))
+    SET IDENTITY_INSERT [AddressTypes] ON;
+INSERT INTO [AddressTypes] ([Id], [Code], [Comment], [Description], [HL7PostalAddressUse])
+VALUES (CAST(1 AS bigint), N'M', N'', N'Mailing', N'PST'),
+(CAST(2 AS bigint), N'R', N'', N'Residential', N'H');
+IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Comment', N'Description', N'HL7PostalAddressUse') AND [object_id] = OBJECT_ID(N'[AddressTypes]'))
+    SET IDENTITY_INSERT [AddressTypes] OFF;
 GO
 
 IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Comment', N'Description') AND [object_id] = OBJECT_ID(N'[BirthDateSources]'))
