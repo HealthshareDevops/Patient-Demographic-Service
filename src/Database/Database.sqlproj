@@ -70,9 +70,11 @@
     <Build Include="Tables\Addresses.sql" />
     <Build Include="Tables\Ethnicities.sql" />
     <Build Include="Tables\PatientEthnicities.sql" />
+    <Build Include="Tables\Countries.sql" />
+    <Build Include="Tables\Domiciles.sql" />
   </ItemGroup>
   <ItemGroup>
-    <PostDeploy Include="SeedingScript.PostDeployment.sql" />
+    <PostDeploy Include="SeedsScript.PostDeployment.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="LocalDatabase.publish.xml" />

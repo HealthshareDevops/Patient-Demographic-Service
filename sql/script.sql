@@ -32,6 +32,31 @@ CREATE TABLE [BirthDateSources] (
 );
 GO
 
+CREATE TABLE [Countries] (
+    [Id] bigint NOT NULL IDENTITY,
+    [Code] nvarchar(max) NOT NULL,
+    [Description] nvarchar(max) NULL,
+    [Comment] nvarchar(max) NULL,
+    CONSTRAINT [PK_Countries] PRIMARY KEY ([Id])
+);
+GO
+
+CREATE TABLE [Domiciles]
+(
+	[Id] BIGINT NOT NULL IDENTITY, 
+    [Code] NVARCHAR(4) NOT NULL, 
+    [Description] NVARCHAR(MAX) NULL, 
+    [TLA] NVARCHAR(10) NULL, 
+    [Status] NVARCHAR(10) NULL, 
+    [YearOfCensus] NVARCHAR(10) NULL, 
+    [RetiredYear] NVARCHAR(10) NULL, 
+    [AU13] NVARCHAR(10) NULL, 
+    [DHB] NVARCHAR(10) NULL, 
+    [RHAReg] NVARCHAR(10) NULL,
+    CONSTRAINT [PK_Domiciles] PRIMARY KEY ([Id])
+);
+GO
+
 CREATE TABLE [Genders] (
     [Id] bigint NOT NULL IDENTITY,
     [Code] nvarchar(1) NULL,
@@ -88,23 +113,25 @@ CREATE TABLE [Addresses] (
     [Id] bigint NOT NULL IDENTITY,
     [AddressFormatId] bigint NULL,
     [BuildingName] nvarchar(max) NULL,
-    [AddressLine1] nvarchar(max) NULL,
-    [AddressLine2] nvarchar(max) NULL,
-    [AddressLine3] nvarchar(max) NULL,
-    [AddressLine4] nvarchar(max) NULL,
-    [PostCode] nvarchar(max) NULL,
-    [CountryCode] nvarchar(max) NULL,
+    [StreetAddress] nvarchar(100) NOT NULL,
+    [AdditionalStreetAddress] nvarchar(100) NULL,
+    [Suburb] nvarchar(50) NULL,
+    [TownOrCity] nvarchar(50) NULL,
+    [PostCode] nvarchar(15) NULL,
+    [CountryId] bigint NULL,
     [IsProtected] bit NOT NULL,
     [IsPermanent] bit NOT NULL,
-    [EffectiveFrom] nvarchar(max) NULL,
-    [EffectiveTo] nvarchar(max) NULL,
-    [DomicileCode] nvarchar(max) NULL,
+    [EffectiveFrom] nvarchar(8) NULL,
+    [EffectiveTo] nvarchar(8) NULL,
+    [DomicileId] bigint NULL,
     [IsPrimary] bit NOT NULL,
     [AddressTypeId] bigint NULL,
     [PatientId] bigint NULL,
     CONSTRAINT [PK_Addresses] PRIMARY KEY ([Id]),
     CONSTRAINT [FK_Addresses_AddressFormats_AddressFormatId] FOREIGN KEY ([AddressFormatId]) REFERENCES [AddressFormats] ([Id]) ON DELETE NO ACTION,
     CONSTRAINT [FK_Addresses_AddressTypes_AddressTypeId] FOREIGN KEY ([AddressTypeId]) REFERENCES [AddressTypes] ([Id]) ON DELETE NO ACTION,
+    CONSTRAINT [FK_Addresses_Countries_CountryId] FOREIGN KEY ([CountryId]) REFERENCES [Countries] ([Id]) ON DELETE NO ACTION,
+    CONSTRAINT [FK_Addresses_Domiciles_DomicileId] FOREIGN KEY ([DomicileId]) REFERENCES [Domiciles] ([Id]) ON DELETE NO ACTION,
     CONSTRAINT [FK_Addresses_Patients_PatientId] FOREIGN KEY ([PatientId]) REFERENCES [Patients] ([Id]) ON DELETE CASCADE
 );
 GO
