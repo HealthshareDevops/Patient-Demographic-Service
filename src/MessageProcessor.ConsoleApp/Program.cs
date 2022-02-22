@@ -15,7 +15,7 @@ namespace MessageProcessor.ConsoleApp
         {
             Console.WriteLine("Hello World!");
             Configuration = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json")
+                .AddJsonFile("appsettings.Development.json")
                 //.AddSystemsManager("/PatientDemographicService/sandbox")
                 .Build();
 
