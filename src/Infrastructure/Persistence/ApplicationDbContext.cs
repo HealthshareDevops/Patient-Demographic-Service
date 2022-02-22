@@ -23,6 +23,10 @@ namespace Infrastructure.Persistence
         public DbSet<NameSource> NameSources { get; set; }
         public DbSet<BirthDateSource> BirthDateSources { get; set; }
         public DbSet<Gender> Genders { get; set; }
+        public DbSet<AddressFormat> AddressFormats { get; set; }
+        public DbSet<AddressType> AddressTypes { get; set; }
+        public DbSet<Country> Countries { get; set; }
+        public DbSet<Domicile> Domiciles { get; set; }
 
         public ApplicationDbContext(string connectionString)
         {
@@ -60,6 +64,10 @@ namespace Infrastructure.Persistence
             modelBuilder.ApplyConfiguration(new NameSourceConfiguration());
             modelBuilder.ApplyConfiguration(new BirthDateSourceConfiguration());
             modelBuilder.ApplyConfiguration(new GenderConfiguration());
+            modelBuilder.ApplyConfiguration(new AddressFormatConfiguration());
+            modelBuilder.ApplyConfiguration(new AddressTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new CountryConfiguration());
+            modelBuilder.ApplyConfiguration(new DomicileConfiguration());
         }
     }
 }

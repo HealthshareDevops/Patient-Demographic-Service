@@ -28,6 +28,10 @@ namespace Domain.Entities
 
         // 2.4 Gender
         public Gender Gender { get; private set; }
+
+        // 3 Patient address
+        private readonly List<Address> _addresses = new List<Address>();
+        public virtual IReadOnlyList<Address> Addresses => _addresses.ToList();
         
         protected Patient() { }
 
