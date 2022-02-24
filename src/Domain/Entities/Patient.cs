@@ -51,6 +51,18 @@ namespace Domain.Entities
             _humanNames.Add(humanName);
         }
 
+        public void AddAddress(Address address)
+        {
+            if(address.IsPrimary)
+            {
+                foreach(var addr in _addresses)
+                {
+                    addr.MakePrimary(false);
+                }
+            }
+            _addresses.Add(address);
+        }
+
         private void SetBirthDateAndPlaceInfo(BirthDate birthDate, BirthDateSource birthDateSource)
         {
             BirthDate = birthDate ?? throw new ArgumentNullException(nameof(birthDate));

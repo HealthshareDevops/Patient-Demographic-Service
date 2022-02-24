@@ -7,6 +7,8 @@ using Domain.Enums;
 using Domain.ValueObjects;
 using MediatR;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -28,6 +30,8 @@ namespace Application.Commands.CreatePatient
         public string BirthDate { get; set; }
         public string BirthDateSource { get; set; }
         public string Gender { get; set; }
+
+        public List<CreateAddressCommand> Addresses { get; set; } = new List<CreateAddressCommand>();
     }
 
     public class CreatePatientCommandHandler : IRequestHandler<CreatePatientCommand, long>
@@ -105,10 +109,17 @@ namespace Application.Commands.CreatePatient
                 var gender = Gender.FromCode(request.Gender);
                 if (gender is null)
                 {
-                    throw new ValidationException("Gender is not valid..");
+                    throw new ValidationException("Gender is not valid.");
                 }
 
+                
                 var patnt = new Patient(nhi.Value, humanName, birthDate.Value, birthDateSource, gender);
+                // Add addressess
+                foreach (var addrCommand in request.Addresses)
+                {
+                    patnt.AddAddress(ToAddress(addrCommand));
+                }
+
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object created.");
 
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object DB Saving.");
@@ -130,6 +141,47 @@ namespace Application.Commands.CreatePatient
                 LambdaLogger.Log($"ERROR: Error occurred in CreatePatientCommandHandler InnerException {e.InnerException?.Message}");
                 throw e;
             }
+        }
+
+        private Address ToAddress(CreateAddressCommand addressCommand)
+        {
+            var addressFormat = AddressFormat.FromCode(addressCommand.AddressFormat);
+
+            if (string.IsNullOrEmpty(addressCommand.StreetAddress)) {
+                throw new ValidationException("StreetAddress is not valid.");
+            }
+
+            var country = Country.FromCode(addressCommand.Country);
+
+            Result<Date> addrEffectiveFrom = Date.Create(addressCommand.EffectiveFrom);
+            if (addrEffectiveFrom.IsFailure)
+            {
+                LambdaLogger.Log($"ERROR: ToAddress: EffectiveFrom date failure.");
+                throw new ValidationException(addrEffectiveFrom.Error);
+            }
+
+            Result<Date> addrEffectiveTo = Date.Create(addressCommand.EffectiveTo);
+            if (addrEffectiveTo.IsFailure)
+            {
+                LambdaLogger.Log($"ERROR: ToAddress: EffectiveTo date failure.");
+                throw new ValidationException(addrEffectiveTo.Error);
+            }
+
+            var domicile = _dbContext.Domiciles.ToList().Where(p => p.Code == addressCommand.Domicile).SingleOrDefault();
+
+            var addressType = AddressType.FromCode(addressCommand.AddressType);
+            if(addressType is null)
+            {
+                throw new ValidationException("AddressType is not valid.");
+            }
+            
+            var address = new Address(addressFormat, addressCommand.BuildingName, addressCommand.StreetAddress,
+                                      addressCommand.AdditionalStreetAddress, addressCommand.Suburb,
+                                      addressCommand.TownOrCity, addressCommand.PostCode, country,
+                                      addressCommand.IsProtected, addressCommand.IsPermanent,
+                                      addrEffectiveFrom.Value, addrEffectiveTo.Value, domicile,
+                                      addressCommand.IsPrimary, addressType);
+            return address;
         }
     }
 }

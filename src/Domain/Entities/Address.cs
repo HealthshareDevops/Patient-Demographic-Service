@@ -1,5 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using Domain.Enums;
+using Domain.ValueObjects;
+using System;
 
 namespace Domain.Entities
 {
@@ -20,17 +22,17 @@ namespace Domain.Entities
         // 3.7 Postcode (zip/postal code)
         public string PostCode { get; private set; }
         // 3.8 Country code
-        public string Country { get; private set; }
+        public Country Country { get; private set; }
         // 3.9 Address protected flag
         public bool IsProtected { get; private set; }
         // 3.10 Permanent address flag
         public bool IsPermanent { get; private set; }
         // 3.11 Date address effective from
-        public string EffectiveFrom { get; private set; }
+        public Date EffectiveFrom { get; private set; }
         // 3.12 Date address effective to
-        public string EffectiveTo { get; private set; }
+        public Date EffectiveTo { get; private set; }
         // 3.13 Domicile code
-        public string Domicile { get; private set; }
+        public Domicile Domicile { get; private set; }
         // 3.14 Primary address flag
         public bool IsPrimary { get; private set; }
         // 3.15 Address type
@@ -38,11 +40,14 @@ namespace Domain.Entities
 
         protected Address() { }
 
-        public Address(AddressFormat addressFormat, string buildingName, string streetAddress, string additionalStreetAddress, string suburb, string townOrCity, string postCode, string country, bool isProtected, bool isPermanent, string effectiveFrom, string effectiveTo, string domicile, bool isPrimary, AddressType addressType)
+        public Address(AddressFormat addressFormat, string buildingName, string streetAddress,
+            string additionalStreetAddress, string suburb, string townOrCity, string postCode, Country country,
+            bool isProtected, bool isPermanent, Date effectiveFrom, Date effectiveTo, Domicile domicile,
+            bool isPrimary, AddressType addressType)
         {
             AddressFormat = addressFormat;
             BuildingName = buildingName;
-            StreetAddress = streetAddress;
+            StreetAddress = streetAddress ?? throw new ArgumentNullException(nameof(streetAddress));
             AdditionalStreetAddress = additionalStreetAddress;
             Suburb = suburb;
             TownOrCity = townOrCity;
@@ -50,11 +55,17 @@ namespace Domain.Entities
             Country = country;
             IsProtected = isProtected;
             IsPermanent = isPermanent;
+            IsPermanent = addressType != AddressType.RESIDENTIAL ? false : isPermanent;
             EffectiveFrom = effectiveFrom;
             EffectiveTo = effectiveTo;
             Domicile = domicile;
             IsPrimary = isPrimary;
             AddressType = addressType;
+        }
+
+        public void MakePrimary(bool val)
+        {
+            IsPrimary = val;
         }
     }
 }

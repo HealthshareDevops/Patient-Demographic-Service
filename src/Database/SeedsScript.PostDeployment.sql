@@ -12,6 +12,24 @@ Post-Deployment Script Template
 BEGIN TRANSACTION;
 GO
 
+IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Comment', N'Description') AND [object_id] = OBJECT_ID(N'[AddressFormats]'))
+    SET IDENTITY_INSERT [AddressFormats] ON;
+INSERT INTO [AddressFormats] ([Id], [Code], [Comment], [Description])
+VALUES (CAST(1 AS bigint), N'CIQ', N'', N'NZ CIQ Address Profile'),
+(CAST(2 AS bigint), N'POST', N'', N'NZ Post Address Standard');
+IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Comment', N'Description') AND [object_id] = OBJECT_ID(N'[AddressFormats]'))
+    SET IDENTITY_INSERT [AddressFormats] OFF;
+GO
+
+IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Comment', N'Description', N'HL7PostalAddressUse') AND [object_id] = OBJECT_ID(N'[AddressTypes]'))
+    SET IDENTITY_INSERT [AddressTypes] ON;
+INSERT INTO [AddressTypes] ([Id], [Code], [Comment], [Description], [HL7PostalAddressUse])
+VALUES (CAST(1 AS bigint), N'M', N'', N'Mailing', N'PST'),
+(CAST(2 AS bigint), N'R', N'', N'Residential', N'H');
+IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Comment', N'Description', N'HL7PostalAddressUse') AND [object_id] = OBJECT_ID(N'[AddressTypes]'))
+    SET IDENTITY_INSERT [AddressTypes] OFF;
+GO
+
 IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Comment', N'Description') AND [object_id] = OBJECT_ID(N'[BirthDateSources]'))
     SET IDENTITY_INSERT [BirthDateSources] ON;
 INSERT INTO [BirthDateSources] ([Id], [Code], [Comment], [Description])

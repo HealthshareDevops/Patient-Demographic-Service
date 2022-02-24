@@ -4,6 +4,8 @@ using Domain.Entities;
 using Domain.Enums;
 using Infrastructure.Persistence.Configurations;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
 using System;
 using System.Linq;
 using System.Threading;
@@ -13,6 +15,18 @@ namespace Infrastructure.Persistence
 {
     public class ApplicationDbContext : DbContext, IApplicationDbContext
     {
+        //public static readonly ILoggerFactory DbCommandConsoleLoggerFactory
+        //    = new LoggerFactory(new[] {
+        //        new ConsoleLoggerProvider(
+                
+        //        (category, level) =>
+        //           true, true)
+        //});
+        public static readonly ILoggerFactory _loggerFactory = LoggerFactory.Create(builder =>
+        {
+            builder.AddConsole();
+        });
+
         private readonly string _connectionString;
 
         public DbSet<Patient> Patients { get; set; }
@@ -52,7 +66,9 @@ namespace Infrastructure.Persistence
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            options.UseSqlServer(_connectionString);
+            options
+                .UseLoggerFactory(_loggerFactory)
+                .UseSqlServer(_connectionString);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -64,6 +80,7 @@ namespace Infrastructure.Persistence
             modelBuilder.ApplyConfiguration(new NameSourceConfiguration());
             modelBuilder.ApplyConfiguration(new BirthDateSourceConfiguration());
             modelBuilder.ApplyConfiguration(new GenderConfiguration());
+            modelBuilder.ApplyConfiguration(new AddressConfiguration());
             modelBuilder.ApplyConfiguration(new AddressFormatConfiguration());
             modelBuilder.ApplyConfiguration(new AddressTypeConfiguration());
             modelBuilder.ApplyConfiguration(new CountryConfiguration());

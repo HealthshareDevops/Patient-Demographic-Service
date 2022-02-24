@@ -6,7 +6,6 @@
 
   <ItemGroup>
     <PackageReference Include="Amazon.Lambda.Core" Version="2.1.0" />
-    <PackageReference Include="AWSSDK.SQS" Version="3.7.2.14" />
     <PackageReference Include="CSharpFunctionalExtensions" Version="2.27.0" />
     <PackageReference Include="MediatR" Version="9.0.0" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
