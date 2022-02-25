@@ -4,9 +4,12 @@ using System.Linq;
 
 namespace Domain.Entities
 {
-    public class PatientEthnicity : Entity
+    public class PatientEthnicity
     {
+        public long PatientId { get; private set; }
         public Patient Patient { get; private set; }
+
+        public long EthnicityId { get; private set; }
         public Ethnicity Ethnicity { get; private set; }
 
         protected PatientEthnicity() { }

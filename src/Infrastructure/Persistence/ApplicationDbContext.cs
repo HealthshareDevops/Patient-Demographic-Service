@@ -63,6 +63,7 @@ namespace Infrastructure.Persistence
             modelBuilder.ApplyConfiguration(new BirthDateSourceConfiguration());
             modelBuilder.ApplyConfiguration(new GenderConfiguration());
             modelBuilder.ApplyConfiguration(new EthnicityConfiguration());
+            modelBuilder.ApplyConfiguration(new PatientEthnicityConfiguration());
         }
     }
 }

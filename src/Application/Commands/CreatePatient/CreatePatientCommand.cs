@@ -116,12 +116,12 @@ namespace Application.Commands.CreatePatient
                 // Add Ethnicities
                 foreach (var ethnicityCommand in request.Ethnicities)
                 {
-                    var ethnicityId = Ethnicity.FromCode(ethnicityCommand.Code);
-                    if (ethnicityId is null)
+                    var ethnicity = Ethnicity.FromCode(ethnicityCommand.Code);
+                    if (ethnicity is null)
                     {
                         throw new ValidationException("Ethnicity is not valid.");
                     }
-                    patnt.AddEthnicity(ethnicityId);
+                    patnt.AddPatientEthnicity(new PatientEthnicity(patnt, ethnicity));
                 }
 
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object DB Saving.");
