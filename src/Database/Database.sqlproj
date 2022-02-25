@@ -73,11 +73,19 @@
     <Build Include="Tables\PatientEthnicities.sql" />
     <Build Include="Tables\Countries.sql" />
     <Build Include="Tables\Domiciles.sql" />
+    <Build Include="Tables\ContactUsages.sql" />
+    <Build Include="Tables\ContactTypes.sql" />
+    <Build Include="Tables\Contacts.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="SeedsScript.PostDeployment.sql" />
+    <None Include="SeedsScript.PostDeployment2.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="LocalDatabase.publish.xml" />
+    <None Include="Database.publish.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <RefactorLog Include="Database.refactorlog" />
   </ItemGroup>
 </Project>
