@@ -12,10 +12,14 @@ namespace Infrastructure.Persistence.Configurations
             builder.HasKey(pe => new {pe.PatientId, pe.EthnicityId});
 
             builder.HasOne(p => p.Patient)
-                .WithMany(pe => pe.PatientEthnicity)
+                .WithMany(pe => pe.PatientEthnicities)
                 .HasForeignKey(p => p.PatientId);
-                //.OnDelete(DeleteBehavior.Cascade)
-                //.Metadata.PrincipalToDependent.SetPropertyAccessMode(PropertyAccessMode.Field);
+            //.OnDelete(DeleteBehavior.Cascade)
+            //.Metadata.PrincipalToDependent.SetPropertyAccessMode(PropertyAccessMode.Field);
+
+            //builder.HasOne(p => p.Ethnicity)
+            //    .WithMany(pe => pe.)
+            //    .HasForeignKey(p => p.);
         }
     }
 }

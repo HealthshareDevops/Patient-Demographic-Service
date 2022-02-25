@@ -31,7 +31,7 @@ namespace Domain.Entities
 
         // 4 Ethnicities
         private readonly List<PatientEthnicity> _patientEthnicities = new List<PatientEthnicity>();
-        public virtual IReadOnlyList<PatientEthnicity> PatientEthnicity => _patientEthnicities.ToList();
+        public virtual IReadOnlyList<PatientEthnicity> PatientEthnicities => _patientEthnicities.ToList();
 
         protected Patient() { }
 
