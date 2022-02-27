@@ -19,9 +19,6 @@ namespace Infrastructure.Persistence.Configurations
                 .OnDelete(DeleteBehavior.Cascade)
                 .Metadata.PrincipalToDependent.SetPropertyAccessMode(PropertyAccessMode.Field);
 
-            //builder.HasMany(p => p.PatientEthnicity).WithOne()
-            //    .OnDelete(DeleteBehavior.Cascade)
-            //    .Metadata.PrincipalToDependent.SetPropertyAccessMode(PropertyAccessMode.Field);
             builder.Property(p => p.BirthDate)
                 .HasConversion(p => p.Value, p => BirthDate.Create(p).Value)
                 .IsRequired();
