@@ -14,12 +14,6 @@ namespace Infrastructure.Persistence.Configurations
             builder.HasOne(p => p.Patient)
                 .WithMany(pe => pe.PatientEthnicities)
                 .HasForeignKey(p => p.PatientId);
-            //.OnDelete(DeleteBehavior.Cascade)
-            //.Metadata.PrincipalToDependent.SetPropertyAccessMode(PropertyAccessMode.Field);
-
-            //builder.HasOne(p => p.Ethnicity)
-            //    .WithMany(pe => pe.)
-            //    .HasForeignKey(p => p.);
         }
     }
 }

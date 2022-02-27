@@ -36,7 +36,7 @@ namespace Application.Queries
                         .ThenInclude(n => n.Title)
                     .Include(x => x.BirthDateSource)
                     .Include(x => x.Gender)
-                    .Include(x=> x.PatientEthnicities)
+                    .Include(x=> x.PatientEthnicities).ThenInclude(x =>x.Ethnicity)
                     .FirstOrDefaultAsync(x => x.Nhi == request.Nhi);
 
                 if (response is null)

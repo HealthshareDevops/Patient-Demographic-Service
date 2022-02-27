@@ -8,7 +8,7 @@ namespace Infrastructure.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<Ethnicity> builder)
         {
-            builder.ToTable("Ethnicity");
+            builder.ToTable("Ethnicities");
             builder.Property(p => p.Id);
             builder.Property(p => p.Code);
             builder.Property(p => p.Description);
