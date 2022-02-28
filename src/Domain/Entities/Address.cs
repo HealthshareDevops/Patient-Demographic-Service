@@ -46,12 +46,12 @@ namespace Domain.Entities
             bool isPrimary, AddressType addressType)
         {
             AddressFormat = addressFormat;
-            BuildingName = buildingName;
+            BuildingName = buildingName ?? string.Empty;
             StreetAddress = streetAddress ?? throw new ArgumentNullException(nameof(streetAddress));
-            AdditionalStreetAddress = additionalStreetAddress;
-            Suburb = suburb;
-            TownOrCity = townOrCity;
-            PostCode = postCode;
+            AdditionalStreetAddress = additionalStreetAddress ?? string.Empty;
+            Suburb = suburb ?? string.Empty;
+            TownOrCity = townOrCity ?? string.Empty;
+            PostCode = postCode ?? string.Empty;
             Country = country;
             IsProtected = isProtected;
             IsPermanent = isPermanent;

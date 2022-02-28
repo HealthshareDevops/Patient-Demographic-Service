@@ -5,7 +5,6 @@ using Domain.Enums;
 using Infrastructure.Persistence.Configurations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
 using System;
 using System.Linq;
 using System.Threading;
@@ -15,13 +14,6 @@ namespace Infrastructure.Persistence
 {
     public class ApplicationDbContext : DbContext, IApplicationDbContext
     {
-        //public static readonly ILoggerFactory DbCommandConsoleLoggerFactory
-        //    = new LoggerFactory(new[] {
-        //        new ConsoleLoggerProvider(
-                
-        //        (category, level) =>
-        //           true, true)
-        //});
         public static readonly ILoggerFactory _loggerFactory = LoggerFactory.Create(builder =>
         {
             builder.AddConsole();
@@ -47,6 +39,11 @@ namespace Infrastructure.Persistence
             _connectionString = connectionString;
         }
 
+        public ApplicationDbContext(DbContextOptions dbContextOptions)
+            : base(dbContextOptions)
+        {
+        }
+
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
         {
             var timestamp = DateTime.UtcNow;
@@ -66,9 +63,12 @@ namespace Infrastructure.Persistence
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            options
-                .UseLoggerFactory(_loggerFactory)
-                .UseSqlServer(_connectionString);
+            if (!options.IsConfigured)
+            {
+                options
+                    .UseLoggerFactory(_loggerFactory)
+                    .UseSqlServer(_connectionString);
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

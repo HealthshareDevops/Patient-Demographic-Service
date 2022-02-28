@@ -32,6 +32,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MissingData.ConsoleApp", "s
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Database", "src\Database\Database.sqlproj", "{0F197085-B3B5-4D4D-A569-B63C71B428B3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application.Tests", "tests\Application.Tests\Application.Tests.csproj", "{377176D6-7704-4ACF-955D-172D4214BBA2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -80,6 +82,10 @@ Global
 		{0F197085-B3B5-4D4D-A569-B63C71B428B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0F197085-B3B5-4D4D-A569-B63C71B428B3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0F197085-B3B5-4D4D-A569-B63C71B428B3}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{377176D6-7704-4ACF-955D-172D4214BBA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{377176D6-7704-4ACF-955D-172D4214BBA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{377176D6-7704-4ACF-955D-172D4214BBA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{377176D6-7704-4ACF-955D-172D4214BBA2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -95,6 +101,7 @@ Global
 		{62A5AA5A-0A0E-444C-8A76-4E98D9A01D81} = {AE0745A4-F9FC-484F-B8B5-1F81E622AC01}
 		{0CC3D3FF-94E3-4EBB-8222-C0419A001046} = {AE0745A4-F9FC-484F-B8B5-1F81E622AC01}
 		{0F197085-B3B5-4D4D-A569-B63C71B428B3} = {AE0745A4-F9FC-484F-B8B5-1F81E622AC01}
+		{377176D6-7704-4ACF-955D-172D4214BBA2} = {BBF356E2-DABF-415A-A379-7CAA49DC523B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B5629C52-4E6C-4F79-B0FE-8C35C7997B0A}

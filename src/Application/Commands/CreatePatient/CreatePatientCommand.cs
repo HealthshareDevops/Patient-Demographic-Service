@@ -145,10 +145,16 @@ namespace Application.Commands.CreatePatient
 
         private Address ToAddress(CreateAddressCommand addressCommand)
         {
-            var addressFormat = AddressFormat.FromCode(addressCommand.AddressFormat);
+            LambdaLogger.Log($"INFO: CreatePatientCommandHandler - ToAddress start ...");
+            // ToDo:
+            // Address format can be captured in two formats - NZ CIQ Address Profile and NZ Post Address Standard.
+            // HL7 message does not capture the address format,  seems it uses NZ CIQ Address Profile.
+            // Defaulting to CIQ Address Profile
+            var addressFormat = AddressFormat.CIQ;
+            //var addressFormat = AddressFormat.FromCode(addressCommand.AddressFormat);
 
             if (string.IsNullOrEmpty(addressCommand.StreetAddress)) {
-                throw new ValidationException("StreetAddress is not valid.");
+                throw new ValidationException("StreetAddress should be valid.");
             }
 
             var country = Country.FromCode(addressCommand.Country);
@@ -172,7 +178,7 @@ namespace Application.Commands.CreatePatient
             var addressType = AddressType.FromCode(addressCommand.AddressType);
             if(addressType is null)
             {
-                throw new ValidationException("AddressType is not valid.");
+                throw new ValidationException("AddressType should be valid.");
             }
             
             var address = new Address(addressFormat, addressCommand.BuildingName, addressCommand.StreetAddress,
@@ -181,6 +187,7 @@ namespace Application.Commands.CreatePatient
                                       addressCommand.IsProtected, addressCommand.IsPermanent,
                                       addrEffectiveFrom.Value, addrEffectiveTo.Value, domicile,
                                       addressCommand.IsPrimary, addressType);
+            LambdaLogger.Log($"INFO: CreatePatientCommandHandler - ToAddress end ...");
             return address;
         }
     }
