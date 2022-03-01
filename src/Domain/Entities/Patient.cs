@@ -28,7 +28,12 @@ namespace Domain.Entities
 
         // 2.4 Gender
         public Gender Gender { get; private set; }
-        
+
+
+        // 5 Contact
+        private readonly List<Contact> _contacts = new List<Contact>();
+        public virtual IReadOnlyList<Contact> Contacts => _contacts.ToList();
+
         protected Patient() { }
 
         public Patient(Nhi nhi, HumanName humanName, BirthDate birthDate, BirthDateSource birthDateSource, Gender gender)
@@ -51,6 +56,12 @@ namespace Domain.Entities
         {
             BirthDate = birthDate ?? throw new ArgumentNullException(nameof(birthDate));
             BirthDateSource = birthDateSource ?? throw new ArgumentNullException(nameof(birthDateSource));
+        }
+
+
+        public void AddContact(Contact contact)
+        {
+            _contacts.Add(contact);
         }
     }
 }

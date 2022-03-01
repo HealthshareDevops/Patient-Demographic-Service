@@ -10,6 +10,7 @@ namespace Application.Queries
         public string BirthDate { get; set; }
         public string BirthDateSource { get; set; }
         public string Gender { get; set; }
+        public List<ContactDto> Contacts { get; set; } = new List<ContactDto>();
 
         public static PatientDto ToPatientDto(Patient patnt)
         {
@@ -29,13 +30,28 @@ namespace Application.Queries
                 nameDto.EffectiveTo = humanName.EffectiveTo;
                 nameDtos.Add(nameDto);
             }
+
+            var contactDtos = new List<ContactDto>();
+            foreach (var contact in patnt.Contacts)
+            {   var contactDto = new ContactDto();
+                contactDto.ContactUsage = contact.ContactUsage.Code;
+                contactDto.ContactType = contact.ContactType.Code; 
+                contactDto.Detail = contact.Detail;
+                contactDto.IsProtected = contact.IsProtected;
+                contactDto.EffectiveFrom = contact.EffectiveFrom;   
+                contactDto.EffectiveTo = contact.EffectiveTo;   
+                contactDto.IsPreferred = contact.IsPreferred;
+                contactDtos.Add(contactDto);
+            }
+
             return new PatientDto()
             {
                 Nhi = patnt.Nhi,
                 Names = nameDtos,
                 BirthDate = patnt.BirthDate,
                 BirthDateSource = patnt.BirthDateSource.Code,
-                Gender = patnt.Gender.Code
+                Gender = patnt.Gender.Code,
+                Contacts = contactDtos,
             };
         }
     }
@@ -52,5 +68,23 @@ namespace Application.Queries
         public string NameSource { get; set; }
         public string EffectiveFrom { get; set; }
         public string EffectiveTo { get; set; }
+    }
+
+    public class ContactDto
+    {
+
+        public string ContactUsage { get; set; }
+
+        public string ContactType { get;  set; }
+
+        public string Detail { get;  set; }
+
+        public bool IsProtected { get;  set; }
+
+        public string EffectiveFrom { get;  set; }
+
+        public string EffectiveTo { get;  set; }
+
+        public bool IsPreferred { get;  set; }
     }
 }

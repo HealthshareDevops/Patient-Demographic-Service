@@ -24,6 +24,10 @@ namespace Infrastructure.Persistence
         public DbSet<BirthDateSource> BirthDateSources { get; set; }
         public DbSet<Gender> Genders { get; set; }
 
+        public DbSet<ContactUsage> ContactUsages { get; set; }
+        public DbSet<ContactType> ContactTypes { get; set; }
+
+
         public ApplicationDbContext(string connectionString)
         {
             _connectionString = connectionString;
@@ -60,6 +64,9 @@ namespace Infrastructure.Persistence
             modelBuilder.ApplyConfiguration(new NameSourceConfiguration());
             modelBuilder.ApplyConfiguration(new BirthDateSourceConfiguration());
             modelBuilder.ApplyConfiguration(new GenderConfiguration());
+            modelBuilder.ApplyConfiguration(new ContactConfiguration());
+            modelBuilder.ApplyConfiguration(new ContactTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new ContactUsageConfiguration());
         }
     }
 }

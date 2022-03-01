@@ -23,7 +23,7 @@ namespace MessageProcessor.ConsoleApp
 
             var payload = new
             {
-                Nhi = "ZZZ0024",
+                Nhi = "PRP1660",
                 Title = "SIR",
                 GivenName = "Jack",
                 MiddleName = "",
@@ -36,8 +36,21 @@ namespace MessageProcessor.ConsoleApp
                 EffectiveTo = "",
                 BirthDate = "19920118",
                 BirthDateSource = "BRCT",
-                Gender = "M"
-            };
+                Gender = "M",
+                Contacts = new[] {
+                    new {
+                            ContactType = "A",
+                            ContactUsage = "E",
+                            Detail = "hello contact",
+                            IsProtected = false,
+                            EffectiveFrom = "20220101",
+                            EffectiveTo = "20220228",
+                            IsPreferred =  false
+                        }
+                } 
+
+                               
+            }; //end of payload
             
             var payloadJsonString = JsonSerializer.Serialize(payload);
             Console.WriteLine($"Payload: {payloadJsonString}");
