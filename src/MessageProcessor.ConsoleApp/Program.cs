@@ -36,7 +36,24 @@ namespace MessageProcessor.ConsoleApp
                 EffectiveTo = "",
                 BirthDate = "19920118",
                 BirthDateSource = "BRCT",
-                Gender = "M"
+                Gender = "M",
+                Ethnicities = new[] {
+                    new CreateEthnicityCommand
+                    {
+                        Code = "21",
+                        Description = "21 [Maori]"
+                    },
+                    new CreateEthnicityCommand
+                    {
+                        Code = "11",
+                        Description = "11 [New Zealander]"
+                    },
+                    new CreateEthnicityCommand
+                    {
+                        Code = "99",
+                        Description = "Not stated"
+                    }
+                }
             };
             
             var payloadJsonString = JsonSerializer.Serialize(payload);

@@ -28,7 +28,11 @@ namespace Domain.Entities
 
         // 2.4 Gender
         public Gender Gender { get; private set; }
-        
+
+        // 4 Ethnicities
+        private readonly List<PatientEthnicity> _patientEthnicities = new List<PatientEthnicity>();
+        public virtual IReadOnlyList<PatientEthnicity> PatientEthnicities => _patientEthnicities.ToList();
+
         protected Patient() { }
 
         public Patient(Nhi nhi, HumanName humanName, BirthDate birthDate, BirthDateSource birthDateSource, Gender gender)
@@ -51,6 +55,10 @@ namespace Domain.Entities
         {
             BirthDate = birthDate ?? throw new ArgumentNullException(nameof(birthDate));
             BirthDateSource = birthDateSource ?? throw new ArgumentNullException(nameof(birthDateSource));
+        }
+        public void AddEthnicity(Ethnicity ethnicity)
+        {
+            _patientEthnicities.Add(new PatientEthnicity(this, ethnicity));
         }
     }
 }

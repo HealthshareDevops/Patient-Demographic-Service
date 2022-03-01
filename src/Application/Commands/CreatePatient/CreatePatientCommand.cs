@@ -7,6 +7,7 @@ using Domain.Enums;
 using Domain.ValueObjects;
 using MediatR;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -28,6 +29,7 @@ namespace Application.Commands.CreatePatient
         public string BirthDate { get; set; }
         public string BirthDateSource { get; set; }
         public string Gender { get; set; }
+        public List<CreateEthnicityCommand> Ethnicities { get; set; } = new List<CreateEthnicityCommand>();
     }
 
     public class CreatePatientCommandHandler : IRequestHandler<CreatePatientCommand, long>
@@ -110,6 +112,18 @@ namespace Application.Commands.CreatePatient
 
                 var patnt = new Patient(nhi.Value, humanName, birthDate.Value, birthDateSource, gender);
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object created.");
+    
+                // Add Ethnicities
+                foreach (var ethnicityCommand in request.Ethnicities)
+                {
+                    var ethnicity = Ethnicity.FromCode(ethnicityCommand.Code);
+                    if (ethnicity is null)
+                    {
+                        throw new ValidationException("Ethnicity is not valid.");
+                    }
+                    patnt.AddEthnicity(ethnicity);
+                    LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient ethnicity added.");
+                }
 
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object DB Saving.");
                 _dbContext.Patients.Attach(patnt);
