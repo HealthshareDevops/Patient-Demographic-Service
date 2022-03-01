@@ -56,9 +56,9 @@ namespace Domain.Entities
             BirthDate = birthDate ?? throw new ArgumentNullException(nameof(birthDate));
             BirthDateSource = birthDateSource ?? throw new ArgumentNullException(nameof(birthDateSource));
         }
-        public void AddPatientEthnicity(PatientEthnicity patientEthnicity)
+        public void AddEthnicity(Ethnicity ethnicity)
         {
-            _patientEthnicities.Add(patientEthnicity);
+            _patientEthnicities.Add(new PatientEthnicity(this, ethnicity));
         }
     }
 }

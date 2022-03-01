@@ -121,7 +121,8 @@ namespace Application.Commands.CreatePatient
                     {
                         throw new ValidationException("Ethnicity is not valid.");
                     }
-                    patnt.AddPatientEthnicity(new PatientEthnicity(patnt, ethnicity));
+                    patnt.AddEthnicity(ethnicity);
+                    LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient ethnicity added.");
                 }
 
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object DB Saving.");

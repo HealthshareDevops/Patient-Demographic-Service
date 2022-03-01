@@ -12,11 +12,10 @@ using System.Threading.Tasks;
 
 namespace Application.Commands.CreatePatient
 {
-    public class CreateEthnicityCommand : IRequest<long>
+    public class CreateEthnicityCommand 
     {
         public string Code { get; set; }
         public string Description { get; set; }
-        public string Priority { get; set; }
     }
 
 }
