@@ -39,6 +39,23 @@ namespace MessageProcessor.ConsoleApp
                 BirthDate = "19920118",
                 BirthDateSource = "BRCT",
                 Gender = "M",
+                Ethnicities = new[] {
+                    new CreateEthnicityCommand
+                    {
+                        Code = "21",
+                        Description = "21 [Maori]"
+                    },
+                    new CreateEthnicityCommand
+                    {
+                        Code = "11",
+                        Description = "11 [New Zealander]"
+                    },
+                    new CreateEthnicityCommand
+                    {
+                        Code = "99",
+                        Description = "Not stated"
+                    }
+                },
                 Addresses = new[] {
                     new CreateAddressCommand {
                         AddressFormat="CIQ",
@@ -73,7 +90,7 @@ namespace MessageProcessor.ConsoleApp
                         Domicile="",
                         IsPrimary=true,
                         AddressType="R"
-                    },
+                    }
                 }
             };
             
@@ -82,9 +99,7 @@ namespace MessageProcessor.ConsoleApp
 
             var createPatientCommand = JsonSerializer.Deserialize<CreatePatientCommand>(payloadJsonString);
 
-
             var response = await mediator.Send(createPatientCommand);
-            
         }
     }
 }

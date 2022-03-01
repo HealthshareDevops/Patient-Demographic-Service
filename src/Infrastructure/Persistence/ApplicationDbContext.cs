@@ -22,6 +22,7 @@ namespace Infrastructure.Persistence
         private readonly string _connectionString;
 
         public DbSet<Patient> Patients { get; set; }
+        public DbSet<PatientEthnicity> PatientEthnicity { get; set; }
 
         // Enums
         public DbSet<Title> Titles { get; set; }
@@ -33,6 +34,8 @@ namespace Infrastructure.Persistence
         public DbSet<AddressType> AddressTypes { get; set; }
         public DbSet<Country> Countries { get; set; }
         public DbSet<Domicile> Domiciles { get; set; }
+        public DbSet<Ethnicity> Ethnicity { get; set; }
+
 
         public ApplicationDbContext(string connectionString)
         {
@@ -85,6 +88,8 @@ namespace Infrastructure.Persistence
             modelBuilder.ApplyConfiguration(new AddressTypeConfiguration());
             modelBuilder.ApplyConfiguration(new CountryConfiguration());
             modelBuilder.ApplyConfiguration(new DomicileConfiguration());
+            modelBuilder.ApplyConfiguration(new EthnicityConfiguration());
+            modelBuilder.ApplyConfiguration(new PatientEthnicityConfiguration());
         }
     }
 }

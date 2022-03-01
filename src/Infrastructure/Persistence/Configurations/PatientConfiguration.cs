@@ -18,6 +18,7 @@ namespace Infrastructure.Persistence.Configurations
             builder.HasMany(p => p.HumanNames).WithOne()
                 .OnDelete(DeleteBehavior.Cascade)
                 .Metadata.PrincipalToDependent.SetPropertyAccessMode(PropertyAccessMode.Field);
+
             builder.Property(p => p.BirthDate)
                 .HasConversion(p => p.Value, p => BirthDate.Create(p).Value)
                 .IsRequired();

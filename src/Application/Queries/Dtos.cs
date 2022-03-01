@@ -10,7 +10,9 @@ namespace Application.Queries
         public string BirthDate { get; set; }
         public string BirthDateSource { get; set; }
         public string Gender { get; set; }
+        public List<EthnicityDto> Ethnicities { get; set; } = new List<EthnicityDto>();
         public List<AddressDto> Addresses { get; set; } = new List<AddressDto>();
+
 
         public static PatientDto ToPatientDto(Patient patnt)
         {
@@ -29,6 +31,19 @@ namespace Application.Queries
                 nameDto.EffectiveFrom = humanName.EffectiveFrom;
                 nameDto.EffectiveTo = humanName.EffectiveTo;
                 nameDtos.Add(nameDto);
+            }
+            
+            var ethnicityDtos = new List<EthnicityDto>();
+            foreach (var patientEthnicity in patnt.PatientEthnicities)
+            {
+                var ethnicityDto = new EthnicityDto();
+                if (patientEthnicity.Ethnicity != null)
+                {
+                    ethnicityDto.Code = patientEthnicity.Ethnicity.Code;
+                    ethnicityDto.Description = patientEthnicity.Ethnicity.Description;
+                    ethnicityDto.Priority = patientEthnicity.Ethnicity.Priority;
+                    ethnicityDtos.Add(ethnicityDto);
+                }
             }
 
             var addressDtos = new List<AddressDto>();
@@ -60,6 +75,7 @@ namespace Application.Queries
                 BirthDate = patnt.BirthDate,
                 BirthDateSource = patnt.BirthDateSource.Code,
                 Gender = patnt.Gender.Code,
+                Ethnicities = ethnicityDtos,
                 Addresses = addressDtos
             };
         }
@@ -79,6 +95,14 @@ namespace Application.Queries
         public string EffectiveTo { get; set; }
     }
 
+    public class EthnicityDto
+    {
+        public string Code { get; set; }
+        public string Description { get; set; }
+        public string Priority { get; set; }
+
+    }
+
     public class AddressDto
     {
         public string AddressFormat { get; set; }
@@ -91,7 +115,7 @@ namespace Application.Queries
         public string Country { get; set; }
         public bool IsProtected { get; set; }
         public bool IsPermanent { get; set; }
-        public string EffectiveFrom { get;  set; }
+        public string EffectiveFrom { get; set; }
         public string EffectiveTo { get; set; }
         public string Domicile { get; set; }
         public bool IsPrimary { get; set; }

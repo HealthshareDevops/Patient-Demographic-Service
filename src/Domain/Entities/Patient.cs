@@ -29,10 +29,16 @@ namespace Domain.Entities
         // 2.4 Gender
         public Gender Gender { get; private set; }
 
-        // 3 Patient address
+        // 2.5 Ethnicities
+        private readonly List<PatientEthnicity> _patientEthnicities = new List<PatientEthnicity>();
+        public virtual IReadOnlyList<PatientEthnicity> PatientEthnicities => _patientEthnicities.ToList();
+
+        // 3 Addresses
         private readonly List<Address> _addresses = new List<Address>();
         public virtual IReadOnlyList<Address> Addresses => _addresses.ToList();
         
+        
+
         protected Patient() { }
 
         public Patient(Nhi nhi, HumanName humanName, BirthDate birthDate, BirthDateSource birthDateSource, Gender gender)
@@ -49,6 +55,11 @@ namespace Domain.Entities
         public void AddName(HumanName humanName)
         {
             _humanNames.Add(humanName);
+        }
+
+        public void AddEthnicity(Ethnicity ethnicity)
+        {
+            _patientEthnicities.Add(new PatientEthnicity(this, ethnicity));
         }
 
         public void AddAddress(Address address)
