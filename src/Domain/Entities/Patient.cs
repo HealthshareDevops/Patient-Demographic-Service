@@ -28,6 +28,17 @@ namespace Domain.Entities
 
         // 2.4 Gender
         public Gender Gender { get; private set; }
+
+        // 2.5 Age
+        public Int32 Age { 
+            get
+            {
+                var today = DateTime.Today;
+                var age = today.Year - BirthDate.DtValue.Year;
+                if (BirthDate.DtValue.Date > today.AddYears(-age)) --age;
+                return age;
+            } 
+        }
         
         protected Patient() { }
 
@@ -40,6 +51,8 @@ namespace Domain.Entities
             Gender = gender ?? throw new ArgumentNullException(nameof(gender));
 
             SetBirthDateAndPlaceInfo(birthDate, birthDateSource);
+
+         
         }
 
         public void AddName(HumanName humanName)
@@ -52,5 +65,12 @@ namespace Domain.Entities
             BirthDate = birthDate ?? throw new ArgumentNullException(nameof(birthDate));
             BirthDateSource = birthDateSource ?? throw new ArgumentNullException(nameof(birthDateSource));
         }
+        //private void SetAge(BirthDate birthDate) {
+
+        //    //TODO: checck birthDate
+        //    var today = DateTime.Today;
+        //    Age = today.Year - BirthDate.DtValue.Year;
+        //    if (birthDate.DtValue.Date > today.AddYears(-Age)) --Age;
+        //}
     }
 }

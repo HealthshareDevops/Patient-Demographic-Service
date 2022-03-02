@@ -11,6 +11,8 @@ namespace Application.Queries
         public string BirthDateSource { get; set; }
         public string Gender { get; set; }
 
+        public int Age { get; set; }
+
         public static PatientDto ToPatientDto(Patient patnt)
         {
             var nameDtos = new List<NameDto>();
@@ -35,7 +37,8 @@ namespace Application.Queries
                 Names = nameDtos,
                 BirthDate = patnt.BirthDate,
                 BirthDateSource = patnt.BirthDateSource.Code,
-                Gender = patnt.Gender.Code
+                Gender = patnt.Gender.Code,
+                Age = patnt.Age
             };
         }
     }
