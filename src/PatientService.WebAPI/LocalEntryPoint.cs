@@ -16,9 +16,9 @@ namespace PatientService.WebAPI
 
         public static IHostBuilder CreateHostBuilder(string[] args)
         {
-            var config = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.Development.json", optional: false)
-                .Build();
+            //var config = new ConfigurationBuilder()
+            //    .AddJsonFile("appsettings.Development.json", optional: false)
+            //    .Build();
 
             var builder = Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
