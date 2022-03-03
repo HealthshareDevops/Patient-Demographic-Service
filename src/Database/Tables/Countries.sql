@@ -1,7 +1,7 @@
 ﻿CREATE TABLE [Countries] (
     [Id] bigint NOT NULL IDENTITY,
-    [Code] nvarchar(max) NOT NULL,
-    [Description] nvarchar(max) NULL,
-    [Comment] nvarchar(max) NULL,
+    [Code] nvarchar(4) NOT NULL,
+    [Description] nvarchar(200) NULL,
+    [Comment] nvarchar(200) NULL,
     CONSTRAINT [PK_Countries] PRIMARY KEY ([Id])
 )

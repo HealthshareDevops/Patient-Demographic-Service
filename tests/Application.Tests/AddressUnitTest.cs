@@ -191,8 +191,8 @@ namespace Application.Tests
             Assert.Equal(string.Empty, pat[0].Addresses[0].Suburb);
             Assert.Equal(string.Empty, pat[0].Addresses[0].TownOrCity);
             Assert.Equal(string.Empty, pat[0].Addresses[0].PostCode);
-            Assert.Equal(string.Empty, pat[0].Addresses[0].EffectiveFrom);
-            Assert.Equal(string.Empty, pat[0].Addresses[0].EffectiveTo);
+            Assert.Equal(string.Empty, pat[0].Addresses[0].EffectiveFrom.Value);
+            Assert.Equal(string.Empty, pat[0].Addresses[0].EffectiveTo.Value);
         }
 
         [Theory]

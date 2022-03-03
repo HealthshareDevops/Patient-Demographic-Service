@@ -11,7 +11,7 @@ namespace Domain.ValueObjects
 
         private Date(string value)
         {
-            Value = value;
+            Value = value ?? string.Empty;
         }
 
         public static Result<Date> Create(string date)
