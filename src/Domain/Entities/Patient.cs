@@ -29,6 +29,11 @@ namespace Domain.Entities
         // 2.4 Gender
         public Gender Gender { get; private set; }
 
+        // 4 Ethnicities
+        private readonly List<PatientEthnicity> _patientEthnicities = new List<PatientEthnicity>();
+        public virtual IReadOnlyList<PatientEthnicity> PatientEthnicities => _patientEthnicities.ToList();
+
+
         // 2.5 Age
         public Int32 Age { 
             get
@@ -65,12 +70,9 @@ namespace Domain.Entities
             BirthDate = birthDate ?? throw new ArgumentNullException(nameof(birthDate));
             BirthDateSource = birthDateSource ?? throw new ArgumentNullException(nameof(birthDateSource));
         }
-        //private void SetAge(BirthDate birthDate) {
-
-        //    //TODO: checck birthDate
-        //    var today = DateTime.Today;
-        //    Age = today.Year - BirthDate.DtValue.Year;
-        //    if (birthDate.DtValue.Date > today.AddYears(-Age)) --Age;
-        //}
+        public void AddEthnicity(Ethnicity ethnicity)
+        {
+            _patientEthnicities.Add(new PatientEthnicity(this, ethnicity));
+        }
     }
 }

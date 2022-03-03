@@ -23,6 +23,8 @@ namespace Infrastructure.Persistence
         public DbSet<NameSource> NameSources { get; set; }
         public DbSet<BirthDateSource> BirthDateSources { get; set; }
         public DbSet<Gender> Genders { get; set; }
+        public DbSet<Ethnicity> Ethnicity { get; set; }
+        public DbSet<PatientEthnicity> PatientEthnicity { get; set; }
 
         public ApplicationDbContext(string connectionString)
         {
@@ -60,6 +62,8 @@ namespace Infrastructure.Persistence
             modelBuilder.ApplyConfiguration(new NameSourceConfiguration());
             modelBuilder.ApplyConfiguration(new BirthDateSourceConfiguration());
             modelBuilder.ApplyConfiguration(new GenderConfiguration());
+            modelBuilder.ApplyConfiguration(new EthnicityConfiguration());
+            modelBuilder.ApplyConfiguration(new PatientEthnicityConfiguration());
         }
     }
 }
