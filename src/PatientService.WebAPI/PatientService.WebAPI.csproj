@@ -10,9 +10,7 @@
     <Content Remove="appsettings.Development.json" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="appsettings.Development.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <None Include="appsettings.Development.json" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Amazon.Extensions.Configuration.SystemsManager" Version="3.0.0" />
