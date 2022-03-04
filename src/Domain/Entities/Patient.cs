@@ -33,12 +33,21 @@ namespace Domain.Entities
         private readonly List<PatientEthnicity> _patientEthnicities = new List<PatientEthnicity>();
         public virtual IReadOnlyList<PatientEthnicity> PatientEthnicities => _patientEthnicities.ToList();
 
+
         // 3 Addresses
         private readonly List<Address> _addresses = new List<Address>();
         public virtual IReadOnlyList<Address> Addresses => _addresses.ToList();
-        
-        
 
+        public int Age { 
+            get
+            {
+                var today = DateTime.Today;
+                var age = today.Year - BirthDate.DtValue.Year;
+                if (BirthDate.DtValue.Date > today.AddYears(-age)) --age;
+                return age;
+            } 
+        }
+        
         protected Patient() { }
 
         public Patient(Nhi nhi, HumanName humanName, BirthDate birthDate, BirthDateSource birthDateSource, Gender gender)
@@ -49,7 +58,7 @@ namespace Domain.Entities
 
             Gender = gender ?? throw new ArgumentNullException(nameof(gender));
 
-            SetBirthDateAndPlaceInfo(birthDate, birthDateSource);
+            SetBirthDateAndPlaceInfo(birthDate, birthDateSource); 
         }
 
         public void AddName(HumanName humanName)

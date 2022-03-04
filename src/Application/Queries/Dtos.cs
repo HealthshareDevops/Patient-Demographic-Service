@@ -9,10 +9,10 @@ namespace Application.Queries
         public List<NameDto> Names { get; set; } = new List<NameDto>();
         public string BirthDate { get; set; }
         public string BirthDateSource { get; set; }
+        public int Age { get; set; }
         public string Gender { get; set; }
         public List<EthnicityDto> Ethnicities { get; set; } = new List<EthnicityDto>();
         public List<AddressDto> Addresses { get; set; } = new List<AddressDto>();
-
 
         public static PatientDto ToPatientDto(Patient patnt)
         {
@@ -74,6 +74,7 @@ namespace Application.Queries
                 Names = nameDtos,
                 BirthDate = patnt.BirthDate,
                 BirthDateSource = patnt.BirthDateSource.Code,
+                Age = patnt.Age,
                 Gender = patnt.Gender.Code,
                 Ethnicities = ethnicityDtos,
                 Addresses = addressDtos
@@ -100,7 +101,6 @@ namespace Application.Queries
         public string Code { get; set; }
         public string Description { get; set; }
         public string Priority { get; set; }
-
     }
 
     public class AddressDto
