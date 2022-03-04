@@ -52,8 +52,7 @@ namespace Application.Queries
                 BirthDate = patnt.BirthDate,
                 BirthDateSource = patnt.BirthDateSource.Code,
                 Gender = patnt.Gender.Code,
-                Ethnicities = ethnicityDtos
-                Gender = patnt.Gender.Code,
+                Ethnicities = ethnicityDtos,
                 Age = patnt.Age
             };
         }

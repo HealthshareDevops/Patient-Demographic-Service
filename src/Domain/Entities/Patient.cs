@@ -35,7 +35,7 @@ namespace Domain.Entities
 
 
         // 2.5 Age
-        public Int32 Age { 
+        public int Age { 
             get
             {
                 var today = DateTime.Today;
