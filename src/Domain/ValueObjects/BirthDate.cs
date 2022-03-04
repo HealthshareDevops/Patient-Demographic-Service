@@ -16,6 +16,7 @@ namespace Domain.ValueObjects
             DtValue = dtValue;
         }
 
+
         public static Result<BirthDate> Create(string birthDate)
         {
             // ToDo: Validation goes here

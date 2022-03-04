@@ -12,6 +12,8 @@ namespace Application.Queries
         public string Gender { get; set; }
         public List<EthnicityDto> Ethnicities { get; set; } = new List<EthnicityDto>();
 
+        public int Age { get; set; }
+
         public static PatientDto ToPatientDto(Patient patnt)
         {
             var nameDtos = new List<NameDto>();
@@ -50,7 +52,8 @@ namespace Application.Queries
                 BirthDate = patnt.BirthDate,
                 BirthDateSource = patnt.BirthDateSource.Code,
                 Gender = patnt.Gender.Code,
-                Ethnicities = ethnicityDtos
+                Ethnicities = ethnicityDtos,
+                Age = patnt.Age
             };
         }
     }
