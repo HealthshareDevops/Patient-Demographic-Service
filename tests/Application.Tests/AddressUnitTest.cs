@@ -177,8 +177,6 @@ namespace Application.Tests
                 }
             };
 
-            
-
             // Act
             var res = await sut.Handle(request, CancellationToken.None);
             
