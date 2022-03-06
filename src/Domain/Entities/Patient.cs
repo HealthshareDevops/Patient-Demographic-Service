@@ -29,12 +29,15 @@ namespace Domain.Entities
         // 2.4 Gender
         public Gender Gender { get; private set; }
 
-        // 4 Ethnicities
+        // 2.5 Ethnicities
         private readonly List<PatientEthnicity> _patientEthnicities = new List<PatientEthnicity>();
         public virtual IReadOnlyList<PatientEthnicity> PatientEthnicities => _patientEthnicities.ToList();
 
 
-        // 2.5 Age
+        // 3 Addresses
+        private readonly List<Address> _addresses = new List<Address>();
+        public virtual IReadOnlyList<Address> Addresses => _addresses.ToList();
+
         public int Age { 
             get
             {
@@ -55,9 +58,7 @@ namespace Domain.Entities
 
             Gender = gender ?? throw new ArgumentNullException(nameof(gender));
 
-            SetBirthDateAndPlaceInfo(birthDate, birthDateSource);
-
-         
+            SetBirthDateAndPlaceInfo(birthDate, birthDateSource); 
         }
 
         public void AddName(HumanName humanName)
@@ -65,14 +66,27 @@ namespace Domain.Entities
             _humanNames.Add(humanName);
         }
 
+        public void AddEthnicity(Ethnicity ethnicity)
+        {
+            _patientEthnicities.Add(new PatientEthnicity(this, ethnicity));
+        }
+
+        public void AddAddress(Address address)
+        {
+            if(address.IsPrimary)
+            {
+                foreach(var addr in _addresses)
+                {
+                    addr.MakePrimary(false);
+                }
+            }
+            _addresses.Add(address);
+        }
+
         private void SetBirthDateAndPlaceInfo(BirthDate birthDate, BirthDateSource birthDateSource)
         {
             BirthDate = birthDate ?? throw new ArgumentNullException(nameof(birthDate));
             BirthDateSource = birthDateSource ?? throw new ArgumentNullException(nameof(birthDateSource));
-        }
-        public void AddEthnicity(Ethnicity ethnicity)
-        {
-            _patientEthnicities.Add(new PatientEthnicity(this, ethnicity));
         }
     }
 }

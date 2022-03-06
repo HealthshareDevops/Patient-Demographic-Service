@@ -1,204 +1,11 @@
-BEGIN TRANSACTION;
-GO
-
-/**
-  * Tables
-**/
-CREATE TABLE [AddressFormats] (
-    [Id] bigint NOT NULL IDENTITY,
-    [Code] nvarchar(max) NULL,
-    [Description] nvarchar(max) NULL,
-    [Comment] nvarchar(max) NULL,
-    CONSTRAINT [PK_AddressFormats] PRIMARY KEY ([Id])
-);
-GO
-
-CREATE TABLE [AddressTypes] (
-    [Id] bigint NOT NULL IDENTITY,
-    [Code] nvarchar(max) NULL,
-    [Description] nvarchar(max) NULL,
-    [Comment] nvarchar(max) NULL,
-    [HL7PostalAddressUse] nvarchar(max) NULL,
-    CONSTRAINT [PK_AddressTypes] PRIMARY KEY ([Id])
-);
-GO
-
-CREATE TABLE [BirthDateSources] (
-    [Id] bigint NOT NULL IDENTITY,
-    [Code] nvarchar(4) NULL,
-    [Description] nvarchar(max) NULL,
-    [Comment] nvarchar(max) NULL,
-    CONSTRAINT [PK_BirthDateSources] PRIMARY KEY ([Id])
-);
-GO
-
-CREATE TABLE [Countries] (
-    [Id] bigint NOT NULL IDENTITY,
-    [Code] nvarchar(max) NOT NULL,
-    [Description] nvarchar(max) NULL,
-    [Comment] nvarchar(max) NULL,
-    CONSTRAINT [PK_Countries] PRIMARY KEY ([Id])
-);
-GO
-
-CREATE TABLE [Domiciles]
-(
-	[Id] BIGINT NOT NULL IDENTITY, 
-    [Code] NVARCHAR(4) NOT NULL, 
-    [Description] NVARCHAR(MAX) NULL, 
-    [TLA] NVARCHAR(10) NULL, 
-    [Status] NVARCHAR(10) NULL, 
-    [YearOfCensus] NVARCHAR(10) NULL, 
-    [RetiredYear] NVARCHAR(10) NULL, 
-    [AU13] NVARCHAR(10) NULL, 
-    [DHB] NVARCHAR(10) NULL, 
-    [RHAReg] NVARCHAR(10) NULL,
-    CONSTRAINT [PK_Domiciles] PRIMARY KEY ([Id])
-);
-GO
-
-CREATE TABLE [Genders] (
-    [Id] bigint NOT NULL IDENTITY,
-    [Code] nvarchar(1) NULL,
-    [Description] nvarchar(max) NULL,
-    [Comment] nvarchar(max) NULL,
-    [HL7AdministrativeGender] nvarchar(max) NULL,
-    CONSTRAINT [PK_Genders] PRIMARY KEY ([Id])
-);
-GO
-
-CREATE TABLE [NameSources] (
-    [Id] bigint NOT NULL IDENTITY,
-    [Code] nvarchar(4) NULL,
-    [Description] nvarchar(max) NULL,
-    [Comment] nvarchar(max) NULL,
-    CONSTRAINT [PK_NameSources] PRIMARY KEY ([Id])
-);
-GO
-
-CREATE TABLE [Suffixes] (
-    [Id] bigint NOT NULL IDENTITY,
-    [Code] nvarchar(5) NULL,
-    [Comment] nvarchar(max) NULL,
-    CONSTRAINT [PK_Suffixes] PRIMARY KEY ([Id])
-);
-GO
-
-CREATE TABLE [Titles] (
-    [Id] bigint NOT NULL IDENTITY,
-    [Code] nvarchar(10) NULL,
-    [Description] nvarchar(max) NULL,
-    [Comment] nvarchar(max) NULL,
-    CONSTRAINT [PK_Titles] PRIMARY KEY ([Id])
-);
-GO
-
-CREATE TABLE [Patients] (
-    [Id] bigint NOT NULL IDENTITY,
-    [Nhi] nvarchar(7) NOT NULL,
-    [BirthDate] nvarchar(8) NOT NULL,
-    [BirthDateSourceId] bigint NULL,
-    [GenderId] bigint NULL,
-    [CreatedBy] nvarchar(max) NULL,
-    [CreatedDate] datetime2(7) NULL,
-    [LastModifiedBy] nvarchar(max) NULL,
-    [LastModifiedDate] datetime2(7) NULL,
-    CONSTRAINT [PK_Patients] PRIMARY KEY ([Id]),
-    CONSTRAINT [FK_Patients_BirthDateSources_BirthDateSourceId] FOREIGN KEY ([BirthDateSourceId]) REFERENCES [BirthDateSources] ([Id]) ON DELETE NO ACTION,
-    CONSTRAINT [FK_Patients_Genders_GenderId] FOREIGN KEY ([GenderId]) REFERENCES [Genders] ([Id]) ON DELETE NO ACTION
-);
-GO
-
-CREATE TABLE [Addresses] (
-    [Id] bigint NOT NULL IDENTITY,
-    [AddressFormatId] bigint NULL,
-    [BuildingName] nvarchar(max) NULL,
-    [StreetAddress] nvarchar(100) NOT NULL,
-    [AdditionalStreetAddress] nvarchar(100) NULL,
-    [Suburb] nvarchar(50) NULL,
-    [TownOrCity] nvarchar(50) NULL,
-    [PostCode] nvarchar(15) NULL,
-    [CountryId] bigint NULL,
-    [IsProtected] bit NOT NULL,
-    [IsPermanent] bit NOT NULL,
-    [EffectiveFrom] nvarchar(8) NULL,
-    [EffectiveTo] nvarchar(8) NULL,
-    [DomicileId] bigint NULL,
-    [IsPrimary] bit NOT NULL,
-    [AddressTypeId] bigint NULL,
-    [PatientId] bigint NULL,
-    CONSTRAINT [PK_Addresses] PRIMARY KEY ([Id]),
-    CONSTRAINT [FK_Addresses_AddressFormats_AddressFormatId] FOREIGN KEY ([AddressFormatId]) REFERENCES [AddressFormats] ([Id]) ON DELETE NO ACTION,
-    CONSTRAINT [FK_Addresses_AddressTypes_AddressTypeId] FOREIGN KEY ([AddressTypeId]) REFERENCES [AddressTypes] ([Id]) ON DELETE NO ACTION,
-    CONSTRAINT [FK_Addresses_Countries_CountryId] FOREIGN KEY ([CountryId]) REFERENCES [Countries] ([Id]) ON DELETE NO ACTION,
-    CONSTRAINT [FK_Addresses_Domiciles_DomicileId] FOREIGN KEY ([DomicileId]) REFERENCES [Domiciles] ([Id]) ON DELETE NO ACTION,
-    CONSTRAINT [FK_Addresses_Patients_PatientId] FOREIGN KEY ([PatientId]) REFERENCES [Patients] ([Id]) ON DELETE CASCADE
-);
-GO
-
-CREATE TABLE [HumanNames] (
-    [Id] bigint NOT NULL IDENTITY,
-    [TitleId] bigint NULL,
-    [GivenName] nvarchar(50) NULL,
-    [MiddleName] nvarchar(100) NULL,
-    [FamilyName] nvarchar(100) NULL,
-    [SuffixId] bigint NULL,
-    [IsPreferred] bit NOT NULL,
-    [IsProtected] bit NOT NULL,
-    [NameSourceId] bigint NULL,
-    [EffectiveFrom] nvarchar(8) NULL,
-    [EffectiveTo] nvarchar(8) NULL,
-    [PatientId] bigint NULL,
-    CONSTRAINT [PK_HumanNames] PRIMARY KEY ([Id]),
-    CONSTRAINT [FK_HumanNames_NameSources_NameSourceId] FOREIGN KEY ([NameSourceId]) REFERENCES [NameSources] ([Id]) ON DELETE NO ACTION,
-    CONSTRAINT [FK_HumanNames_Patients_PatientId] FOREIGN KEY ([PatientId]) REFERENCES [Patients] ([Id]) ON DELETE CASCADE,
-    CONSTRAINT [FK_HumanNames_Suffixes_SuffixId] FOREIGN KEY ([SuffixId]) REFERENCES [Suffixes] ([Id]) ON DELETE NO ACTION,
-    CONSTRAINT [FK_HumanNames_Titles_TitleId] FOREIGN KEY ([TitleId]) REFERENCES [Titles] ([Id]) ON DELETE NO ACTION
-);
-GO
-
-/**
-  *  Indices
-**/
-CREATE INDEX [IX_Addresses_AddressFormatId] ON [Addresses] ([AddressFormatId]);
-GO
-
-CREATE INDEX [IX_Addresses_AddressTypeId] ON [Addresses] ([AddressTypeId]);
-GO
-
-CREATE INDEX [IX_Addresses_PatientId] ON [Addresses] ([PatientId]);
-GO
-
-CREATE INDEX [IX_HumanNames_PatientId] ON [HumanNames] ([PatientId]);
-GO
-
-CREATE INDEX [IX_HumanNames_NameSourceId] ON [HumanNames] ([NameSourceId]);
-GO
-
-CREATE INDEX [IX_HumanNames_SuffixId] ON [HumanNames] ([SuffixId]);
-GO
-
-CREATE INDEX [IX_HumanNames_TitleId] ON [HumanNames] ([TitleId]);
-GO
-
-CREATE INDEX [IX_Patients_BirthDateSourceId] ON [Patients] ([BirthDateSourceId]);
-GO
-
-CREATE INDEX [IX_Patients_GenderId] ON [Patients] ([GenderId]);
-GO
-
-CREATE UNIQUE INDEX [IX_Patients_Nhi] ON [Patients] ([Nhi]);
-GO
-
-COMMIT;
-GO
-
 /**
    * Seeding
 **/
 BEGIN TRANSACTION;
 GO
 
+IF EXISTS (SELECT TOP 1 1 FROM [AddressFormats])
+BEGIN 
 IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Comment', N'Description') AND [object_id] = OBJECT_ID(N'[AddressFormats]'))
     SET IDENTITY_INSERT [AddressFormats] ON;
 INSERT INTO [AddressFormats] ([Id], [Code], [Comment], [Description])
@@ -206,6 +13,7 @@ VALUES (CAST(1 AS bigint), N'CIQ', N'', N'NZ CIQ Address Profile'),
 (CAST(2 AS bigint), N'POST', N'', N'NZ Post Address Standard');
 IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Comment', N'Description') AND [object_id] = OBJECT_ID(N'[AddressFormats]'))
     SET IDENTITY_INSERT [AddressFormats] OFF;
+END
 GO
 
 IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Comment', N'Description', N'HL7PostalAddressUse') AND [object_id] = OBJECT_ID(N'[AddressTypes]'))
@@ -235,6 +43,39 @@ VALUES (CAST(9 AS bigint), N'NZPV', N'A New Zealand Permanent Resident Visa(not 
 (CAST(6 AS bigint), N'NZCI', N'', N'NZ Certificate of Identity');
 IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Comment', N'Description') AND [object_id] = OBJECT_ID(N'[BirthDateSources]'))
     SET IDENTITY_INSERT [BirthDateSources] OFF;
+GO
+
+IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Description', N'Priority') AND [object_id] = OBJECT_ID(N'[Ethnicities]'))
+    SET IDENTITY_INSERT [Ethnicities] ON;
+INSERT INTO [Ethnicities] ([Id], [Code], [Description], [Priority])
+VALUES (CAST(15 AS bigint), N'42', N'Chinese', N'12'),
+(CAST(26 AS bigint), N'99', N'Not stated', N'99'),
+(CAST(25 AS bigint), N'97', N'Response unidentifiable', N'97'),
+(CAST(24 AS bigint), N'95', N'Refused to answer', N'95'),
+(CAST(23 AS bigint), N'94', N'Do not know', N'94'),
+(CAST(22 AS bigint), N'61', N'Other ethnicity', N'18'),
+(CAST(21 AS bigint), N'54', N'Other(retired on 1/07/2009)', N'19'),
+(CAST(19 AS bigint), N'52', N'Latin American / Hispanic', N'15'),
+(CAST(18 AS bigint), N'51', N'Middle Eastern', N'17'),
+(CAST(17 AS bigint), N'44', N'Other Asian', N'13'),
+(CAST(16 AS bigint), N'43', N'Indian', N'11'),
+(CAST(14 AS bigint), N'41', N'Southeast Asian', N'10'),
+(CAST(20 AS bigint), N'53', N'African', N'16'),
+(CAST(12 AS bigint), N'37', N'Other Pacific Island', N'8'),
+(CAST(13 AS bigint), N'40', N'Asian not further defined', N'14'),
+(CAST(2 AS bigint), N'11', N'NZ European', N'22'),
+(CAST(3 AS bigint), N'12', N'Other European', N'20'),
+(CAST(4 AS bigint), N'21', N'NZ Maori', N'1'),
+(CAST(5 AS bigint), N'30', N'Pacific Island not further defined', N'9'),
+(CAST(6 AS bigint), N'31', N'Samoan', N'7  '),
+(CAST(1 AS bigint), N'10', N'European not further defined', N'21'),
+(CAST(7 AS bigint), N'32', N'Cook Island Maori', N'6'),
+(CAST(8 AS bigint), N'33', N'Tongan', N'5'),
+(CAST(9 AS bigint), N'34', N'Niuean', N'4'),
+(CAST(10 AS bigint), N'35', N'Tokelauan', N'2'),
+(CAST(11 AS bigint), N'36', N'Fijian', N'3');
+IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Description', N'Priority') AND [object_id] = OBJECT_ID(N'[Ethnicities]'))
+    SET IDENTITY_INSERT [Ethnicities] OFF;
 GO
 
 IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Comment', N'Description', N'HL7AdministrativeGender') AND [object_id] = OBJECT_ID(N'[Genders]'))

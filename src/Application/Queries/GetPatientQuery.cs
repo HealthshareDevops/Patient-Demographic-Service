@@ -36,7 +36,12 @@ namespace Application.Queries
                         .ThenInclude(n => n.Title)
                     .Include(x => x.BirthDateSource)
                     .Include(x => x.Gender)
-                    .Include(x=> x.PatientEthnicities).ThenInclude(x =>x.Ethnicity)
+                    .Include(x => x.PatientEthnicities)
+                        .ThenInclude(x => x.Ethnicity)
+                    .Include(x => x.Addresses)
+                        .ThenInclude(x => x.AddressFormat)
+                    .Include(x => x.Addresses)
+                        .ThenInclude(x => x.AddressType)
                     .FirstOrDefaultAsync(x => x.Nhi == request.Nhi);
 
                 if (response is null)
