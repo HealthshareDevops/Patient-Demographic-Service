@@ -9,7 +9,10 @@ namespace Application.Queries
         public List<NameDto> Names { get; set; } = new List<NameDto>();
         public string BirthDate { get; set; }
         public string BirthDateSource { get; set; }
+        public int Age { get; set; }
         public string Gender { get; set; }
+        public List<EthnicityDto> Ethnicities { get; set; } = new List<EthnicityDto>();
+        public List<AddressDto> Addresses { get; set; } = new List<AddressDto>();
         public List<ContactDto> Contacts { get; set; } = new List<ContactDto>();
 
         public static PatientDto ToPatientDto(Patient patnt)
@@ -30,6 +33,42 @@ namespace Application.Queries
                 nameDto.EffectiveTo = humanName.EffectiveTo;
                 nameDtos.Add(nameDto);
             }
+            
+            var ethnicityDtos = new List<EthnicityDto>();
+            foreach (var patientEthnicity in patnt.PatientEthnicities)
+            {
+                var ethnicityDto = new EthnicityDto();
+                if (patientEthnicity.Ethnicity != null)
+                {
+                    ethnicityDto.Code = patientEthnicity.Ethnicity.Code;
+                    ethnicityDto.Description = patientEthnicity.Ethnicity.Description;
+                    ethnicityDto.Priority = patientEthnicity.Ethnicity.Priority;
+                    ethnicityDtos.Add(ethnicityDto);
+                }
+            }
+
+            var addressDtos = new List<AddressDto>();
+            foreach(var address in patnt.Addresses)
+            {
+                var addressDto = new AddressDto();
+                addressDto.AddressFormat = !(address.AddressFormat is null) ? address.AddressFormat.Code : string.Empty;
+                addressDto.BuildingName = address.BuildingName;
+                addressDto.StreetAddress = address.StreetAddress;
+                addressDto.AdditionalStreetAddress = address.AdditionalStreetAddress;
+                addressDto.Suburb = address.Suburb;
+                addressDto.TownOrCity = address.TownOrCity;
+                addressDto.PostCode = address.PostCode;
+                addressDto.Country = !(address.Country is null) ? address.Country.Code : string.Empty;
+                addressDto.IsProtected = address.IsProtected;
+                addressDto.IsPermanent = address.IsPermanent;
+                addressDto.EffectiveFrom = address.EffectiveFrom;
+                addressDto.EffectiveTo = address.EffectiveTo;
+                addressDto.Domicile = !(address.Domicile is null) ? address.Domicile.Code : string.Empty;
+                addressDto.IsPrimary = address.IsPrimary;
+                addressDto.AddressType = address.AddressType.Code;
+                addressDtos.Add(addressDto);
+            }
+
 
             var contactDtos = new List<ContactDto>();
             foreach (var contact in patnt.Contacts)
@@ -50,7 +89,10 @@ namespace Application.Queries
                 Names = nameDtos,
                 BirthDate = patnt.BirthDate,
                 BirthDateSource = patnt.BirthDateSource.Code,
+                Age = patnt.Age,
                 Gender = patnt.Gender.Code,
+                Ethnicities = ethnicityDtos,
+                Addresses = addressDtos
                 Contacts = contactDtos,
             };
         }
@@ -86,5 +128,31 @@ namespace Application.Queries
         public string EffectiveTo { get;  set; }
 
         public bool IsPreferred { get;  set; }
+    }
+
+    public class EthnicityDto
+    {
+        public string Code { get; set; }
+        public string Description { get; set; }
+        public string Priority { get; set; }
+    }
+
+    public class AddressDto
+    {
+        public string AddressFormat { get; set; }
+        public string BuildingName { get; set; }
+        public string StreetAddress { get; set; }
+        public string AdditionalStreetAddress { get; set; }
+        public string Suburb { get; set; }
+        public string TownOrCity { get; set; }
+        public string PostCode { get; set; }
+        public string Country { get; set; }
+        public bool IsProtected { get; set; }
+        public bool IsPermanent { get; set; }
+        public string EffectiveFrom { get; set; }
+        public string EffectiveTo { get; set; }
+        public string Domicile { get; set; }
+        public bool IsPrimary { get; set; }
+        public string AddressType { get; set; }
     }
 }

@@ -2,7 +2,7 @@
 (
 	[Id] BIGINT NOT NULL IDENTITY, 
     [Code] NVARCHAR(4) NOT NULL, 
-    [Description] NVARCHAR(MAX) NULL, 
+    [Description] NVARCHAR(200) NULL, 
     [TLA] NVARCHAR(10) NULL, 
     [Status] NVARCHAR(10) NULL, 
     [YearOfCensus] NVARCHAR(10) NULL, 

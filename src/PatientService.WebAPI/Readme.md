@@ -28,7 +28,7 @@ the base class of `LambdaEntryPoint` from `Amazon.Lambda.AspNetCoreServer.APIGat
 
 ### Project Files ###
 
-* serverless.template - an AWS CloudFormation Serverless Application Model template file for declaring your Serverless functions and other AWS resources
+* serverless.template- an AWS CloudFormation Serverless Application Model template file for declaring your Serverless functions and other AWS resources
 * aws-lambda-tools-defaults.json - default argument settings for use with Visual Studio and command line deployment tools for AWS
 * LambdaEntryPoint.cs - class that derives from **Amazon.Lambda.AspNetCoreServer.APIGatewayProxyFunction**. The code in 
 this file bootstraps the ASP.NET Core hosting framework. The Lambda function is defined in the base class.

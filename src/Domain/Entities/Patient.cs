@@ -29,6 +29,26 @@ namespace Domain.Entities
         // 2.4 Gender
         public Gender Gender { get; private set; }
 
+        // 2.5 Ethnicities
+        private readonly List<PatientEthnicity> _patientEthnicities = new List<PatientEthnicity>();
+        public virtual IReadOnlyList<PatientEthnicity> PatientEthnicities => _patientEthnicities.ToList();
+
+
+        // 3 Addresses
+        private readonly List<Address> _addresses = new List<Address>();
+        public virtual IReadOnlyList<Address> Addresses => _addresses.ToList();
+
+        public int Age { 
+            get
+            {
+                var today = DateTime.Today;
+                var age = today.Year - BirthDate.DtValue.Year;
+                if (BirthDate.DtValue.Date > today.AddYears(-age)) --age;
+                return age;
+            } 
+        }
+        
+
 
         // 5 Contact
         private readonly List<Contact> _contacts = new List<Contact>();
@@ -44,12 +64,29 @@ namespace Domain.Entities
 
             Gender = gender ?? throw new ArgumentNullException(nameof(gender));
 
-            SetBirthDateAndPlaceInfo(birthDate, birthDateSource);
+            SetBirthDateAndPlaceInfo(birthDate, birthDateSource); 
         }
 
         public void AddName(HumanName humanName)
         {
             _humanNames.Add(humanName);
+        }
+
+        public void AddEthnicity(Ethnicity ethnicity)
+        {
+            _patientEthnicities.Add(new PatientEthnicity(this, ethnicity));
+        }
+
+        public void AddAddress(Address address)
+        {
+            if(address.IsPrimary)
+            {
+                foreach(var addr in _addresses)
+                {
+                    addr.MakePrimary(false);
+                }
+            }
+            _addresses.Add(address);
         }
 
         private void SetBirthDateAndPlaceInfo(BirthDate birthDate, BirthDateSource birthDateSource)

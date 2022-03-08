@@ -28,6 +28,9 @@ namespace Infrastructure.Persistence.Configurations
             builder.Property<DateTime>("CreatedDate").HasColumnType("datetime2");
             builder.Property<string>("LastModifiedBy");
             builder.Property<DateTime>("LastModifiedDate").HasColumnType("datetime2");
+            builder.HasMany(p => p.Addresses).WithOne()
+                .OnDelete(DeleteBehavior.Cascade)
+                .Metadata.PrincipalToDependent.SetPropertyAccessMode(PropertyAccessMode.Field);
         }
     }
 }

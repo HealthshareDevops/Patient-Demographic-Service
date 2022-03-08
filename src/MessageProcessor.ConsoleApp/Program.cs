@@ -13,10 +13,12 @@ namespace MessageProcessor.ConsoleApp
         static IConfiguration Configuration;
         static async Task Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            Console.WriteLine("MessageProcessor.ConsoleApp ...");
+
+      
+
             Configuration = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.Development.json")
-                //.AddSystemsManager("/PatientDemographicService/sandbox")
+                .AddJsonFile($"appsettings.Development.json")
                 .Build();
 
             var mediator = Startup.ConfigureServices(Configuration).GetService<IMediator>();
@@ -36,6 +38,61 @@ namespace MessageProcessor.ConsoleApp
                 EffectiveTo = "",
                 BirthDate = "19920118",
                 BirthDateSource = "BRCT",
+                Gender = "M",
+                Ethnicities = new[] {
+                    new CreateEthnicityCommand
+                    {
+                        Code = "21",
+                        Description = "21 [Maori]"
+                    },
+                    new CreateEthnicityCommand
+                    {
+                        Code = "11",
+                        Description = "11 [New Zealander]"
+                    },
+                    new CreateEthnicityCommand
+                    {
+                        Code = "99",
+                        Description = "Not stated"
+                    }
+                },
+                Addresses = new[] {
+                    new CreateAddressCommand {
+                        AddressFormat="CIQ",
+                        BuildingName = "hello",
+                        StreetAddress="92 Hillcrest Road",
+                        AdditionalStreetAddress="",
+                        Suburb="Hillcrest",
+                        TownOrCity="Hamilton",
+                        PostCode="3216",
+                        Country="572",
+                        IsProtected=false,
+                        IsPermanent=true,
+                        EffectiveFrom="",
+                        EffectiveTo="",
+                        Domicile="",
+                        IsPrimary=true,
+                        AddressType="R"
+                    },
+                    new CreateAddressCommand {
+                        AddressFormat="CIQ",
+                        BuildingName = "world",
+                        StreetAddress="16 Clarence Street",
+                        AdditionalStreetAddress="",
+                        Suburb="",
+                        TownOrCity="Hamilton",
+                        PostCode="3204",
+                        Country="572",
+                        IsProtected=false,
+                        IsPermanent=false,
+                        EffectiveFrom="",
+                        EffectiveTo="",
+                        Domicile="",
+                        IsPrimary=true,
+                        AddressType="R"
+                    }
+                }
+            };
                 Gender = "M",
                 Contacts = new[] {
                     new {
@@ -57,9 +114,7 @@ namespace MessageProcessor.ConsoleApp
 
             var createPatientCommand = JsonSerializer.Deserialize<CreatePatientCommand>(payloadJsonString);
 
-
             var response = await mediator.Send(createPatientCommand);
-            
         }
     }
 }
