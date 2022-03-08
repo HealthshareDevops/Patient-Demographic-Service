@@ -23,3 +23,6 @@ INSERT [ContactTypes] ([Id], [Code], [Description], [Comment]) VALUES (10, N'V',
 GO
 INSERT [ContactTypes] ([Id], [Code], [Description], [Comment]) VALUES (11, N'W', N'Web forum (social media)', N'');
 GO
+IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Description', N'Comment') AND [object_id] = OBJECT_ID(N'[ContactTypes]'))
+    SET IDENTITY_INSERT [ContactTypes] OFF;
+GO

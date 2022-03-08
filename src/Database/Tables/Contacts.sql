@@ -1,4 +1,4 @@
-﻿CREATE TABLE [dbo].[Contacts]
+﻿CREATE TABLE [Contacts]
 (
 	[Id] BIGINT NOT NULL IDENTITY, 
     [ContactUsageId] BIGINT NOT NULL, 

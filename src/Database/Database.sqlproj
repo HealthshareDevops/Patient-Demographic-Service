@@ -79,16 +79,10 @@
     <Build Include="Tables\Contacts.sql" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="LocalTestDatabase.publish.xml" />
-    <PostDeploy Include="PostDeployments\Script.PostDeployment.sql" />
-  </ItemGroup>
-  <ItemGroup>
+    <None Include="PostDeployments\AddressFormatSeed.PostDeployment.sql" />
+    <None Include="PostDeployments\AddressTypeSeed.PostDeployment.sql" />
+    <PostDeploy Include="Script.PostDeployment.sql" />
     <None Include="LocalDatabase.publish.xml" />
-    <None Include="Database.publish.xml" />
-    <None Include="Database_1.publish.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <RefactorLog Include="Database.refactorlog" />
   </ItemGroup>
   <ItemGroup>
     <None Include="PostDeployments\NameSourceSeed.PostDeployment.sql" />

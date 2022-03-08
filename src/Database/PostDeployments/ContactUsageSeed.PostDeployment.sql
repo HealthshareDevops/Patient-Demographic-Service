@@ -12,4 +12,3 @@ GO
 IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Description', N'Comment') AND [object_id] = OBJECT_ID(N'[ContactUsages]'))
     SET IDENTITY_INSERT [ContactUsages] OFF;
 GO
-

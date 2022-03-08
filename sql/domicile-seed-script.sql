@@ -5,7 +5,7 @@
 
 IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Description', N'TLA', N'Status', N'YearOfCensus', N'RetiredYear', N'AU13', N'DHB', N'RHAReg') AND [object_id] = OBJECT_ID(N'[Domiciles]'))
     SET IDENTITY_INSERT [Domiciles] ON;
-
+GO
 INSERT [Domiciles] ([Id], [Code], [Description], [TLA], [Status], [YearOfCensus], [RetiredYear], [AU13], [DHB], [RHAReg]) VALUES (1, N'0001', N'Awanui', N'001', N'C', N'1991', N'', N'500100', N'011', N'01')
 GO
 INSERT [Domiciles] ([Id], [Code], [Description], [TLA], [Status], [YearOfCensus], [RetiredYear], [AU13], [DHB], [RHAReg]) VALUES (2, N'0002', N'Karikari Peninsula-Maungataniwha', N'001', N'C', N'1991', N'', N'500202', N'011', N'01')
@@ -4690,6 +4690,4 @@ INSERT [Domiciles] ([Id], [Code], [Description], [TLA], [Status], [YearOfCensus]
 GO
 IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Description', N'TLA', N'Status', N'YearOfCensus', N'RetiredYear', N'AU13', N'DHB', N'RHAReg') AND [object_id] = OBJECT_ID(N'[Domiciles]'))
     SET IDENTITY_INSERT [Domiciles] OFF;
-
-COMMIT;
 GO

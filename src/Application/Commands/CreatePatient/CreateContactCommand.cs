@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Application.Commands.CreatePatient
 {
-    public class ContactCommand
+    public class CreateContactCommand
     {
         public string ContactUsage { get; set; }
 
