@@ -114,4 +114,10 @@
   <ItemGroup>
     <None Include="PostDeployments\BirthDateSourceSeed.PostDeployment.sql" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="PostDeployments\ContactTypeSeed.PostDeployment.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="PostDeployments\ContactUsageSeed.PostDeployment.sql" />
+  </ItemGroup>
 </Project>

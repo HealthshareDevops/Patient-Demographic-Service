@@ -15,7 +15,7 @@ namespace MessageProcessor.ConsoleApp
         {
             Console.WriteLine("MessageProcessor.ConsoleApp ...");
 
-      
+
 
             Configuration = new ConfigurationBuilder()
                 .AddJsonFile($"appsettings.Development.json")
@@ -25,7 +25,7 @@ namespace MessageProcessor.ConsoleApp
 
             var payload = new
             {
-                Nhi = "PRP1660",
+                Nhi = "ZZZ0016",
                 Title = "SIR",
                 GivenName = "Jack",
                 MiddleName = "",
@@ -91,9 +91,7 @@ namespace MessageProcessor.ConsoleApp
                         IsPrimary=true,
                         AddressType="R"
                     }
-                }
-            };
-                Gender = "M",
+                },
                 Contacts = new[] {
                     new {
                             ContactType = "A",
@@ -104,11 +102,11 @@ namespace MessageProcessor.ConsoleApp
                             EffectiveTo = "20220228",
                             IsPreferred =  false
                         }
-                } 
+                }
 
-                               
+
             }; //end of payload
-            
+
             var payloadJsonString = JsonSerializer.Serialize(payload);
             Console.WriteLine($"Payload: {payloadJsonString}");
 

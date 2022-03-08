@@ -92,8 +92,8 @@ namespace Application.Queries
                 Age = patnt.Age,
                 Gender = patnt.Gender.Code,
                 Ethnicities = ethnicityDtos,
-                Addresses = addressDtos
-                Contacts = contactDtos,
+                Addresses = addressDtos,
+                Contacts = contactDtos
             };
         }
     }

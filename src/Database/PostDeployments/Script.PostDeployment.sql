@@ -17,3 +17,5 @@ Post-Deployment Script Template
 :r .\EthnicitySeed.PostDeployment.sql
 :r .\CountrySeed.PostDeployment.sql
 :r .\DomicileSeed.PostDeployment.sql
+:r .\ContactTypeSeed.PostDeployment.sql
+:r .\ContactUsageSeed.PostDeployment.sql
