@@ -1,3 +1,8 @@
+/**
+*  Script to seed country codes into Countries table
+*  source: https://www.health.govt.nz/nz-health-statistics/data-references/code-tables/common-code-tables/country-birth-code-table 
+**/
+
 IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Comment', N'Description') AND [object_id] = OBJECT_ID(N'[Countries]'))
     SET IDENTITY_INSERT [Countries] ON;
 GO

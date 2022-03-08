@@ -32,8 +32,7 @@ namespace Application.Commands.CreatePatient
         public string Gender { get; set; }
         public List<CreateEthnicityCommand> Ethnicities { get; set; } = new List<CreateEthnicityCommand>();
         public List<CreateAddressCommand> Addresses { get; set; } = new List<CreateAddressCommand>();
-        
-        public List<ContactCommand> Contacts {get; set;}
+        public List<CreateContactCommand> Contacts { get; set; } = new List<CreateContactCommand>();
     }
 
     public class CreatePatientCommandHandler : IRequestHandler<CreatePatientCommand, long>
@@ -114,23 +113,9 @@ namespace Application.Commands.CreatePatient
                     throw new ValidationException("Gender is not valid.");
                 }
 
-                
                 var patnt = new Patient(nhi.Value, humanName, birthDate.Value, birthDateSource, gender);
-
-                // Add contacts
-                foreach (var contactCommand in request.Contacts)
-                {
-                    patnt.AddContact(ToContact(contactCommand));
-                }
-
-                // Add addressess
-                foreach (var addrCommand in request.Addresses)
-                {
-                    patnt.AddAddress(ToAddress(addrCommand));
-                }
-
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object created.");
-    
+
                 // Add Ethnicities
                 foreach (var ethnicityCommand in request.Ethnicities)
                 {
@@ -140,9 +125,24 @@ namespace Application.Commands.CreatePatient
                         throw new ValidationException("Ethnicity is not valid.");
                     }
                     patnt.AddEthnicity(ethnicity);
-                    LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient ethnicity added.");
+                    
                 }
+                LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient ethnicities added.");
 
+                // Add addressess
+                foreach (var addrCommand in request.Addresses)
+                {
+                    patnt.AddAddress(ToAddress(addrCommand));
+                }
+                LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient addresses added.");
+                
+                // Add contacts
+                foreach (var contactCommand in request.Contacts)
+                {
+                    patnt.AddContact(ToContact(contactCommand));
+                }
+                LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient contacts added.");
+                
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object DB Saving.");
                 _dbContext.Patients.Attach(patnt);
                 await _dbContext.SaveChangesAsync(cancellationToken);
@@ -212,7 +212,7 @@ namespace Application.Commands.CreatePatient
             return address;
         }
 
-        private Contact ToContact(ContactCommand contactCommand)
+        private Contact ToContact(CreateContactCommand contactCommand)
         {
             var contactUsage = ContactUsage.FromCode(contactCommand.ContactUsage);
             if (contactUsage is null)

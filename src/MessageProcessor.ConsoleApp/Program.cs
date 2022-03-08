@@ -40,24 +40,22 @@ namespace MessageProcessor.ConsoleApp
                 BirthDateSource = "BRCT",
                 Gender = "M",
                 Ethnicities = new[] {
-                    new CreateEthnicityCommand
-                    {
+                    new {
                         Code = "21",
                         Description = "21 [Maori]"
                     },
-                    new CreateEthnicityCommand
-                    {
+                    new {
                         Code = "11",
                         Description = "11 [New Zealander]"
                     },
-                    new CreateEthnicityCommand
+                    new 
                     {
                         Code = "99",
                         Description = "Not stated"
                     }
                 },
                 Addresses = new[] {
-                    new CreateAddressCommand {
+                    new {
                         AddressFormat="CIQ",
                         BuildingName = "hello",
                         StreetAddress="92 Hillcrest Road",
@@ -74,7 +72,7 @@ namespace MessageProcessor.ConsoleApp
                         IsPrimary=true,
                         AddressType="R"
                     },
-                    new CreateAddressCommand {
+                    new {
                         AddressFormat="CIQ",
                         BuildingName = "world",
                         StreetAddress="16 Clarence Street",
@@ -103,8 +101,6 @@ namespace MessageProcessor.ConsoleApp
                             IsPreferred =  false
                         }
                 }
-
-
             }; //end of payload
 
             var payloadJsonString = JsonSerializer.Serialize(payload);

@@ -1,4 +1,4 @@
-﻿CREATE TABLE [dbo].[ContactUsages]
+﻿CREATE TABLE [ContactUsages]
 (
 	[Id] BIGINT NOT NULL PRIMARY KEY, 
     [Code] NVARCHAR NOT NULL, 

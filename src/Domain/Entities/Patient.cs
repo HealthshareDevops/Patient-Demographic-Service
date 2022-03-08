@@ -33,26 +33,24 @@ namespace Domain.Entities
         private readonly List<PatientEthnicity> _patientEthnicities = new List<PatientEthnicity>();
         public virtual IReadOnlyList<PatientEthnicity> PatientEthnicities => _patientEthnicities.ToList();
 
-
         // 3 Addresses
         private readonly List<Address> _addresses = new List<Address>();
         public virtual IReadOnlyList<Address> Addresses => _addresses.ToList();
 
-        public int Age { 
+        // 5 Contact
+        private readonly List<Contact> _contacts = new List<Contact>();
+        public virtual IReadOnlyList<Contact> Contacts => _contacts.ToList();
+
+        public int Age
+        {
             get
             {
                 var today = DateTime.Today;
                 var age = today.Year - BirthDate.DtValue.Year;
                 if (BirthDate.DtValue.Date > today.AddYears(-age)) --age;
                 return age;
-            } 
+            }
         }
-        
-
-
-        // 5 Contact
-        private readonly List<Contact> _contacts = new List<Contact>();
-        public virtual IReadOnlyList<Contact> Contacts => _contacts.ToList();
 
         protected Patient() { }
 
@@ -89,16 +87,15 @@ namespace Domain.Entities
             _addresses.Add(address);
         }
 
+        public void AddContact(Contact contact)
+        {
+            _contacts.Add(contact);
+        }
+
         private void SetBirthDateAndPlaceInfo(BirthDate birthDate, BirthDateSource birthDateSource)
         {
             BirthDate = birthDate ?? throw new ArgumentNullException(nameof(birthDate));
             BirthDateSource = birthDateSource ?? throw new ArgumentNullException(nameof(birthDateSource));
-        }
-
-
-        public void AddContact(Contact contact)
-        {
-            _contacts.Add(contact);
         }
     }
 }

@@ -112,24 +112,6 @@ namespace Application.Queries
         public string EffectiveTo { get; set; }
     }
 
-    public class ContactDto
-    {
-
-        public string ContactUsage { get; set; }
-
-        public string ContactType { get;  set; }
-
-        public string Detail { get;  set; }
-
-        public bool IsProtected { get;  set; }
-
-        public string EffectiveFrom { get;  set; }
-
-        public string EffectiveTo { get;  set; }
-
-        public bool IsPreferred { get;  set; }
-    }
-
     public class EthnicityDto
     {
         public string Code { get; set; }
@@ -154,5 +136,22 @@ namespace Application.Queries
         public string Domicile { get; set; }
         public bool IsPrimary { get; set; }
         public string AddressType { get; set; }
+    }
+
+    public class ContactDto
+    {
+        public string ContactUsage { get; set; }
+
+        public string ContactType { get; set; }
+
+        public string Detail { get; set; }
+
+        public bool IsProtected { get; set; }
+
+        public string EffectiveFrom { get; set; }
+
+        public string EffectiveTo { get; set; }
+
+        public bool IsPreferred { get; set; }
     }
 }

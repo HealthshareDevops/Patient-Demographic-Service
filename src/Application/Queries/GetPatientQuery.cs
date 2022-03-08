@@ -48,7 +48,6 @@ namespace Application.Queries
                         .ThenInclude(c => c.ContactUsage)
                     .FirstOrDefaultAsync(x => x.Nhi == request.Nhi);
 
-
                 if (response is null)
                 {
                     LambdaLogger.Log($"INFO: Nhi: {request.Nhi} not found.");
