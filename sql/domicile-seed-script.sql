@@ -4690,3 +4690,6 @@ INSERT [Domiciles] ([Id], [Code], [Description], [TLA], [Status], [YearOfCensus]
 GO
 IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Description', N'TLA', N'Status', N'YearOfCensus', N'RetiredYear', N'AU13', N'DHB', N'RHAReg') AND [object_id] = OBJECT_ID(N'[Domiciles]'))
     SET IDENTITY_INSERT [Domiciles] OFF;
+
+COMMIT;
+GO

@@ -37,6 +37,10 @@ namespace Infrastructure.Persistence
         public DbSet<Ethnicity> Ethnicity { get; set; }
 
 
+        public DbSet<ContactUsage> ContactUsages { get; set; }
+        public DbSet<ContactType> ContactTypes { get; set; }
+
+
         public ApplicationDbContext(string connectionString)
         {
             _connectionString = connectionString;
@@ -90,6 +94,9 @@ namespace Infrastructure.Persistence
             modelBuilder.ApplyConfiguration(new DomicileConfiguration());
             modelBuilder.ApplyConfiguration(new EthnicityConfiguration());
             modelBuilder.ApplyConfiguration(new PatientEthnicityConfiguration());
+            modelBuilder.ApplyConfiguration(new ContactConfiguration());
+            modelBuilder.ApplyConfiguration(new ContactTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new ContactUsageConfiguration());
         }
     }
 }

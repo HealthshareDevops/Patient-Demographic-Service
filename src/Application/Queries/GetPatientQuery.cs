@@ -42,7 +42,12 @@ namespace Application.Queries
                         .ThenInclude(x => x.AddressFormat)
                     .Include(x => x.Addresses)
                         .ThenInclude(x => x.AddressType)
+                    .Include(x => x.Contacts)
+                        .ThenInclude(c => c.ContactType)
+                     .Include(x => x.Contacts)
+                        .ThenInclude(c => c.ContactUsage)
                     .FirstOrDefaultAsync(x => x.Nhi == request.Nhi);
+
 
                 if (response is null)
                 {

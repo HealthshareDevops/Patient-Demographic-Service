@@ -15,7 +15,7 @@ namespace MissingData.ConsoleApp
             Console.WriteLine("Hello World!");
             Configuration = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json")
-                .AddSystemsManager("/PatientDemographicService/sandbox")
+                //.AddSystemsManager("/PatientDemographicService/sandbox")
                 .Build();
             var qUrl = "https://sqs.ap-southeast-2.amazonaws.com/428762063575/PatientDemographic-MissingDataQueue";
             CredentialProfile basicProfile;

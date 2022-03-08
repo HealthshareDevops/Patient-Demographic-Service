@@ -13,6 +13,7 @@ namespace Application.Queries
         public string Gender { get; set; }
         public List<EthnicityDto> Ethnicities { get; set; } = new List<EthnicityDto>();
         public List<AddressDto> Addresses { get; set; } = new List<AddressDto>();
+        public List<ContactDto> Contacts { get; set; } = new List<ContactDto>();
 
         public static PatientDto ToPatientDto(Patient patnt)
         {
@@ -68,6 +69,20 @@ namespace Application.Queries
                 addressDtos.Add(addressDto);
             }
 
+
+            var contactDtos = new List<ContactDto>();
+            foreach (var contact in patnt.Contacts)
+            {   var contactDto = new ContactDto();
+                contactDto.ContactUsage = contact.ContactUsage.Code;
+                contactDto.ContactType = contact.ContactType.Code; 
+                contactDto.Detail = contact.Detail;
+                contactDto.IsProtected = contact.IsProtected;
+                contactDto.EffectiveFrom = contact.EffectiveFrom;   
+                contactDto.EffectiveTo = contact.EffectiveTo;   
+                contactDto.IsPreferred = contact.IsPreferred;
+                contactDtos.Add(contactDto);
+            }
+
             return new PatientDto()
             {
                 Nhi = patnt.Nhi,
@@ -77,7 +92,8 @@ namespace Application.Queries
                 Age = patnt.Age,
                 Gender = patnt.Gender.Code,
                 Ethnicities = ethnicityDtos,
-                Addresses = addressDtos
+                Addresses = addressDtos,
+                Contacts = contactDtos
             };
         }
     }
@@ -94,6 +110,24 @@ namespace Application.Queries
         public string NameSource { get; set; }
         public string EffectiveFrom { get; set; }
         public string EffectiveTo { get; set; }
+    }
+
+    public class ContactDto
+    {
+
+        public string ContactUsage { get; set; }
+
+        public string ContactType { get;  set; }
+
+        public string Detail { get;  set; }
+
+        public bool IsProtected { get;  set; }
+
+        public string EffectiveFrom { get;  set; }
+
+        public string EffectiveTo { get;  set; }
+
+        public bool IsPreferred { get;  set; }
     }
 
     public class EthnicityDto

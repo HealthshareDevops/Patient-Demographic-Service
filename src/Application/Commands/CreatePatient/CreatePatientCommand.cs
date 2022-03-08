@@ -33,6 +33,7 @@ namespace Application.Commands.CreatePatient
         public List<CreateEthnicityCommand> Ethnicities { get; set; } = new List<CreateEthnicityCommand>();
         public List<CreateAddressCommand> Addresses { get; set; } = new List<CreateAddressCommand>();
         
+        public List<ContactCommand> Contacts {get; set;}
     }
 
     public class CreatePatientCommandHandler : IRequestHandler<CreatePatientCommand, long>
@@ -115,6 +116,13 @@ namespace Application.Commands.CreatePatient
 
                 
                 var patnt = new Patient(nhi.Value, humanName, birthDate.Value, birthDateSource, gender);
+
+                // Add contacts
+                foreach (var contactCommand in request.Contacts)
+                {
+                    patnt.AddContact(ToContact(contactCommand));
+                }
+
                 // Add addressess
                 foreach (var addrCommand in request.Addresses)
                 {
@@ -202,6 +210,59 @@ namespace Application.Commands.CreatePatient
                                       addressCommand.IsPrimary, addressType);
             LambdaLogger.Log($"INFO: CreatePatientCommandHandler - ToAddress end ...");
             return address;
+        }
+
+        private Contact ToContact(ContactCommand contactCommand)
+        {
+            var contactUsage = ContactUsage.FromCode(contactCommand.ContactUsage);
+            if (contactUsage is null)
+            {
+                throw new ValidationException("ContactUsage is not valid.");
+            }
+
+            var contactType = ContactType.FromCode(contactCommand.ContactType);
+            if (contactType is null)
+            {
+                throw new ValidationException("ContactType is not valid.");
+            }
+
+            if ( string.IsNullOrEmpty(contactCommand.Detail) )
+            {
+                throw new ValidationException("Detail is not valid.");
+            }
+
+            //5.5 is mandatory
+            if (string.IsNullOrEmpty(contactCommand.EffectiveFrom))
+            {
+                throw new ValidationException("EffectiveFrom is not valid.");
+            }
+
+            Result<Date> contactEffectiveFrom = Date.Create(contactCommand.EffectiveFrom);
+            if (contactEffectiveFrom.IsFailure)
+            {
+                LambdaLogger.Log($"ERROR: ToContact: EffectiveFrom date failure.");
+                throw new ValidationException(contactEffectiveFrom.Error);
+            }
+
+            // 5.6 Optional
+            Result<Date> contactEffectiveTo = Date.Create(contactCommand.EffectiveTo);
+            if (contactEffectiveTo.IsFailure)
+            {
+                LambdaLogger.Log($"ERROR: ToContract: EffectiveTo date failure.");
+                throw new ValidationException(contactEffectiveTo.Error);
+            }
+
+
+            Contact contact = new Contact(
+                contactUsage,
+                contactType, 
+                contactCommand.Detail, 
+                contactCommand.IsProtected,
+                contactEffectiveFrom.Value,
+                contactEffectiveTo.Value,
+                contactCommand.IsPreferred
+                );
+            return contact;
         }
     }
 }
