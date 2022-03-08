@@ -1,11 +1,11 @@
 /**
-  * SEEDING
+  * Seeding
   */
 BEGIN TRANSACTION;
 GO
 
 /**
-  * ADDRESS FORMATS
+  * Address Formats
   */
 IF NOT EXISTS (SELECT TOP 1 1 FROM [AddressFormats])
 BEGIN 
@@ -20,7 +20,7 @@ END
 GO
 
 /**
-  * ADDRESS TYPES
+  * Address Types
   */
 IF NOT EXISTS (SELECT TOP 1 1 FROM [AddressTypes])
 BEGIN 
@@ -35,7 +35,7 @@ END
 GO
 
 /**
-  * BIRTH DATE SOURCES
+  * Birth Date Sources
   */
 IF NOT EXISTS (SELECT TOP 1 1 FROM [BirthDateSources])
 BEGIN
@@ -63,79 +63,88 @@ END
 GO
 
 /**
-  * ETHNICITIES
+  * Ethnicities
   */
-IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Description', N'Priority') AND [object_id] = OBJECT_ID(N'[Ethnicities]'))
-    SET IDENTITY_INSERT [Ethnicities] ON;
-INSERT INTO [Ethnicities] ([Id], [Code], [Description], [Priority])
-VALUES (CAST(15 AS bigint), N'42', N'Chinese', N'12'),
-(CAST(26 AS bigint), N'99', N'Not stated', N'99'),
-(CAST(25 AS bigint), N'97', N'Response unidentifiable', N'97'),
-(CAST(24 AS bigint), N'95', N'Refused to answer', N'95'),
-(CAST(23 AS bigint), N'94', N'Do not know', N'94'),
-(CAST(22 AS bigint), N'61', N'Other ethnicity', N'18'),
-(CAST(21 AS bigint), N'54', N'Other(retired on 1/07/2009)', N'19'),
-(CAST(19 AS bigint), N'52', N'Latin American / Hispanic', N'15'),
-(CAST(18 AS bigint), N'51', N'Middle Eastern', N'17'),
-(CAST(17 AS bigint), N'44', N'Other Asian', N'13'),
-(CAST(16 AS bigint), N'43', N'Indian', N'11'),
-(CAST(14 AS bigint), N'41', N'Southeast Asian', N'10'),
-(CAST(20 AS bigint), N'53', N'African', N'16'),
-(CAST(12 AS bigint), N'37', N'Other Pacific Island', N'8'),
-(CAST(13 AS bigint), N'40', N'Asian not further defined', N'14'),
-(CAST(2 AS bigint), N'11', N'NZ European', N'22'),
-(CAST(3 AS bigint), N'12', N'Other European', N'20'),
-(CAST(4 AS bigint), N'21', N'NZ Maori', N'1'),
-(CAST(5 AS bigint), N'30', N'Pacific Island not further defined', N'9'),
-(CAST(6 AS bigint), N'31', N'Samoan', N'7  '),
-(CAST(1 AS bigint), N'10', N'European not further defined', N'21'),
-(CAST(7 AS bigint), N'32', N'Cook Island Maori', N'6'),
-(CAST(8 AS bigint), N'33', N'Tongan', N'5'),
-(CAST(9 AS bigint), N'34', N'Niuean', N'4'),
-(CAST(10 AS bigint), N'35', N'Tokelauan', N'2'),
-(CAST(11 AS bigint), N'36', N'Fijian', N'3');
-IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Description', N'Priority') AND [object_id] = OBJECT_ID(N'[Ethnicities]'))
-    SET IDENTITY_INSERT [Ethnicities] OFF;
+IF NOT EXISTS (SELECT TOP 1 1 FROM [Ethnicities])
+BEGIN
+    IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Description', N'Priority') AND [object_id] = OBJECT_ID(N'[Ethnicities]'))
+        SET IDENTITY_INSERT [Ethnicities] ON;
+    INSERT INTO [Ethnicities] ([Id], [Code], [Description], [Priority])
+    VALUES (CAST(15 AS bigint), N'42', N'Chinese', N'12'),
+    (CAST(26 AS bigint), N'99', N'Not stated', N'99'),
+    (CAST(25 AS bigint), N'97', N'Response unidentifiable', N'97'),
+    (CAST(24 AS bigint), N'95', N'Refused to answer', N'95'),
+    (CAST(23 AS bigint), N'94', N'Do not know', N'94'),
+    (CAST(22 AS bigint), N'61', N'Other ethnicity', N'18'),
+    (CAST(21 AS bigint), N'54', N'Other(retired on 1/07/2009)', N'19'),
+    (CAST(19 AS bigint), N'52', N'Latin American / Hispanic', N'15'),
+    (CAST(18 AS bigint), N'51', N'Middle Eastern', N'17'),
+    (CAST(17 AS bigint), N'44', N'Other Asian', N'13'),
+    (CAST(16 AS bigint), N'43', N'Indian', N'11'),
+    (CAST(14 AS bigint), N'41', N'Southeast Asian', N'10'),
+    (CAST(20 AS bigint), N'53', N'African', N'16'),
+    (CAST(12 AS bigint), N'37', N'Other Pacific Island', N'8'),
+    (CAST(13 AS bigint), N'40', N'Asian not further defined', N'14'),
+    (CAST(2 AS bigint), N'11', N'NZ European', N'22'),
+    (CAST(3 AS bigint), N'12', N'Other European', N'20'),
+    (CAST(4 AS bigint), N'21', N'NZ Maori', N'1'),
+    (CAST(5 AS bigint), N'30', N'Pacific Island not further defined', N'9'),
+    (CAST(6 AS bigint), N'31', N'Samoan', N'7  '),
+    (CAST(1 AS bigint), N'10', N'European not further defined', N'21'),
+    (CAST(7 AS bigint), N'32', N'Cook Island Maori', N'6'),
+    (CAST(8 AS bigint), N'33', N'Tongan', N'5'),
+    (CAST(9 AS bigint), N'34', N'Niuean', N'4'),
+    (CAST(10 AS bigint), N'35', N'Tokelauan', N'2'),
+    (CAST(11 AS bigint), N'36', N'Fijian', N'3');
+    IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Description', N'Priority') AND [object_id] = OBJECT_ID(N'[Ethnicities]'))
+        SET IDENTITY_INSERT [Ethnicities] OFF;
+END
 GO
 
 /**
-  * GENDERS
+  * Genders
   */
-IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Comment', N'Description', N'HL7AdministrativeGender') AND [object_id] = OBJECT_ID(N'[Genders]'))
-    SET IDENTITY_INSERT [Genders] ON;
-INSERT INTO [Genders] ([Id], [Code], [Comment], [Description], [HL7AdministrativeGender])
-VALUES (CAST(3 AS bigint), N'O', N'', N'Other Gender', N'O'),
-(CAST(4 AS bigint), N'U', N'A proper value is applicable but is not provided', N'Unspecified or Unknown', N'UN'),
-(CAST(1 AS bigint), N'F', N'', N'Female', N'F'),
-(CAST(2 AS bigint), N'M', N'', N'Male', N'M');
-IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Comment', N'Description', N'HL7AdministrativeGender') AND [object_id] = OBJECT_ID(N'[Genders]'))
-    SET IDENTITY_INSERT [Genders] OFF;
+IF NOT EXISTS (SELECT TOP 1 1 FROM [Genders])
+BEGIN
+    IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Comment', N'Description', N'HL7AdministrativeGender') AND [object_id] = OBJECT_ID(N'[Genders]'))
+        SET IDENTITY_INSERT [Genders] ON;
+    INSERT INTO [Genders] ([Id], [Code], [Comment], [Description], [HL7AdministrativeGender])
+    VALUES (CAST(3 AS bigint), N'O', N'', N'Other Gender', N'O'),
+    (CAST(4 AS bigint), N'U', N'A proper value is applicable but is not provided', N'Unspecified or Unknown', N'UN'),
+    (CAST(1 AS bigint), N'F', N'', N'Female', N'F'),
+    (CAST(2 AS bigint), N'M', N'', N'Male', N'M');
+    IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Comment', N'Description', N'HL7AdministrativeGender') AND [object_id] = OBJECT_ID(N'[Genders]'))
+        SET IDENTITY_INSERT [Genders] OFF;
+END
 GO
 
 /**
-  * NAME SOURCES
+  * Name Sources
   */
-IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Comment', N'Description') AND [object_id] = OBJECT_ID(N'[NameSources]'))
-    SET IDENTITY_INSERT [NameSources] ON;
-INSERT INTO [NameSources] ([Id], [Code], [Comment], [Description])
-VALUES (CAST(12 AS bigint), N'PPRT', N'', N'Passport'),
-(CAST(11 AS bigint), N'OTHR', N'Other official documents', N'Other'),
-(CAST(10 AS bigint), N'NZRT', N'', N'NZ Refugee Travel Document'),
-(CAST(8 AS bigint), N'NZPV', N'A New Zealand Permanent Resident Visa(not time bound) issued by Immigration New Zealand', N'NZ Permanent Resident Visa'),
-(CAST(7 AS bigint), N'NZET', N'', N'NZ Emergency Travel Document'),
-(CAST(9 AS bigint), N'NZTV', N'A New Zealand Resident Visa(time bound) issued by Immigration New Zealand', N'NZ Resident Visa'),
-(CAST(5 AS bigint), N'NZCI', N'', N'NZ Certificate of Identity'),
-(CAST(4 AS bigint), N'NPRF', N'Information(not proof) provided by the patient / whÄnau', N'Proof Not Sighted'),
-(CAST(3 AS bigint), N'HL7', N'Name information source has been applied via the legacy NHI system', N'HL7 applied'),
-(CAST(2 AS bigint), N'BREG', N'', N'Birth Register'),
-(CAST(1 AS bigint), N'BRCT', N'', N'Birth Certificate'),
-(CAST(6 AS bigint), N'NZCT', N'', N'NZ Citizenship Certificate');
-IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Comment', N'Description') AND [object_id] = OBJECT_ID(N'[NameSources]'))
-    SET IDENTITY_INSERT [NameSources] OFF;
+IF NOT EXISTS (SELECT TOP 1 1 FROM [NameSources])
+BEGIN
+    IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Comment', N'Description') AND [object_id] = OBJECT_ID(N'[NameSources]'))
+        SET IDENTITY_INSERT [NameSources] ON;
+    INSERT INTO [NameSources] ([Id], [Code], [Comment], [Description])
+    VALUES (CAST(12 AS bigint), N'PPRT', N'', N'Passport'),
+    (CAST(11 AS bigint), N'OTHR', N'Other official documents', N'Other'),
+    (CAST(10 AS bigint), N'NZRT', N'', N'NZ Refugee Travel Document'),
+    (CAST(8 AS bigint), N'NZPV', N'A New Zealand Permanent Resident Visa(not time bound) issued by Immigration New Zealand', N'NZ Permanent Resident Visa'),
+    (CAST(7 AS bigint), N'NZET', N'', N'NZ Emergency Travel Document'),
+    (CAST(9 AS bigint), N'NZTV', N'A New Zealand Resident Visa(time bound) issued by Immigration New Zealand', N'NZ Resident Visa'),
+    (CAST(5 AS bigint), N'NZCI', N'', N'NZ Certificate of Identity'),
+    (CAST(4 AS bigint), N'NPRF', N'Information(not proof) provided by the patient / whÄnau', N'Proof Not Sighted'),
+    (CAST(3 AS bigint), N'HL7', N'Name information source has been applied via the legacy NHI system', N'HL7 applied'),
+    (CAST(2 AS bigint), N'BREG', N'', N'Birth Register'),
+    (CAST(1 AS bigint), N'BRCT', N'', N'Birth Certificate'),
+    (CAST(6 AS bigint), N'NZCT', N'', N'NZ Citizenship Certificate');
+    IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Comment', N'Description') AND [object_id] = OBJECT_ID(N'[NameSources]'))
+        SET IDENTITY_INSERT [NameSources] OFF;
+END
 GO
 
 /**
-  * SUFFIXES
+  * Suffixes
   */
 IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Comment') AND [object_id] = OBJECT_ID(N'[Suffixes]'))
     SET IDENTITY_INSERT [Suffixes] ON;
@@ -240,7 +249,7 @@ IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code
 GO
 
 /**
-  * TITLES
+  * Titles
   */
 IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Comment', N'Description') AND [object_id] = OBJECT_ID(N'[Titles]'))
     SET IDENTITY_INSERT [Titles] ON;
@@ -336,7 +345,7 @@ IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code
 GO
 
 /**
-  * CONTACT TYPES
+  * Contact Types
   */
 IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Description', N'Comment') AND [object_id] = OBJECT_ID(N'[ContactTypes]'))
     SET IDENTITY_INSERT [ContactTypes] ON;
@@ -368,7 +377,7 @@ IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code
 GO
 
 /**
-  * CONTACT USAGE
+  * Contact Usage
   */
 IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Description', N'Comment') AND [object_id] = OBJECT_ID(N'[ContactUsages]'))
     SET IDENTITY_INSERT [ContactUsages] ON;
@@ -379,7 +388,6 @@ INSERT [ContactUsages] ([Id], [Code], [Description], [Comment]) VALUES (2, N'E',
 GO
 INSERT [ContactUsages] ([Id], [Code], [Description], [Comment]) VALUES (3, N'P', N'Personal', 'Personal address');
 GO
-
 IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Code', N'Description', N'Comment') AND [object_id] = OBJECT_ID(N'[ContactUsages]'))
     SET IDENTITY_INSERT [ContactUsages] OFF;
 GO
