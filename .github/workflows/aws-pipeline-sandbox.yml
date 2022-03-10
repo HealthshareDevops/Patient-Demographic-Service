@@ -55,7 +55,7 @@ jobs:
       
       - name: Zip output 
         run: zip -qq -r ${{github.workspace}}/dist-message/${{env.PROJECT_NAME}}-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.zip .
-        working-directory: {{env.PROJECT_DIR}}{{env.PROJECT_PUBLISH_DIR}}
+        working-directory: ${{env.PROJECT_DIR}}${{env.PROJECT_PUBLISH_DIR}}
       
       # - name: Configure AWS credentials from sandbox account
       #   uses: aws-actions/configure-aws-credentials@v1
