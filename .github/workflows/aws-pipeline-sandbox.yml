@@ -12,6 +12,8 @@ env:
   SOLUTION_NAME: PatientDemographicService
   ENVIRONMENT_NAME: sandbox
   AWS_S3_BUCKET: mhip-patient-demographic-service-sandbox
+  PUBLISH_DIR: ./bin/Release/netcoreapp3.1/publish
+  PUBLISH_FRAMEWORK: 'netcoreapp3.1'
 
 jobs:
   build-MessageProcessorLambda-sandbox:
@@ -21,7 +23,6 @@ jobs:
       PROJECT_NAME: MessageProcessorLambda    
       AWS_STACKNAME: MessageProcessorLambda-sandbox
       PROJECT_DIR: ./src/MessageProcessor.Lambda/
-      PROJECT_PUBLISH_DIR: ./bin/Release/netcoreapp3.1/publish
 
     steps:
       - uses: actions/checkout@v2
@@ -44,7 +45,7 @@ jobs:
         working-directory: ${{env.PROJECT_DIR}}
 
       - name: Publish ${{env.PROJECT_DIR}}
-        run: dotnet publish --output ${{env.PROJECT_PUBLISH_DIR}} --configuration "Release" --framework "netcoreapp3.1" /p:GenerateRuntimeConfigurationFiles=true --runtime linux-x64 --self-contained false 
+        run: dotnet publish --output ${{env.PUBLISH_DIR}} --configuration "Release" --framework ${{env.PUBLISH_FRAMEWORK}} /p:GenerateRuntimeConfigurationFiles=true --runtime linux-x64 --self-contained false 
         working-directory: ${{env.PROJECT_DIR}}
 
       - name: Create directory `dist-message`
@@ -55,7 +56,7 @@ jobs:
       
       - name: Zip output 
         run: zip -qq -r ${{github.workspace}}/dist-message/${{env.PROJECT_NAME}}-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.zip .
-        working-directory: ${{env.PROJECT_DIR}}${{env.PROJECT_PUBLISH_DIR}}
+        working-directory: ${{env.PROJECT_DIR}}${{env.PUBLISH_DIR}}
       
       # - name: Configure AWS credentials from sandbox account
       #   uses: aws-actions/configure-aws-credentials@v1
