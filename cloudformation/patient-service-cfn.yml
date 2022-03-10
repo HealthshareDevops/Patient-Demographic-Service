@@ -46,7 +46,7 @@ Resources:
       Code:
         S3Bucket: !Ref BucketName
         S3Key: !Ref CodeKey
-      Runtime: dotnetcore3.1
+      Runtime: dotnet6
       Handler: PatientService.WebAPI::PatientService.WebAPI.LambdaEntryPoint::FunctionHandlerAsync
 
   PatientServiceLambdaPermission:

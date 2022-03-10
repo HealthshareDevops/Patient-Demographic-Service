@@ -186,7 +186,7 @@ Resources:
             - !Ref ProjectName
             - /
             - !Ref Environment
-      Runtime: dotnetcore3.1
+      Runtime: dotnet6
       Handler: MessageProcessor.Lambda::MessageProcessor.Lambda.Function::FunctionHandler
       Timeout: 180
       VpcConfig:

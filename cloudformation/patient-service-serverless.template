@@ -38,7 +38,7 @@
       "Type": "AWS::Serverless::Function",
       "Properties": {
         "Handler": "PatientService.WebAPI::PatientService.WebAPI.LambdaEntryPoint::FunctionHandlerAsync",
-        "Runtime": "dotnetcore3.1",
+        "Runtime": "dotnet6",
         "CodeUri": {
           "Bucket": { "Ref": "BucketName" },
           "Key": { "Ref": "CodeKey" }
