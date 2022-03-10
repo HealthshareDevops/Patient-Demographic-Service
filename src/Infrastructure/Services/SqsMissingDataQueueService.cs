@@ -32,7 +32,7 @@ namespace Infrastructure.Services
             catch(Exception e)
             {
                 LambdaLogger.Log($"ERROR: SqsQueueService.SendMessageAsync error occurred. {e.Message}");
-                throw e;
+                throw;
             }
             
         }
