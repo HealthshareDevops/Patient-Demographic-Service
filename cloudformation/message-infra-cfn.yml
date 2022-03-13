@@ -200,3 +200,9 @@ Resources:
       Enabled: true
       EventSourceArn: !GetAtt MessageQueue.Arn
       FunctionName: !GetAtt MessageLambda.Arn
+
+  NewMessageSNSTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: PatientDemographic-NewMessage-SNS
+
