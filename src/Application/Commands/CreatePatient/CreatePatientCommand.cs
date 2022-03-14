@@ -39,11 +39,13 @@ namespace Application.Commands.CreatePatient
     {
         private readonly IApplicationDbContext _dbContext;
         private readonly IMissingDataQueueService _queueService;
+        private readonly INewPatientNotificationService _newPatientNotificationService;
 
-        public CreatePatientCommandHandler(IApplicationDbContext dbContext, IMissingDataQueueService queueService)
+        public CreatePatientCommandHandler(IApplicationDbContext dbContext, IMissingDataQueueService queueService, INewPatientNotificationService newPatientNotificationService)
         {
             _dbContext = dbContext;
             _queueService = queueService;
+            _newPatientNotificationService = newPatientNotificationService;
         }
 
         public async Task<long> Handle(CreatePatientCommand request, CancellationToken cancellationToken)
@@ -147,6 +149,12 @@ namespace Application.Commands.CreatePatient
                 _dbContext.Patients.Attach(patnt);
                 await _dbContext.SaveChangesAsync(cancellationToken);
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object DB Saved. Patient Id: {patnt.Id}");
+
+                // New patient is saved. Notify all the concerned services.
+                
+                await _newPatientNotificationService.PublishAsync($"New patient created. Patient Id: {patnt.Id}");
+                LambdaLogger.Log($"INFO: Services notified");
+
 
                 // ToDo: If there are any missing data, send message to MissingData Queue.
                 //LambdaLogger.Log($"INFO: Sending message to SQS start...");

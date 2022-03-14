@@ -1,4 +1,5 @@
 ﻿using Amazon.Lambda.Core;
+using Amazon.SimpleNotificationService;
 using Amazon.SQS;
 using Application.Common.Interfaces;
 using Infrastructure.Persistence;
@@ -14,12 +15,17 @@ namespace Infrastructure
         {
             services.Configure<CognitoSettings>(configuration.GetSection(nameof(CognitoSettings)));
             services.Configure<SqsSettings>(configuration.GetSection(nameof(SqsSettings)));
+            services.Configure<SNSSettings>(configuration.GetSection(nameof(SNSSettings)));
            
             services.AddAWSService<IAmazonSQS>();
+            services.AddAWSService<IAmazonSimpleNotificationService>();
+            
+
             LambdaLogger.Log($"INFO: DefaultConnection: {configuration.GetConnectionString("DefaultConnection")}");
             services.AddScoped<IApplicationDbContext>(s => new ApplicationDbContext(configuration.GetConnectionString("DefaultConnection")));
             services.AddScoped<IHello, Hello>();
             services.AddScoped<IMissingDataQueueService, SqsMissingDataQueueService>();
+            services.AddScoped<INewPatientNotificationService, SNSNewPatientNotificationService>();
             
             return services;
         }
