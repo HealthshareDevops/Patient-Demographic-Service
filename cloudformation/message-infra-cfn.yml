@@ -202,8 +202,18 @@ Resources:
       EventSourceArn: !GetAtt MessageQueue.Arn
       FunctionName: !GetAtt MessageLambda.Arn
 
+  NewMessageEventQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: PatientDemographic-NewMessageEvent-Queue
+    
   NewMessageSNSTopic:
     Type: AWS::SNS::Topic
     Properties:
       TopicName: PatientDemographic-NewMessage-SNS
+      Subscription: 
+        - Endpoint: !GetAtt NewMessageEventQueue.Arn
+          Protocol: sqs
+  
+
 

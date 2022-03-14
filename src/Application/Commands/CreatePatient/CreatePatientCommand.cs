@@ -9,6 +9,7 @@ using MediatR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -151,8 +152,7 @@ namespace Application.Commands.CreatePatient
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object DB Saved. Patient Id: {patnt.Id}");
 
                 // New patient is saved. Notify all the concerned services.
-                
-                await _newPatientNotificationService.PublishAsync($"New patient created. Patient Id: {patnt.Id}");
+                await _newPatientNotificationService.PublishAsync(BuildEventMessage(patnt.Nhi));
                 LambdaLogger.Log($"INFO: Services notified");
 
 
@@ -271,6 +271,17 @@ namespace Application.Commands.CreatePatient
                 contactCommand.IsPreferred
                 );
             return contact;
+        }
+
+        private string BuildEventMessage(string nhi)
+        {
+            var msg = new
+            {
+                EventId = Guid.NewGuid(),
+                EventDate = DateTime.UtcNow,
+                NHI = nhi
+            };
+            return JsonSerializer.Serialize(msg);
         }
     }
 }
