@@ -22,6 +22,7 @@ namespace Infrastructure.Services
         public async Task<string> PublishAsync(string message)
         {
             LambdaLogger.Log($"INFO: SNSNewPaientNotificationService.PublishAsync Start..");
+            LambdaLogger.Log($"INFO: SNSNewPaientNotificationService.PublishAsync-NewPatientNotify: {_snsSettings.NewPatientNotify}");
             if (!_snsSettings.NewPatientNotify)
             {
                 LambdaLogger.Log($"INFO: SNSNewPaientNotificationService.PublishAsync-NewPatientNotify is False.");
