@@ -21,9 +21,17 @@ namespace Infrastructure.Services
 
         public async Task<string> PublishAsync(string message)
         {
+            LambdaLogger.Log($"INFO: SNSNewPaientNotificationService.PublishAsync Start..");
+            if (!_snsSettings.NewPatientNotify)
+            {
+                LambdaLogger.Log($"INFO: SNSNewPaientNotificationService.PublishAsync-NewPatientNotify is False.");
+                LambdaLogger.Log($"INFO: SNSNewPaientNotificationService.PublishAsync End..");
+                return string.Empty;
+            }
+
             try
             {
-                LambdaLogger.Log($"INFO: SNSNewPaientNotificationService.PublishAsync Start..");
+                
                 var request = new PublishRequest
                 {
                     Message = message,
@@ -32,7 +40,7 @@ namespace Infrastructure.Services
 
                 var response = await _snsClient.PublishAsync(request);
                 LambdaLogger.Log($"INFO: Message published. MessageId: {response.MessageId}");
-                LambdaLogger.Log($"INFO: SNSNewPaientNotificationService.PublishAsync End.. MessageId: {response.MessageId}");
+                LambdaLogger.Log($"INFO: SNSNewPaientNotificationService.PublishAsync End..");
                 return response.MessageId;
             }
             catch (Exception e)

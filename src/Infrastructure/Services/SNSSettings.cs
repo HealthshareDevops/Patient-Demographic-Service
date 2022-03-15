@@ -3,5 +3,6 @@
     public class SNSSettings
     {
         public string NewPatientTopicARN { get; set; }
+        public bool NewPatientNotify { get; set; }
     }
 }

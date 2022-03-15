@@ -42,7 +42,9 @@ namespace Application.Commands.CreatePatient
         private readonly IMissingDataQueueService _queueService;
         private readonly INewPatientNotificationService _newPatientNotificationService;
 
-        public CreatePatientCommandHandler(IApplicationDbContext dbContext, IMissingDataQueueService queueService, INewPatientNotificationService newPatientNotificationService)
+        public CreatePatientCommandHandler(IApplicationDbContext dbContext,
+                                           IMissingDataQueueService queueService,
+                                           INewPatientNotificationService newPatientNotificationService)
         {
             _dbContext = dbContext;
             _queueService = queueService;
@@ -150,6 +152,7 @@ namespace Application.Commands.CreatePatient
                 _dbContext.Patients.Attach(patnt);
                 await _dbContext.SaveChangesAsync(cancellationToken);
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object DB Saved. Patient Id: {patnt.Id}");
+
 
                 // New patient is saved. Notify all the concerned services.
                 await _newPatientNotificationService.PublishAsync(BuildEventMessage(patnt.Nhi));
