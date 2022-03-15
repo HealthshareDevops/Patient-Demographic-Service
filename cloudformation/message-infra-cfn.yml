@@ -206,7 +206,7 @@ Resources:
     Type: AWS::SQS::Queue
     Properties:
       QueueName: PatientDemographic-NewMessageEvent-Queue
-    
+
   NewMessageSNSTopic:
     Type: AWS::SNS::Topic
     Properties:
@@ -214,6 +214,22 @@ Resources:
       Subscription: 
         - Endpoint: !GetAtt NewMessageEventQueue.Arn
           Protocol: sqs
-  
+
+  NewMessageEventQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument: 
+        Version: 2012-10-17
+        Id: PatientDemographic-SNS-SQS-SendMessage-QueuePolicy
+        Statement: 
+          - Sid: Allow-SNS-SendMessage
+            Effect: Allow
+            Principal: "*"
+            Action:
+              - sqs:SendMessage
+            Resource: !GetAtt NewMessageEventQueue.Arn
+            Condition:
+              ArnEquals:
+                aws:SourceArn: !Ref NewMessageSNSTopic
 
 
