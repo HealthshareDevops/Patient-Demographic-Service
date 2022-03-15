@@ -231,5 +231,7 @@ Resources:
             Condition:
               ArnEquals:
                 aws:SourceArn: !Ref NewMessageSNSTopic
+        Queues:
+          - !Ref NewMessageEventQueue
 
 
