@@ -122,10 +122,11 @@ namespace Application.Commands.CreatePatient
                     var ethnicity = Ethnicity.FromCode(ethnicityCommand.Code);
                     if (ethnicity is null)
                     {
-                        throw new ValidationException("Ethnicity is not valid.");
+                        LambdaLogger.Log($"INFO: Ethnicity ${ethnicityCommand.Code} is not valid.");
+                        continue;
                     }
                     patnt.AddEthnicity(ethnicity);
-                    
+
                 }
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient ethnicities added.");
 
