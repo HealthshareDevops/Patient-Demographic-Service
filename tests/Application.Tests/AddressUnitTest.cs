@@ -196,7 +196,7 @@ namespace Application.Tests
         [Theory]
         [InlineData("")]
         [InlineData(null)]
-        public async Task Send_InvalidStreetAddress_ThrowValidationException(string streetAddress)
+        public async Task Send_InvalidStreetAddress_DoesNotCreateAddress(string streetAddress)
         {
             // Arrange
             var request = new CreatePatientCommand()
@@ -236,11 +236,16 @@ namespace Application.Tests
                 }
             };
 
+            var expectedAddressCount = 0;
+
             // Act
-            var ex = await Assert.ThrowsAsync<ValidationException>(() => _createPatientCommandHandler.Handle(request, CancellationToken.None));
+            //var ex = await Assert.ThrowsAsync<ValidationException>(() => _createPatientCommandHandler.Handle(request, CancellationToken.None));
+            var res = await _createPatientCommandHandler.Handle(request, CancellationToken.None);
+            var pat = _dbContext.Patients.ToList();
 
             // Assert
-            Assert.Equal("StreetAddress should be valid.", ex.Message);
+            //Assert.Equal("StreetAddress should be valid.", ex.Message);
+            Assert.Equal(expectedAddressCount, pat[0].Addresses.Count);
         }
 
         [Theory]

@@ -127,17 +127,23 @@ namespace Application.Commands.CreatePatient
                     var ethnicity = Ethnicity.FromCode(ethnicityCommand.Code);
                     if (ethnicity is null)
                     {
-                        throw new ValidationException("Ethnicity is not valid.");
+                        LambdaLogger.Log($"INFO: Ethnicity ${ethnicityCommand.Code} is not valid.");
+                        continue;
                     }
                     patnt.AddEthnicity(ethnicity);
-                    
+
                 }
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient ethnicities added.");
 
                 // Add addressess
                 foreach (var addrCommand in request.Addresses)
                 {
-                    patnt.AddAddress(ToAddress(addrCommand));
+                    var addr = ToAddress(addrCommand);
+                    if (addr is null)
+                    {
+                        continue;
+                    }
+                    patnt.AddAddress(addr);
                 }
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient addresses added.");
                 
@@ -186,7 +192,8 @@ namespace Application.Commands.CreatePatient
             //var addressFormat = AddressFormat.FromCode(addressCommand.AddressFormat);
 
             if (string.IsNullOrEmpty(addressCommand.StreetAddress)) {
-                throw new ValidationException("StreetAddress should be valid.");
+                LambdaLogger.Log($"ERROR: ToAddress: Street Address should be valid.");
+                return null;
             }
 
             var country = Country.FromCode(addressCommand.Country);
