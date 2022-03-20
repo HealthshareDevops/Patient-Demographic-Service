@@ -8,11 +8,13 @@ on:
   workflow_dispatch:
 
 env:
-  NETCORE_VERSION: '3.1.x'
+  NETCORE_VERSION: '6.0.x'
   SOLUTION_NAME: PatientDemographicService
   ENVIRONMENT_NAME: dev
   AWS_S3_BUCKET: mhip-patient-demographic-service-dev
   AWS_CFN_EXECUTION_ROLE: arn:aws:iam::436686904706:role/AWSCloudFormationExecution
+  PUBLISH_DIR: ./bin/Release/net6.0/publish
+  PUBLISH_FRAMEWORK: 'net6.0'
 
 jobs:
   build-MessageProcessorLambda-dev:
@@ -44,7 +46,7 @@ jobs:
         working-directory: ${{env.PROJECT_DIR}}
 
       - name: Publish ${{env.PROJECT_DIR}}
-        run: dotnet publish --output "./bin/Release/netcoreapp3.1/publish" --configuration "Release" --framework "netcoreapp3.1" /p:GenerateRuntimeConfigurationFiles=true --runtime linux-x64 --self-contained false 
+        run: dotnet publish --output ${{env.PUBLISH_DIR}} --configuration "Release" --framework ${{env.PUBLISH_FRAMEWORK}} /p:GenerateRuntimeConfigurationFiles=true --runtime linux-x64 --self-contained false 
         working-directory: ${{env.PROJECT_DIR}}
 
       - name: Create directory `dist-message`
@@ -55,7 +57,7 @@ jobs:
       
       - name: Zip output 
         run: zip -qq -r ${{github.workspace}}/dist-message/${{env.PROJECT_NAME}}-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.zip .
-        working-directory: ./src/MessageProcessor.Lambda/bin/Release/netcoreapp3.1/publish/
+        working-directory: ${{env.PROJECT_DIR}}${{env.PUBLISH_DIR}}
       
       - name: Configure AWS credentials from sandbox account
         uses: aws-actions/configure-aws-credentials@v1
@@ -114,7 +116,7 @@ jobs:
         working-directory: ${{env.PROJECT_DIR}}
 
       - name: Publish ${{env.PROJECT_DIR}}
-        run: dotnet publish --output "./bin/Release/netcoreapp3.1/publish" --configuration "Release" --framework "netcoreapp3.1" /p:GenerateRuntimeConfigurationFiles=true --runtime linux-x64 --self-contained false 
+        run: dotnet publish --output ${{env.PUBLISH_DIR}} --configuration "Release" --framework ${{env.PUBLISH_FRAMEWORK}} /p:GenerateRuntimeConfigurationFiles=true --runtime linux-x64 --self-contained false 
         working-directory: ${{env.PROJECT_DIR}}
 
       - name: Create directory `dist-missing`
@@ -125,7 +127,7 @@ jobs:
       
       - name: Zip output 
         run: zip -qq -r ${{github.workspace}}/dist-missing/${{env.PROJECT_NAME}}-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.zip .
-        working-directory: ./src/MissingData.Lambda/bin/Release/netcoreapp3.1/publish/
+        working-directory: ${{env.PROJECT_DIR}}${{env.PUBLISH_DIR}}
     
       - name: Configure AWS credentials from sandbox account
         uses: aws-actions/configure-aws-credentials@v1
@@ -183,7 +185,7 @@ jobs:
         working-directory: ${{env.PROJECT_DIR}}
 
       - name: Publish ${{env.PROJECT_DIR}}
-        run: dotnet publish --output "./bin/Release/netcoreapp3.1/publish" --configuration "Release" --framework "netcoreapp3.1" /p:GenerateRuntimeConfigurationFiles=true --runtime linux-x64 --self-contained false 
+        run: dotnet publish --output ${{env.PUBLISH_DIR}} --configuration "Release" --framework ${{env.PUBLISH_FRAMEWORK}} /p:GenerateRuntimeConfigurationFiles=true --runtime linux-x64 --self-contained false 
         working-directory: ${{env.PROJECT_DIR}}
       
       - name: Create directory `dist-webapi`
@@ -194,7 +196,7 @@ jobs:
       
       - name: Zip output 
         run: zip -qq -r ${{github.workspace}}/dist-webapi/${{env.PROJECT_NAME}}-${{env.ENVIRONMENT_NAME}}-${{github.run_number}}.zip .
-        working-directory: ./src/PatientService.WebAPI/bin/Release/netcoreapp3.1/publish/
+        working-directory: ${{env.PROJECT_DIR}}${{env.PUBLISH_DIR}}
     
       - name: Configure AWS credentials from sandbox account
         uses: aws-actions/configure-aws-credentials@v1
