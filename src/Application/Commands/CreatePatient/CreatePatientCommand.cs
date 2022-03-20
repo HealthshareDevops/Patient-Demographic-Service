@@ -9,6 +9,7 @@ using MediatR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -39,11 +40,15 @@ namespace Application.Commands.CreatePatient
     {
         private readonly IApplicationDbContext _dbContext;
         private readonly IMissingDataQueueService _queueService;
+        private readonly INewPatientNotificationService _newPatientNotificationService;
 
-        public CreatePatientCommandHandler(IApplicationDbContext dbContext, IMissingDataQueueService queueService)
+        public CreatePatientCommandHandler(IApplicationDbContext dbContext,
+                                           IMissingDataQueueService queueService,
+                                           INewPatientNotificationService newPatientNotificationService)
         {
             _dbContext = dbContext;
             _queueService = queueService;
+            _newPatientNotificationService = newPatientNotificationService;
         }
 
         public async Task<long> Handle(CreatePatientCommand request, CancellationToken cancellationToken)
@@ -154,6 +159,12 @@ namespace Application.Commands.CreatePatient
                 await _dbContext.SaveChangesAsync(cancellationToken);
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object DB Saved. Patient Id: {patnt.Id}");
 
+
+                // New patient is saved. Notify all the concerned services.
+                await _newPatientNotificationService.PublishAsync(BuildEventMessage(patnt.Nhi));
+                LambdaLogger.Log($"INFO: Services notified");
+
+
                 // ToDo: If there are any missing data, send message to MissingData Queue.
                 //LambdaLogger.Log($"INFO: Sending message to SQS start...");
                 //var response = await _queueService.SendMessageAsync("Hello world from Console Application.");
@@ -166,7 +177,7 @@ namespace Application.Commands.CreatePatient
             {
                 LambdaLogger.Log($"ERROR: Error occurred in CreatePatientCommandHandler {e.Message}");
                 LambdaLogger.Log($"ERROR: Error occurred in CreatePatientCommandHandler InnerException {e.InnerException?.Message}");
-                throw e;
+                throw;
             }
         }
 
@@ -270,6 +281,17 @@ namespace Application.Commands.CreatePatient
                 contactCommand.IsPreferred
                 );
             return contact;
+        }
+
+        private string BuildEventMessage(string nhi)
+        {
+            var msg = new
+            {
+                EventId = Guid.NewGuid(),
+                EventDate = DateTime.UtcNow,
+                NHI = nhi
+            };
+            return JsonSerializer.Serialize(msg);
         }
     }
 }

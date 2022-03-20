@@ -149,6 +149,7 @@ Resources:
         - arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess
         - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
         - arn:aws:iam::aws:policy/AmazonSQSFullAccess
+        - arn:aws:iam::aws:policy/AmazonSNSFullAccess
       Policies:
         - 
           PolicyName: PatientDemographic-Message-Lambda-Policy
@@ -200,3 +201,37 @@ Resources:
       Enabled: true
       EventSourceArn: !GetAtt MessageQueue.Arn
       FunctionName: !GetAtt MessageLambda.Arn
+
+  NewMessageEventQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: PatientDemographic-NewMessageEvent-Queue
+
+  NewMessageSNSTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: PatientDemographic-NewMessage-SNS
+      Subscription: 
+        - Endpoint: !GetAtt NewMessageEventQueue.Arn
+          Protocol: sqs
+
+  NewMessageEventQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument: 
+        Version: 2012-10-17
+        Id: PatientDemographic-SNS-SQS-SendMessage-QueuePolicy
+        Statement: 
+          - Sid: Allow-SNS-SendMessage
+            Effect: Allow
+            Principal: "*"
+            Action:
+              - sqs:SendMessage
+            Resource: !GetAtt NewMessageEventQueue.Arn
+            Condition:
+              ArnEquals:
+                aws:SourceArn: !Ref NewMessageSNSTopic
+      Queues:
+        - !Ref NewMessageEventQueue
+
+
