@@ -1,4 +1,7 @@
+The Patient Demographic Service is the regional source of truth for Patient Demographic Details thorough out the Midland region. The Patient Details Service encapsulates all software, infrastructure/network, data, configurations and processes required to operate the Patient Details as an autonomous service. The Patient Details Service may change over time as more detail is understood regarding the Patient Domain Model. However the service interfaces will remain stable, API version changes siginify any major changes to the service interface specification.  
+
 # Patient-Demographic-Service
+
 The Patient Demographic Service is the regional source of truth for Patient Demographic Details thorough out the Midland region. The Patient Details Service encapsulates all software, infrastructure/network, data, configurations and processes required to operate the Patient Details as an autonomous service. The Patient Details Service may merge, rename or disappear as more detail is understood regarding the Patient Domain Model.  
 
 
@@ -28,5 +31,4 @@ The Patient Demographic Service is the regional source of truth for Patient Demo
 
 # Application Settings to run Patient-Demographic-Service
 1. All application settings parameters are stored in AWS Parameter Store.
-
 
