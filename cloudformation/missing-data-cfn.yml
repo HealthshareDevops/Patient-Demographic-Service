@@ -1,0 +1,101 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: "The cloudformation templates to create queue and lambda function for handling missing data in the message in found in processing message."
+
+Parameters: 
+  Environment: 
+    Type: String
+    Default: sandbox
+  BucketName:
+    Type: String
+  CodeKey:
+    Type: String
+  ParamStoreKMSMasterKeyIdARN: 
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /PatientDemographicService/sandbox/CloudFormation/KMS-Master-KeyIdARN
+  ParamStoreLambdaSecurityGroupIds: 
+    Type: AWS::SSM::Parameter::Value<CommaDelimitedList>
+    Description: "VPC security group ids to attach to lambda"
+  ParamStoreLambdaSubnetIds: 
+    Type: AWS::SSM::Parameter::Value<CommaDelimitedList>
+    Description: "The VPC subnet ids to attach to lambda"
+
+Resources:
+
+  MissingDataQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: PatientDemographic-MissingDataQueue
+      VisibilityTimeout: 180
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt DeadLetterMissingDataQueue.Arn
+        maxReceiveCount: 1
+      KmsMasterKeyId: !Ref ParamStoreKMSMasterKeyIdARN
+  
+  DeadLetterMissingDataQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: PatientDemographic-MissingDataDLQ
+      KmsMasterKeyId: !Ref ParamStoreKMSMasterKeyIdARN
+
+  MissingDataFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: PatientDemographic-MissingData-Lambda-Role
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - 
+            Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaSQSQueueExecutionRole
+        - arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+      Policies:
+        - 
+          PolicyName: PatientDemograhphic-MissingData-Lambda-Policy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - 
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Effect: Allow
+                Resource: '*'
+              - 
+                Action:
+                  - kms:DescribeKey
+                  - kms:GenerateDataKey
+                  - kms:Decrypt
+                Effect: Allow
+                Resource: !Ref ParamStoreKMSMasterKeyIdARN
+
+  MissingDataFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: PatientDemographic-MissingDataFunction
+      Role: !GetAtt MissingDataFunctionRole.Arn
+      Code:
+        S3Bucket: !Ref BucketName
+        S3Key: !Ref CodeKey
+      Runtime: dotnet6
+      Handler: MissingData.Lambda::MissingData.Lambda.Function::FunctionHandler
+      Timeout: 180
+      VpcConfig:
+        SecurityGroupIds: !Ref ParamStoreLambdaSecurityGroupIds
+        SubnetIds: !Ref ParamStoreLambdaSubnetIds
+  
+  MissingDataFunctionEventSourceMapping:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      BatchSize: 10
+      Enabled: true
+      EventSourceArn: !GetAtt MissingDataQueue.Arn
+      FunctionName: !GetAtt MissingDataFunction.Arn
