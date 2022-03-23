@@ -32,11 +32,11 @@ namespace Infrastructure.Services
 
             try
             {
-                
                 var request = new PublishRequest
                 {
                     Message = message,
-                    TopicArn = _snsSettings.NewPatientTopicARN
+                    TopicArn = _snsSettings.NewPatientTopicARN,
+                    MessageGroupId = _snsSettings.NewPatientMessageGroupId
                 };
 
                 var response = await _snsClient.PublishAsync(request);
