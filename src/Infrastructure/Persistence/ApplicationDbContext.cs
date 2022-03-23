@@ -23,6 +23,7 @@ namespace Infrastructure.Persistence
 
         public DbSet<Patient> Patients { get; set; }
         public DbSet<PatientEthnicity> PatientEthnicity { get; set; }
+        //public DbSet<HumanName> HumanNames { get; set; }
 
         // Enums
         public DbSet<Title> Titles { get; set; }
@@ -74,7 +75,8 @@ namespace Infrastructure.Persistence
             {
                 options
                     .UseLoggerFactory(_loggerFactory)
-                    .UseSqlServer(_connectionString);
+                    .UseSqlServer(_connectionString)
+                    .EnableSensitiveDataLogging();
             }
         }
 

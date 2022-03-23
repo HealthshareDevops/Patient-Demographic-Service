@@ -111,7 +111,7 @@ Resources:
       - MessageApiGatewayMethod
     Properties: 
       RestApiId: !Ref MessageApiGateway
-      StageName: sandbox
+      StageName: !Ref Environment
   
   MessageQueue:
     Type: AWS::SQS::Queue
