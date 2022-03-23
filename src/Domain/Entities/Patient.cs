@@ -212,7 +212,7 @@ namespace Domain.Entities
 
         private void DeleteEthnicityInfoList(List<Ethnicity> ethnicitiesToKeep)
         {
-            _patientEthnicities.RemoveAll(e => !ethnicitiesToKeep.Exists(eth => eth == e.Ethnicity));
+            _patientEthnicities.RemoveAll(e => !ethnicitiesToKeep.Exists(eth => e.EthnicityId == eth.Id));
         }
     }
 }
