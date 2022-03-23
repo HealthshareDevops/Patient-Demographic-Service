@@ -7,8 +7,10 @@ using Domain.Enums;
 using Domain.ValueObjects;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -38,10 +40,12 @@ namespace Application.Commands.UpdatePatient
     public class UpdatePatientCommandHandler : IRequestHandler<UpdatePatientCommand, long>
     {
         private readonly IApplicationDbContext _dbContext;
+        private readonly INewPatientNotificationService _newPatientNotificationService;
 
-        public UpdatePatientCommandHandler(IApplicationDbContext dbContext)
+        public UpdatePatientCommandHandler(IApplicationDbContext dbContext, INewPatientNotificationService newPatientNotificationService)
         {
             _dbContext = dbContext;
+            _newPatientNotificationService = newPatientNotificationService;
         }
 
         public async Task<long> Handle(UpdatePatientCommand request, CancellationToken cancellationToken)
@@ -174,6 +178,10 @@ namespace Application.Commands.UpdatePatient
             await _dbContext.SaveChangesAsync(cancellationToken);
             LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object DB Saved. Patient Id: {patnt.Id}");
 
+            // Patient is updated. Notify all the concerned services.
+            await _newPatientNotificationService.PublishAsync(BuildEventMessage(patnt.Nhi));
+            LambdaLogger.Log($"INFO: Services notified");
+
             return patnt.Id;
         }
 
@@ -229,6 +237,18 @@ namespace Application.Commands.UpdatePatient
                                       addressCommand.IsPrimary, addressType);
             LambdaLogger.Log($"INFO: CreatePatientCommandHandler - ToAddress end ...");
             return address;
+        }
+
+        private string BuildEventMessage(string nhi)
+        {
+            var msg = new
+            {
+                EventId = Guid.NewGuid(),
+                EventDate = DateTime.UtcNow,
+                EventType = "UpdatePatient",
+                NHI = nhi
+            };
+            return JsonSerializer.Serialize(msg);
         }
     }
 }
