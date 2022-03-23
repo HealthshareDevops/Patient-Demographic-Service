@@ -207,6 +207,7 @@ Resources:
     Properties:
       QueueName: PatientDemographic-NewPatientMessageEvent-Queue.fifo
       FifoQueue: true
+      KmsMasterKeyId: !Ref ParamStoreKMSMasterKeyIdARN
 
   NewPatientMessageSNSTopic:
     Type: AWS::SNS::Topic
@@ -214,6 +215,7 @@ Resources:
       TopicName: PatientDemographic-NewPatientMessage-SNS.fifo
       FifoTopic: true
       ContentBasedDeduplication: true
+      KmsMasterKeyId: !Ref ParamStoreKMSMasterKeyIdARN
       Subscription: 
         - Endpoint: !GetAtt NewPatientMessageEventQueue.Arn
           Protocol: sqs
