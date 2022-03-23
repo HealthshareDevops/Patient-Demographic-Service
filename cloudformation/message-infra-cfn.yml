@@ -236,6 +236,13 @@ Resources:
             Condition:
               ArnEquals:
                 aws:SourceArn: !Ref NewPatientMessageSNSTopic
+          - 
+            Action:
+              - kms:DescribeKey
+              - kms:GenerateDataKey
+              - kms:Decrypt
+            Effect: Allow
+            Resource: !Ref ParamStoreKMSMasterKeyIdARN
       Queues:
         - !Ref NewPatientMessageEventQueue
 
