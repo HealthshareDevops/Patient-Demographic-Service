@@ -213,6 +213,7 @@ Resources:
     Properties:
       TopicName: PatientDemographic-NewPatientMessage-SNS.fifo
       FifoTopic: true
+      ContentBasedDeduplication: true
       Subscription: 
         - Endpoint: !GetAtt NewPatientMessageEventQueue.Arn
           Protocol: sqs
