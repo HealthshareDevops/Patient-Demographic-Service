@@ -229,7 +229,8 @@ Resources:
               - kms:GenerateDataKey
               - kms:Decrypt
             Resource: !Ref ParamStoreKMSMasterKeyIdARN
-      Topics: !Ref NewMessageSNSTopic
+      Topics: 
+        - !Ref NewMessageSNSTopic
 
 
   NewMessageEventQueuePolicy:
