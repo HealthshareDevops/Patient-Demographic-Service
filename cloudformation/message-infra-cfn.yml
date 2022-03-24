@@ -111,7 +111,7 @@ Resources:
       - MessageApiGatewayMethod
     Properties: 
       RestApiId: !Ref MessageApiGateway
-      StageName: sandbox
+      StageName: !Ref Environment
   
   MessageQueue:
     Type: AWS::SQS::Queue
@@ -220,7 +220,7 @@ Resources:
     Properties:
       PolicyDocument: 
         Version: 2012-10-17
-        Id: PatientDemographic-SNS-SQS-SendMessage-QueuePolicy
+        Id: PatientDemographic-SNS-SQS-NewSendMessage-QueuePolicy
         Statement: 
           - Sid: Allow-SNS-SendMessage
             Effect: Allow

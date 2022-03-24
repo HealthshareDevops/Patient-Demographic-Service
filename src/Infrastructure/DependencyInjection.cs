@@ -20,13 +20,11 @@ namespace Infrastructure
             services.AddAWSService<IAmazonSQS>();
             services.AddAWSService<IAmazonSimpleNotificationService>();
             
-
             LambdaLogger.Log($"INFO: DefaultConnection: {configuration.GetConnectionString("DefaultConnection")}");
             services.AddScoped<IApplicationDbContext>(s => new ApplicationDbContext(configuration.GetConnectionString("DefaultConnection")));
-            services.AddScoped<IHello, Hello>();
             services.AddScoped<IMissingDataQueueService, SqsMissingDataQueueService>();
             services.AddScoped<INewPatientNotificationService, SNSNewPatientNotificationService>();
-            
+
             return services;
         }
     }
