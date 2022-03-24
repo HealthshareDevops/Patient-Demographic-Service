@@ -202,48 +202,36 @@ Resources:
       EventSourceArn: !GetAtt MessageQueue.Arn
       FunctionName: !GetAtt MessageLambda.Arn
 
-  NewPatientMessageEventQueue:
+  NewMessageEventQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: PatientDemographic-NewPatientMessageEvent-Queue.fifo
-      FifoQueue: true
-      KmsMasterKeyId: !Ref ParamStoreKMSMasterKeyIdARN
+      QueueName: PatientDemographic-NewMessageEvent-Queue
 
-  NewPatientMessageSNSTopic:
+  NewMessageSNSTopic:
     Type: AWS::SNS::Topic
     Properties:
-      TopicName: PatientDemographic-NewPatientMessage-SNS.fifo
-      FifoTopic: true
-      ContentBasedDeduplication: true
-      KmsMasterKeyId: !Ref ParamStoreKMSMasterKeyIdARN
+      TopicName: PatientDemographic-NewMessage-SNS
       Subscription: 
-        - Endpoint: !GetAtt NewPatientMessageEventQueue.Arn
+        - Endpoint: !GetAtt NewMessageEventQueue.Arn
           Protocol: sqs
 
-  NewPatientMessageEventQueuePolicy:
+  NewMessageEventQueuePolicy:
     Type: AWS::SQS::QueuePolicy
     Properties:
       PolicyDocument: 
         Version: 2012-10-17
-        Id: PatientDemographic-SNS-SQS-NewPatientSendMessage-QueuePolicy
+        Id: PatientDemographic-SNS-SQS-NewSendMessage-QueuePolicy
         Statement: 
           - Sid: Allow-SNS-SendMessage
             Effect: Allow
             Principal: "*"
             Action:
               - sqs:SendMessage
-            Resource: !GetAtt NewPatientMessageEventQueue.Arn
+            Resource: !GetAtt NewMessageEventQueue.Arn
             Condition:
               ArnEquals:
-                aws:SourceArn: !Ref NewPatientMessageSNSTopic
-          - 
-            Action:
-              - kms:DescribeKey
-              - kms:GenerateDataKey
-              - kms:Decrypt
-            Effect: Allow
-            Resource: !Ref ParamStoreKMSMasterKeyIdARN
+                aws:SourceArn: !Ref NewMessageSNSTopic
       Queues:
-        - !Ref NewPatientMessageEventQueue
+        - !Ref NewMessageEventQueue
 
 
