@@ -124,38 +124,47 @@ namespace Application.Commands.CreatePatient
 
                 patnt.AddName(title, name.Value, suffix, request.IsPreferred, request.IsProtected, namesource, effectiveFrom.Value, effectiveTo.Value);
 
-                // Add Ethnicities
-                foreach (var ethnicityCommand in request.Ethnicities)
+                if (request.Ethnicities != null)
                 {
-                    var ethnicity = Ethnicity.FromCode(ethnicityCommand.Code);
-                    if (ethnicity is null)
+                    // Add Ethnicities
+                    foreach (var ethnicityCommand in request.Ethnicities)
                     {
-                        LambdaLogger.Log($"INFO: Ethnicity ${ethnicityCommand.Code} is not valid.");
-                        continue;
+                        var ethnicity = Ethnicity.FromCode(ethnicityCommand.Code);
+                        if (ethnicity is null)
+                        {
+                            LambdaLogger.Log($"INFO: Ethnicity ${ethnicityCommand.Code} is not valid.");
+                            continue;
+                        }
+                        patnt.AddEthnicity(ethnicity);
+
                     }
-                    patnt.AddEthnicity(ethnicity);
+                    LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient ethnicities added.");
 
                 }
-                LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient ethnicities added.");
-
-                // Add addressess
-                foreach (var addrCommand in request.Addresses)
+                if (request.Addresses != null)
                 {
-                    var addr = ToAddress(addrCommand);
-                    if (addr is null)
+                    // Add addressess
+                    foreach (var addrCommand in request.Addresses)
                     {
-                        continue;
+                        var addr = ToAddress(addrCommand);
+                        if (addr is null)
+                        {
+                            continue;
+                        }
+                        patnt.AddAddress(addr);
                     }
-                    patnt.AddAddress(addr);
+                    LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient addresses added.");
                 }
-                LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient addresses added.");
 
-                // Add contacts
-                foreach (var contactCommand in request.Contacts)
+                if (request.Contacts != null)
                 {
-                    patnt.AddContact(ToContact(contactCommand));
+                    // Add contacts
+                    foreach (var contactCommand in request.Contacts)
+                    {
+                        patnt.AddContact(ToContact(contactCommand));
+                    }
+                    LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient contacts added.");
                 }
-                LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient contacts added.");
 
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object DB Saving.");
                 _dbContext.Patients.Attach(patnt);
