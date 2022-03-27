@@ -206,15 +206,17 @@ Resources:
     Type: AWS::SQS::Queue
     Properties:
       QueueName: PatientDemographic-NewMessageEvent-Queue
+      KmsMasterKeyId: !Ref ParamStoreKMSMasterKeyIdARN
 
   NewMessageSNSTopic:
     Type: AWS::SNS::Topic
     Properties:
       TopicName: PatientDemographic-NewMessage-SNS
+      KmsMasterKeyId: !Ref ParamStoreKMSMasterKeyIdARN
       Subscription: 
         - Endpoint: !GetAtt NewMessageEventQueue.Arn
           Protocol: sqs
-
+  
   NewMessageEventQueuePolicy:
     Type: AWS::SQS::QueuePolicy
     Properties:
