@@ -21,3 +21,4 @@ Post-Deployment Script Template
 :r .\PostDeployments\DomicileSeed.PostDeployment.sql
 :r .\PostDeployments\ContactTypeSeed.PostDeployment.sql
 :r .\PostDeployments\ContactUsageSeed.PostDeployment.sql
+:r .\PostDeployments\ContactTypeAdditionalSeed.PostDeployment.sql

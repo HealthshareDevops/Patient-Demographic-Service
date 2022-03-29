@@ -198,11 +198,11 @@ GO
 CREATE TABLE [Contacts]
 (
 	[Id] BIGINT NOT NULL IDENTITY, 
-    [ContactUsageId] BIGINT NOT NULL, 
-    [ContactTypeId] BIGINT NOT NULL, 
+    [ContactUsageId] BIGINT NULL, 
+    [ContactTypeId] BIGINT NULL, 
     [Detail] NVARCHAR(255) NOT NULL, 
     [IsProtected] BIT NOT NULL DEFAULT 0, 
-    [EffectiveFrom] NVARCHAR(8) NOT NULL, 
+    [EffectiveFrom] NVARCHAR(8) NULL, 
     [EffectiveTo] NVARCHAR(8) NULL, 
     [IsPreferred] BIT NOT NULL DEFAULT 0,
     [PatientId] BIGINT NULL,

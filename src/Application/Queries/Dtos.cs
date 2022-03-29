@@ -73,8 +73,8 @@ namespace Application.Queries
             var contactDtos = new List<ContactDto>();
             foreach (var contact in patnt.Contacts)
             {   var contactDto = new ContactDto();
-                contactDto.ContactUsage = contact.ContactUsage.Code;
-                contactDto.ContactType = contact.ContactType.Code; 
+                contactDto.ContactUsage = !(contact.ContactUsage is null) ? contact.ContactUsage.Code : string.Empty;
+                contactDto.ContactType = !(contact.ContactType is null) ? contact.ContactType.Code : string.Empty; 
                 contactDto.Detail = contact.Detail;
                 contactDto.IsProtected = contact.IsProtected;
                 contactDto.EffectiveFrom = contact.EffectiveFrom;   

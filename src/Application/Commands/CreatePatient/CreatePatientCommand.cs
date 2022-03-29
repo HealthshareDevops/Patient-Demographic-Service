@@ -161,7 +161,7 @@ namespace Application.Commands.CreatePatient
                     // Add contacts
                     foreach (var contactCommand in request.Contacts)
                     {
-                        patnt.AddContact(ToContact(contactCommand));
+                       patnt.AddContact(ToContact(contactCommand));
                     }
                     LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient contacts added.");
                 }
@@ -248,13 +248,13 @@ namespace Application.Commands.CreatePatient
             var contactUsage = ContactUsage.FromCode(contactCommand.ContactUsage);
             if (contactUsage is null)
             {
-                throw new ValidationException("ContactUsage is not valid.");
+                LambdaLogger.Log($"WARN: ContactUsage is not valid (null).");
             }
 
             var contactType = ContactType.FromCode(contactCommand.ContactType);
             if (contactType is null)
             {
-                throw new ValidationException("ContactType is not valid.");
+                LambdaLogger.Log($"WARN: ContactType is not valid (null).");
             }
 
             if (string.IsNullOrEmpty(contactCommand.Detail))
@@ -265,7 +265,7 @@ namespace Application.Commands.CreatePatient
             //5.5 is mandatory
             if (string.IsNullOrEmpty(contactCommand.EffectiveFrom))
             {
-                throw new ValidationException("EffectiveFrom is not valid.");
+                LambdaLogger.Log($"WARN: EffectiveFrom is not valid (empty or null).");
             }
 
             Result<Date> contactEffectiveFrom = Date.Create(contactCommand.EffectiveFrom);

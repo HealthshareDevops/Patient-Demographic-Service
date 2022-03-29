@@ -16,9 +16,15 @@ namespace Domain.Enums
         public static readonly ContactType U = new ContactType(9, "U", "URL (Universal Resource Locator)", "");
         public static readonly ContactType V = new ContactType(10, "V", "Videoconferencing", "");
         public static readonly ContactType W = new ContactType(11, "W", "Web forum (social media)", "");
+        // Additional DHB codeset
+        public static readonly ContactType CP = new ContactType(12, "CP", "Mobile", "DHB code");
+        public static readonly ContactType FX = new ContactType(13, "FX", "Facsimile", "DHB code");
+        public static readonly ContactType INTERNET = new ContactType(14, "Internet", "Email", "DHB code");
+        public static readonly ContactType NET = new ContactType(15, "NET", "Email", "DHB code");
+        public static readonly ContactType PH = new ContactType(16, "PH", "Telephone", "DHB code");
 
 
-        public static readonly ContactType[] AllContactTypes = { A, C, E, F, M, P, S, T, U, V, W };
+        public static readonly ContactType[] AllContactTypes = { A, C, E, F, M, P, S, T, U, V, W, CP, FX, INTERNET, NET, PH };
 
         protected ContactType() { }
 
@@ -38,7 +44,5 @@ namespace Domain.Enums
         {
             return AllContactTypes.SingleOrDefault(x => x.Code == code);
         }
-
-
     }
 }
