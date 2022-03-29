@@ -161,7 +161,7 @@ namespace Application.Commands.CreatePatient
                     // Add contacts
                     foreach (var contactCommand in request.Contacts)
                     {
-                        patnt.AddContact(ToContact(contactCommand));
+                       patnt.AddContact(ToContact(contactCommand));
                     }
                     LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient contacts added.");
                 }

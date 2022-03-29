@@ -1,11 +1,9 @@
 ﻿using Application.Commands.CreatePatient;
+using Application.Common.Exceptions;
 using Application.Common.Interfaces;
 using Application.Tests.Common;
 using Moq;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -100,7 +98,6 @@ namespace Application.Tests
             // Assert
             Assert.Equal(1, res);
         }
-
 
         [Theory]
         [InlineData("")]
@@ -486,5 +483,158 @@ namespace Application.Tests
             // Assert
             Assert.Null(pat[0].Contacts[0].ContactType);
         }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData(null)]
+        public async Task Should_Create_Contact_With_Empty_EffectiveFrom_When_NullOrEmpty_EffectiveFrom_Is_Send(string effectiveFrom)
+        {
+            // Arrange
+            var request = new CreatePatientCommand()
+            {
+                Nhi = "ZZZ0024",
+                Title = "SIR",
+                GivenName = "Jack",
+                MiddleName = "",
+                FamilyName = "Doe",
+                Suffix = "1ST",
+                IsPreferred = true,
+                IsProtected = true,
+                NameSource = "BRCT",
+                EffectiveFrom = "",
+                EffectiveTo = "",
+                BirthDate = "19920118",
+                BirthDateSource = "BRCT",
+                Gender = "M",
+                Addresses = {
+                    new CreateAddressCommand {
+                        BuildingName = "hello",
+                        StreetAddress="92 Hillcrest Road",
+                        AdditionalStreetAddress="",
+                        Suburb="Hillcrest",
+                        TownOrCity="Hamilton",
+                        PostCode="3216",
+                        Country="572",
+                        IsProtected=false,
+                        IsPermanent=true,
+                        EffectiveFrom="",
+                        EffectiveTo="",
+                        Domicile="",
+                        IsPrimary=true,
+                        AddressType="R"
+                    },
+                    new CreateAddressCommand {
+                        BuildingName = "world",
+                        StreetAddress="16 Clarence Street",
+                        AdditionalStreetAddress="",
+                        Suburb="",
+                        TownOrCity="Hamilton",
+                        PostCode="3204",
+                        Country="572",
+                        IsProtected=false,
+                        IsPermanent=false,
+                        EffectiveFrom="",
+                        EffectiveTo="",
+                        Domicile="",
+                        IsPrimary=true,
+                        AddressType="R"
+                    },
+                },
+                Contacts = {
+                    new CreateContactCommand {
+                            ContactType = "E",
+                            ContactUsage = "",
+                            Detail = "jack@doe.com",
+                            IsProtected = false,
+                            EffectiveFrom = effectiveFrom,
+                            EffectiveTo = "20220228",
+                            IsPreferred =  false
+                        }
+                }
+            };
+            // Act
+            var res = await _createPatientCommandHandler.Handle(request, CancellationToken.None);
+            var pat = _dbContext.Patients.ToList();
+            // Assert
+            Assert.Empty(pat[0].Contacts[0].EffectiveFrom.Value);
+        }
+
+
+        [Theory]
+        [InlineData("ABCDEFGH")]
+        [InlineData("90003011")]
+        public async Task Should_Throw_Exception_When_Invalid_EffectiveFrom_Is_Send(string effectiveFrom)
+        {
+            // Arrange
+            var request = new CreatePatientCommand()
+            {
+                Nhi = "ZZZ0024",
+                Title = "SIR",
+                GivenName = "Jack",
+                MiddleName = "",
+                FamilyName = "Doe",
+                Suffix = "1ST",
+                IsPreferred = true,
+                IsProtected = true,
+                NameSource = "BRCT",
+                EffectiveFrom = "",
+                EffectiveTo = "",
+                BirthDate = "19920118",
+                BirthDateSource = "BRCT",
+                Gender = "M",
+                Addresses = {
+                    new CreateAddressCommand {
+                        BuildingName = "hello",
+                        StreetAddress="92 Hillcrest Road",
+                        AdditionalStreetAddress="",
+                        Suburb="Hillcrest",
+                        TownOrCity="Hamilton",
+                        PostCode="3216",
+                        Country="572",
+                        IsProtected=false,
+                        IsPermanent=true,
+                        EffectiveFrom="",
+                        EffectiveTo="",
+                        Domicile="",
+                        IsPrimary=true,
+                        AddressType="R"
+                    },
+                    new CreateAddressCommand {
+                        BuildingName = "world",
+                        StreetAddress="16 Clarence Street",
+                        AdditionalStreetAddress="",
+                        Suburb="",
+                        TownOrCity="Hamilton",
+                        PostCode="3204",
+                        Country="572",
+                        IsProtected=false,
+                        IsPermanent=false,
+                        EffectiveFrom="",
+                        EffectiveTo="",
+                        Domicile="",
+                        IsPrimary=true,
+                        AddressType="R"
+                    },
+                },
+                Contacts = {
+                    new CreateContactCommand {
+                            ContactType = "E",
+                            ContactUsage = "",
+                            Detail = "jack@doe.com",
+                            IsProtected = false,
+                            EffectiveFrom = effectiveFrom,
+                            EffectiveTo = "20220228",
+                            IsPreferred =  false
+                        }
+                }
+            };
+            // Act
+            // Act
+            var ex = await Assert.ThrowsAsync<ValidationException>(() => _createPatientCommandHandler.Handle(request, CancellationToken.None));
+
+            // Assert
+            Assert.Equal("Date should be valid", ex.Message);
+        }
+
     }
 }
