@@ -3,7 +3,7 @@ name: Patient demographic service CI/CD pipeline for test environment
 on:
   push:
     branches: 
-      - test
+      - main
 
   workflow_dispatch:
 
