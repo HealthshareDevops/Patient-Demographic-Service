@@ -12,7 +12,6 @@ env:
   SOLUTION_NAME: PatientDemographicService
   ENVIRONMENT_NAME: test
   AWS_S3_BUCKET: mhip-patient-demographic-service-test
-  AWS_CFN_EXECUTION_ROLE: arn:aws:iam::071693856754:role/AWSCloudFormationExecution
   PUBLISH_DIR: ./bin/Release/net6.0/publish
   PUBLISH_FRAMEWORK: 'net6.0'
 
@@ -85,7 +84,7 @@ jobs:
             ParamStoreLambdaSecurityGroupIds=/${{env.SOLUTION_NAME}}/${{env.ENVIRONMENT_NAME}}/CloudFormation/Lambda-Security-GroupIds,
             ParamStoreLambdaSubnetIds=/${{env.SOLUTION_NAME}}/${{env.ENVIRONMENT_NAME}}/CloudFormation/Lambda-SubnetIds
           capabilities: "CAPABILITY_IAM, CAPABILITY_NAMED_IAM, CAPABILITY_AUTO_EXPAND"
-          role-arn: ${{env.AWS_CFN_EXECUTION_ROLE}}
+          role-arn: ${{secrets.PROD_AWS_CFN_EXECUTION_ROLE}}
 
   build-MissingDataLambda-test:
     runs-on: ubuntu-latest
@@ -154,7 +153,7 @@ jobs:
             ParamStoreLambdaSecurityGroupIds=/${{env.SOLUTION_NAME}}/${{env.ENVIRONMENT_NAME}}/CloudFormation/Lambda-Security-GroupIds,
             ParamStoreLambdaSubnetIds=/${{env.SOLUTION_NAME}}/${{env.ENVIRONMENT_NAME}}/CloudFormation/Lambda-SubnetIds
           capabilities: "CAPABILITY_IAM, CAPABILITY_NAMED_IAM, CAPABILITY_AUTO_EXPAND"
-          role-arn: ${{env.AWS_CFN_EXECUTION_ROLE}}
+          role-arn: ${{secrets.PROD_AWS_CFN_EXECUTION_ROLE}}
 
   build-PatientServiceAPI-test:
     runs-on: ubuntu-latest
@@ -223,7 +222,7 @@ jobs:
             ParamStoreLambdaSecurityGroupIds=/${{env.SOLUTION_NAME}}/${{env.ENVIRONMENT_NAME}}/CloudFormation/Lambda-Security-GroupIds,
             ParamStoreLambdaSubnetIds=/${{env.SOLUTION_NAME}}/${{env.ENVIRONMENT_NAME}}/CloudFormation/Lambda-SubnetIds
           capabilities: "CAPABILITY_IAM, CAPABILITY_NAMED_IAM, CAPABILITY_AUTO_EXPAND"
-          role-arn: ${{env.AWS_CFN_EXECUTION_ROLE}}
+          role-arn: ${{secrets.PROD_AWS_CFN_EXECUTION_ROLE}}
   
   build-All-Infra-test:
     runs-on: ubuntu-latest
@@ -252,4 +251,4 @@ jobs:
             ProjectName=${{env.SOLUTION_NAME}},
             Environment=${{env.ENVIRONMENT_NAME}}
           capabilities: "CAPABILITY_IAM, CAPABILITY_NAMED_IAM, CAPABILITY_AUTO_EXPAND"
-          role-arn: ${{env.AWS_CFN_EXECUTION_ROLE}}
+          role-arn: ${{secrets.PROD_AWS_CFN_EXECUTION_ROLE}}
