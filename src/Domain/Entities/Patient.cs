@@ -123,7 +123,6 @@ namespace Domain.Entities
             DeleteAddressInfoList(addresses);
 
             UpdateEthnicityInfoList(ethnicities);
-            DeleteEthnicityInfoList(ethnicities);
         }
 
         private void UpdateHumanNameInfoList(List<HumanName> namesToAdd)
@@ -199,20 +198,19 @@ namespace Domain.Entities
 
         private void UpdateEthnicityInfoList(List<Ethnicity> ethnicityToAdd)
         {
+            // Add ethnicity for current list to the PatientEthnicities list if it does not exist in PatientEthnicities list
             foreach (var eth in ethnicityToAdd)
             {
-                var found = _patientEthnicities.FirstOrDefault(e => e.EthnicityId == eth.Id);
+                var found = _patientEthnicities.FirstOrDefault(e => e.Ethnicity.Id == eth.Id);
 
                 if (found is null)
                 {
                     _patientEthnicities.Add(new PatientEthnicity(this, eth));
                 }
             }
-        }
 
-        private void DeleteEthnicityInfoList(List<Ethnicity> ethnicitiesToKeep)
-        {
-            _patientEthnicities.RemoveAll(e => !ethnicitiesToKeep.Exists(eth => e.EthnicityId == eth.Id));
+            // Remove ethnicity from PatientEthnicities list if it does not exist in current list
+            _patientEthnicities.RemoveAll(e => !ethnicityToAdd.Exists(eth => e.Ethnicity.Id == eth.Id));
         }
     }
 }

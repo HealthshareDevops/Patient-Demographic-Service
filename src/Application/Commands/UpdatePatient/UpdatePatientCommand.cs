@@ -68,6 +68,7 @@ namespace Application.Commands.UpdatePatient
                     .Include(x => x.Addresses)
                         .ThenInclude(a => a.AddressType)
                     .Include(x => x.PatientEthnicities)
+                        .ThenInclude(e => e.Ethnicity)
                     .FirstOrDefaultAsync(x => x.Nhi == request.Nhi);
 
             if (patnt is null)
