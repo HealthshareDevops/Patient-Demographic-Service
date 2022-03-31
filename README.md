@@ -1,12 +1,9 @@
-The Patient Demographic Service is the regional source of truth for Patient Demographic Details thorough out the Midland region. The Patient Details Service encapsulates all software, infrastructure/network, data, configurations and processes required to operate the Patient Details as an autonomous service. The Patient Details Service may change over time as more detail is understood regarding the Patient Domain Model. However the service interfaces will remain stable, API version changes siginify any major changes to the service interface specification.  
-
 # Patient-Demographic-Service
-
-The Patient Demographic Service is the regional source of truth for Patient Demographic Details thorough out the Midland region. The Patient Details Service encapsulates all software, infrastructure/network, data, configurations and processes required to operate the Patient Details as an autonomous service. The Patient Details Service may merge, rename or disappear as more detail is understood regarding the Patient Domain Model.  
+The Patient Demographic Service is the regional source of truth for Patient Demographic Details thorough out the Midland region. The Patient Details Service encapsulates all software, infrastructure/network, data, configurations and processes required to operate the Patient Details as an autonomous service. The Patient Details Service may change over time as more detail is understood regarding the Patient Domain Model. However the service interfaces will remain stable, API version changes siginify any major changes to the service interface specification.  
 
 
 # How to deploy?
-1. Currently Patient-Demographic-Service repository uses GitHub Actions for CI/CD automation.
+1. Patient-Demographic-Service repository uses GitHub Actions for CI/CD automation.
 2. CI/CD automation provisions AWS resources by using CloudFormation templates from cloudformation folder as well as deploy code to the AWS lambda.
 2. Create S3 bucket mhip-patient-demographic-service-&lt;environment-name&gt;
 2. Update CloudFormation execution role __AWS_CFN_EXECUTION_ROLE__ in aws-pipeline-&lt;envirionment-name&gt;.yml 

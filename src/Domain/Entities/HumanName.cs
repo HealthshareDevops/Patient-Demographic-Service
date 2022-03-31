@@ -14,9 +14,12 @@ namespace Domain.Entities
         public NameSource NameSource { get; private set; }
         public Date EffectiveFrom { get; private set; }
         public Date EffectiveTo { get; private set; }
+        public long PatientId { get; private set; }
+        public Patient Patient { get; private set; }
 
         protected HumanName() { }
         public HumanName(
+            Patient patient,
             Title title,
             Name name,
             Suffix suffix,
@@ -26,6 +29,7 @@ namespace Domain.Entities
             Date effectiveFrom,
             Date effectiveTo)
         {
+            Patient = patient;
             Title = title;
             Name = name;
             Suffix = suffix;
