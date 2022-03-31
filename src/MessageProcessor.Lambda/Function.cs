@@ -1,7 +1,10 @@
 using Amazon.Lambda.Core;
 using Amazon.Lambda.SQSEvents;
 using Application.Commands.CreatePatient;
+using Application.Commands.UpdatePatient;
+using Application.Common.Interfaces;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -16,9 +19,11 @@ namespace MessageProcessor.Lambda
 {
     public class Function
     {
+        public static IServiceProvider ServiceProvider;
         public static IConfiguration Configuration;
 
         private readonly IMediator _mediator;
+        private readonly IApplicationDbContext _dbContext;
 
         /// <summary>
         /// Default constructor. This constructor is used by Lambda to construct the instance. When invoked in a Lambda environment
@@ -32,8 +37,9 @@ namespace MessageProcessor.Lambda
                 .AddJsonFile("appsettings.json")
                 .AddSystemsManager(paramsStore)
                 .Build();
-
-            _mediator = Startup.ConfigureServices(Configuration).GetService<IMediator>();
+            ServiceProvider = Startup.ConfigureServices(Configuration);
+            _mediator = ServiceProvider.GetService<IMediator>();
+            _dbContext = ServiceProvider.GetService<IApplicationDbContext>();
         }
         
         /// <summary>
@@ -67,9 +73,23 @@ namespace MessageProcessor.Lambda
             context.Logger.LogLine($"INFO: Processing MessageId: {message.MessageId}");
             context.Logger.LogLine($"INFO: Message Body: {message.Body}");
             
+            long response = 0L;
+
             var createPatientCommand = JsonSerializer.Deserialize<CreatePatientCommand>(message.Body);
-            var response = await _mediator.Send(createPatientCommand);
+            var found = await _dbContext.Patients.AsNoTracking().FirstOrDefaultAsync(x => x.Nhi == createPatientCommand.Nhi);
             
+            if (found is null)
+            {
+                context.Logger.LogLine($"INFO: MessageProcessor.Lambda.ProcessMessageAsync(): NHI {createPatientCommand.Nhi} does not exist. Creating Patient ...");
+                response = await _mediator.Send(createPatientCommand);
+            }
+            else
+            {
+                context.Logger.LogLine($"INFO: MessageProcessor.Lambda.ProcessMessageAsync(): NHI {createPatientCommand.Nhi} exists. Updating Patient ...");
+                var updatePatientCommand = JsonSerializer.Deserialize<UpdatePatientCommand>(message.Body);
+                response = await _mediator.Send(updatePatientCommand);
+            }
+
             context.Logger.LogLine($"INFO: {response}");
             context.Logger.LogLine($"INFO: MessageProcessor.Lambda.ProcessMessageAsync end...");
             await Task.CompletedTask;

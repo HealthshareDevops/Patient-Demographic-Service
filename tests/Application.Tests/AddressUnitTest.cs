@@ -179,9 +179,9 @@ namespace Application.Tests
 
             // Act
             var res = await _createPatientCommandHandler.Handle(request, CancellationToken.None);
-            
+
             var pat = _dbContext.Patients.ToList();
-            
+
             // Assert
             Assert.Equal(1, res);
             Assert.Equal(string.Empty, pat[0].Addresses[0].BuildingName);

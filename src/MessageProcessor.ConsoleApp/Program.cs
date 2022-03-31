@@ -1,5 +1,8 @@
 ﻿using Application.Commands.CreatePatient;
+using Application.Commands.UpdatePatient;
+using Application.Common.Interfaces;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -11,6 +14,7 @@ namespace MessageProcessor.ConsoleApp
     class Program
     {
         static IConfiguration Configuration;
+        static IServiceProvider ServiceProvider;
         static async Task Main(string[] args)
         {
             Console.WriteLine("MessageProcessor.ConsoleApp ...");
@@ -20,23 +24,24 @@ namespace MessageProcessor.ConsoleApp
             Configuration = new ConfigurationBuilder()
                 .AddJsonFile($"appsettings.Development.json")
                 .Build();
-
-            var mediator = Startup.ConfigureServices(Configuration).GetService<IMediator>();
+            ServiceProvider = Startup.ConfigureServices(Configuration);
+            var mediator = ServiceProvider.GetService<IMediator>();
+            var dbContext = ServiceProvider.GetService<IApplicationDbContext>();
 
             var payload = new
             {
                 Nhi = "ZZZ0016",
-                Title = "SIR",
+                Title = "DR",
                 GivenName = "Jack",
                 MiddleName = "",
                 FamilyName = "Doe",
                 Suffix = "1ST",
                 IsPreferred = true,
                 IsProtected = true,
-                NameSource = "BRCT",
+                NameSource = "BREG",
                 EffectiveFrom = "",
                 EffectiveTo = "",
-                BirthDate = "19920118",
+                BirthDate = "19900118",
                 BirthDateSource = "BRCT",
                 Gender = "M",
                 Ethnicities = new[] {
@@ -50,8 +55,8 @@ namespace MessageProcessor.ConsoleApp
                     },
                     new 
                     {
-                        Code = "99",
-                        Description = "Not stated"
+                        Code = "36",
+                        Description = "Fijian"
                     }
                 },
                 Addresses = new[] {
@@ -70,7 +75,7 @@ namespace MessageProcessor.ConsoleApp
                         EffectiveTo="",
                         Domicile="",
                         IsPrimary=true,
-                        AddressType="R"
+                        AddressType="M"
                     },
                     new {
                         AddressFormat="CIQ",
@@ -92,7 +97,7 @@ namespace MessageProcessor.ConsoleApp
                 },
                 Contacts = new[] {
                     new {
-                            ContactType = "A",
+                            ContactType = "A", 
                             ContactUsage = "E",
                             Detail = "hello contact",
                             IsProtected = false,
@@ -106,9 +111,17 @@ namespace MessageProcessor.ConsoleApp
             var payloadJsonString = JsonSerializer.Serialize(payload);
             Console.WriteLine($"Payload: {payloadJsonString}");
 
+           
             var createPatientCommand = JsonSerializer.Deserialize<CreatePatientCommand>(payloadJsonString);
-
-            var response = await mediator.Send(createPatientCommand);
+            var found = await dbContext.Patients.AsNoTracking().FirstOrDefaultAsync(x => x.Nhi == createPatientCommand.Nhi);
+            if (found is null)
+            {
+                var response = await mediator.Send(createPatientCommand);
+            } else
+            {
+                var updatePatientCommand = JsonSerializer.Deserialize<UpdatePatientCommand>(payloadJsonString);
+                var response = await mediator.Send(updatePatientCommand);
+            }
         }
     }
 }
