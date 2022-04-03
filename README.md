@@ -23,8 +23,8 @@ The Patient Demographic Service is the regional source of truth for Patient Demo
 
 
 ##### Create RDS
-1. Update parameters in rds-cfn.yml
-2. Create CloudFormation stack with rds-cfn.yml file manually. This will create  DB Instance in AWS RDS.
+1. Update parameters in _rds-cfn.yml_.
+2. Create CloudFormation stack with _rds-cfn.yml_ file manually. This will create  DB Instance in AWS RDS.
 3. Connect to the DB Instance using SSMS 
 4. Create database. For example; PatientDemographicService.App
 5. Run all sql scripts from sql folder sequentially
