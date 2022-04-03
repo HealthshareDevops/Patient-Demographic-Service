@@ -95,17 +95,18 @@ namespace MessageProcessor.ConsoleApp
                         AddressType="R"
                     }
                 },
-                Contacts = new[] {
-                    new {
-                            ContactType = "A", 
-                            ContactUsage = "E",
-                            Detail = "hello contact",
-                            IsProtected = false,
-                            EffectiveFrom = "20220101",
-                            EffectiveTo = "20220228",
-                            IsPreferred =  false
-                        }
-                }
+                //Contacts = 
+                //new[] {
+                //    new {
+                //            ContactType = "A",
+                //            ContactUsage = "E",
+                //            Detail = "hello contact",
+                //            IsProtected = false,
+                //            EffectiveFrom = "20220101",
+                //            EffectiveTo = "20220228",
+                //            IsPreferred =  false
+                //        }
+                //}
             }; //end of payload
 
             var payloadJsonString = JsonSerializer.Serialize(payload);
@@ -120,6 +121,7 @@ namespace MessageProcessor.ConsoleApp
             } else
             {
                 var updatePatientCommand = JsonSerializer.Deserialize<UpdatePatientCommand>(payloadJsonString);
+                updatePatientCommand.Contacts = null;
                 var response = await mediator.Send(updatePatientCommand);
             }
         }
