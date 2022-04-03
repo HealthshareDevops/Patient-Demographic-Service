@@ -285,7 +285,7 @@ namespace Application.Commands.UpdatePatient
 
             if (string.IsNullOrEmpty(contactCommand.Detail))
             {
-                LambdaLogger.Log($"WARN: Detail is not valid.");
+                LambdaLogger.Log($"ERROR: Detail is not valid.");
                 throw new ValidationException("Detail is not valid.");
             }
 
