@@ -11,6 +11,7 @@ namespace Infrastructure.Persistence.Configurations
         {
             builder.ToTable("HumanNames");
             builder.Property(p => p.Id);
+            builder.HasOne(p => p.Patient).WithMany(p => p.HumanNames).HasForeignKey(p => p.PatientId);
             builder.HasOne(p => p.Title)
                 .WithMany();
             builder.OwnsOne(p => p.Name, p =>

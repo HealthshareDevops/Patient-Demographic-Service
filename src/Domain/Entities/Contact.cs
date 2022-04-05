@@ -36,5 +36,26 @@ namespace Domain.Entities
             IsPreferred = isPreferred;
         }
 
+        /// <summary>
+        /// This function checks whether the two contacts are equal.
+        /// Incoming (new/update contact) does not have Id field.
+        /// If all the values except Ids are equal, two contacts are considered equal.
+        /// Id is application generated, application specific. 
+        /// 
+        /// Note: This is different from other equality check, check Id also no referential check.
+        /// </summary>
+        /// <param name="contact"></param>
+        /// <returns></returns>
+        public bool IsEqual (Contact contact)
+        {
+            return ContactType == contact.ContactType
+                 && ContactUsage == contact.ContactUsage
+                 && Detail == contact.Detail
+                 && IsProtected == contact.IsProtected
+                 && EffectiveFrom == contact.EffectiveFrom
+                 && EffectiveTo == contact.EffectiveTo
+                 && IsPreferred == contact.IsPreferred;
+        }
+
     }
 }

@@ -10,6 +10,9 @@ namespace Infrastructure.Persistence.Configurations
         public void Configure(EntityTypeBuilder<Country> builder)
         {
             builder.Property(p => p.Id);
+            builder.Property(p => p.Code);
+            builder.Property(p => p.Description);
+            builder.Property(p => p.Comment);
         }
     }
 }

@@ -13,13 +13,17 @@ namespace Application.Tests
     public class AddressUnitTest : CommandTestBase
     {
         private readonly Mock<IMissingDataQueueService> _mockMissingDataQueueService;
+        private readonly Mock<INewPatientNotificationService> _mockNewPatientNotificationService;
         private readonly CreatePatientCommandHandler _createPatientCommandHandler;
         public AddressUnitTest()
         {
             _mockMissingDataQueueService = new Mock<IMissingDataQueueService>();
             _mockMissingDataQueueService.Setup(p => p.SendMessageAsync(It.IsAny<string>())).Returns(Task.FromResult(true));
 
-            _createPatientCommandHandler = new CreatePatientCommandHandler(_dbContext, _mockMissingDataQueueService.Object);
+            _mockNewPatientNotificationService = new Mock<INewPatientNotificationService>();
+            _mockNewPatientNotificationService.Setup(p => p.PublishAsync(It.IsAny<string>())).Returns(Task.FromResult(string.Empty));
+
+            _createPatientCommandHandler = new CreatePatientCommandHandler(_dbContext, _mockMissingDataQueueService.Object, _mockNewPatientNotificationService.Object);
         }
 
         [Fact]
@@ -136,10 +140,6 @@ namespace Application.Tests
         public async Task Send_AllOptionalFieldsNull_CreateAddress()
         {
             // Arrange
-            var mock = new Mock<IMissingDataQueueService>();
-            mock.Setup(p => p.SendMessageAsync(It.IsAny<string>())).Returns(Task.FromResult(true));
-
-            var sut = new CreatePatientCommandHandler(_dbContext, mock.Object);
             var request = new CreatePatientCommand()
             {
                 Nhi = "ZZZ0024",
@@ -178,10 +178,10 @@ namespace Application.Tests
             };
 
             // Act
-            var res = await sut.Handle(request, CancellationToken.None);
-            
+            var res = await _createPatientCommandHandler.Handle(request, CancellationToken.None);
+
             var pat = _dbContext.Patients.ToList();
-            
+
             // Assert
             Assert.Equal(1, res);
             Assert.Equal(string.Empty, pat[0].Addresses[0].BuildingName);
@@ -196,13 +196,9 @@ namespace Application.Tests
         [Theory]
         [InlineData("")]
         [InlineData(null)]
-        public async Task Send_InvalidStreetAddress_ThrowValidationException(string streetAddress)
+        public async Task Send_InvalidStreetAddress_DoesNotCreateAddress(string streetAddress)
         {
             // Arrange
-            var mock = new Mock<IMissingDataQueueService>();
-            mock.Setup(p => p.SendMessageAsync(It.IsAny<string>())).Returns(Task.FromResult(true));
-
-            var sut = new CreatePatientCommandHandler(_dbContext, mock.Object);
             var request = new CreatePatientCommand()
             {
                 Nhi = "ZZZ0024",
@@ -240,11 +236,16 @@ namespace Application.Tests
                 }
             };
 
+            var expectedAddressCount = 0;
+
             // Act
-            var ex = await Assert.ThrowsAsync<ValidationException>(() => sut.Handle(request, CancellationToken.None));
+            //var ex = await Assert.ThrowsAsync<ValidationException>(() => _createPatientCommandHandler.Handle(request, CancellationToken.None));
+            var res = await _createPatientCommandHandler.Handle(request, CancellationToken.None);
+            var pat = _dbContext.Patients.ToList();
 
             // Assert
-            Assert.Equal("StreetAddress should be valid.", ex.Message);
+            //Assert.Equal("StreetAddress should be valid.", ex.Message);
+            Assert.Equal(expectedAddressCount, pat[0].Addresses.Count);
         }
 
         [Theory]
@@ -255,10 +256,6 @@ namespace Application.Tests
         public async Task Send_InvalidAddressType_ThrowValidationException(string addressType)
         {
             // Arrange
-            var mock = new Mock<IMissingDataQueueService>();
-            mock.Setup(p => p.SendMessageAsync(It.IsAny<string>())).Returns(Task.FromResult(true));
-
-            var sut = new CreatePatientCommandHandler(_dbContext, mock.Object);
             var request = new CreatePatientCommand()
             {
                 Nhi = "ZZZ0024",
@@ -297,7 +294,7 @@ namespace Application.Tests
             };
 
             // Act
-            var ex = await Assert.ThrowsAsync<ValidationException>(() => sut.Handle(request, CancellationToken.None));
+            var ex = await Assert.ThrowsAsync<ValidationException>(() => _createPatientCommandHandler.Handle(request, CancellationToken.None));
 
             // Assert
             Assert.Equal("AddressType should be valid.", ex.Message);

@@ -54,11 +54,11 @@ namespace Domain.Entities
 
         protected Patient() { }
 
-        public Patient(Nhi nhi, HumanName humanName, BirthDate birthDate, BirthDateSource birthDateSource, Gender gender)
+        public Patient(Nhi nhi, BirthDate birthDate, BirthDateSource birthDateSource, Gender gender)
         {
             Nhi = nhi ?? throw new ArgumentNullException(nameof(nhi));
             
-            AddName(humanName);
+            //AddName(humanName);
 
             //TODO - This can called from the command handle
             
@@ -68,6 +68,14 @@ namespace Domain.Entities
             SetBirthDateAndPlaceInfo(birthDate, birthDateSource); 
         }
 
+        public void AddName(Title title,
+            Name name,
+            Suffix suffix,
+            bool isPreferred,
+            bool isProtected,
+            NameSource nameSource,
+            Date effectiveFrom,
+            Date effectiveTo)
         //Merge Patient Identity - use case changes
         public void AddIdentity(Identifier identity) {
            // Identifier id = new Identifier(nhi, isMajor);
@@ -83,6 +91,7 @@ namespace Domain.Entities
         }
         public void AddName(HumanName humanName)
         {
+            var humanName = new HumanName(this, title, name, suffix, isPreferred, isProtected, nameSource, effectiveFrom, effectiveTo);
             _humanNames.Add(humanName);
         }
 
@@ -112,6 +121,88 @@ namespace Domain.Entities
         {
             BirthDate = birthDate ?? throw new ArgumentNullException(nameof(birthDate));
             BirthDateSource = birthDateSource ?? throw new ArgumentNullException(nameof(birthDateSource));
+        }
+
+        public void UpdatePatientInfo(BirthDate birthDate, BirthDateSource birthDateSource, Gender gender, List<HumanName> humanNames, List<Address> addresses, List<Ethnicity> ethnicities, List<Contact> contacts)
+        {
+            UpdateHumanNameList(humanNames);
+
+            ArgumentNullException.ThrowIfNull(gender);
+            if (!gender.Equals(Gender))
+            {
+                Gender = gender;
+            }
+
+            SetBirthDateAndPlaceInfo(birthDate, birthDateSource);
+
+            UpdateAddressList(addresses);
+
+            UpdateEthnicityList(ethnicities);
+
+            UpdateContactList(contacts);
+        }
+
+        private void UpdateHumanNameList(List<HumanName> namesToKeep)
+        {
+            foreach(var name in namesToKeep)
+            {
+                var found = _humanNames.Find(n => name.IsEqual(n));
+
+                if (found is null)
+                {
+                    _humanNames.Add(name);
+                }
+            }
+
+            _humanNames.RemoveAll(n1 => !namesToKeep.Exists(n2 => n1.IsEqual(n2)));
+        }
+
+        private void UpdateAddressList(List<Address> addressesToKeep)
+        {
+            foreach (var addr in addressesToKeep)
+            {
+                var found = _addresses.FirstOrDefault(a => addr.IsEqual(a));
+
+                if (found is null)
+                {
+                    _addresses.Add(addr);
+                }
+            }
+
+            _addresses.RemoveAll(a1 => !addressesToKeep.Exists(a2 => a1.IsEqual(a2)));
+        }
+
+        private void UpdateEthnicityList(List<Ethnicity> ethnicityToAdd)
+        {
+            // Check incoming ethnicity the PatientEthnicities list, if it does not exist in PatientEthnicities list.
+            foreach (var eth in ethnicityToAdd)
+            {
+                var found = _patientEthnicities.FirstOrDefault(e => e.Ethnicity.Id == eth.Id);
+
+                // New ethnicity, add it to the Patient list.
+                if (found is null)
+                {
+                    _patientEthnicities.Add(new PatientEthnicity(this, eth));
+                }
+            }
+
+            // Remove ethnicity from PatientEthnicities list if it does not exist in current list
+            _patientEthnicities.RemoveAll(e => !ethnicityToAdd.Exists(eth => e.Ethnicity.Id == eth.Id));
+        }
+
+        private void UpdateContactList(List<Contact> contactsToKeep)
+        {
+            foreach(var contact in contactsToKeep)
+            {
+                var found = _contacts.FirstOrDefault(c => contact.IsEqual(c));
+                if(found is null)
+                {
+                    _contacts.Add(contact);
+                }
+            }
+
+            // Remove contacts from the Patient contacts list, which do not exists in the incoming list.
+            _contacts.RemoveAll(c1 => !contactsToKeep.Exists(c2 => c1.IsEqual(c2)));
         }
     }
 }

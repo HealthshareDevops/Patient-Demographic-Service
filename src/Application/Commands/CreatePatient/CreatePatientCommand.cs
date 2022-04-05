@@ -9,6 +9,7 @@ using MediatR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -40,11 +41,15 @@ namespace Application.Commands.CreatePatient
     {
         private readonly IApplicationDbContext _dbContext;
         private readonly IMissingDataQueueService _queueService;
+        private readonly INewPatientNotificationService _newPatientNotificationService;
 
-        public CreatePatientCommandHandler(IApplicationDbContext dbContext, IMissingDataQueueService queueService)
+        public CreatePatientCommandHandler(IApplicationDbContext dbContext,
+                                           IMissingDataQueueService queueService,
+                                           INewPatientNotificationService newPatientNotificationService)
         {
             _dbContext = dbContext;
             _queueService = queueService;
+            _newPatientNotificationService = newPatientNotificationService;
         }
 
         public async Task<long> Handle(CreatePatientCommand request, CancellationToken cancellationToken)
@@ -71,7 +76,7 @@ namespace Application.Commands.CreatePatient
                 var namesource = NameSource.FromCode(request.NameSource);
 
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Title, Suffix, NameSource created.");
-                
+
                 Result<Name> name = Name.Create(request.GivenName, request.MiddleName, request.FamilyName);
                 if (name.IsFailure)
                 {
@@ -87,7 +92,7 @@ namespace Application.Commands.CreatePatient
                     throw new ValidationException(effectiveFrom.Error);
                 }
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: EffectiveFrom date created.");
-                
+
                 Result<Date> effectiveTo = Date.Create(request.EffectiveTo);
                 if (effectiveTo.IsFailure)
                 {
@@ -95,9 +100,9 @@ namespace Application.Commands.CreatePatient
                     throw new ValidationException(effectiveTo.Error);
                 }
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: EffectiveTo date created.");
-               
-                var humanName = new HumanName(title, name.Value, suffix, request.IsPreferred, request.IsProtected, namesource, effectiveFrom.Value, effectiveTo.Value);
-                LambdaLogger.Log($"INFO: CreatePatientCommandHandler: HumanName object created.");
+
+                //var humanName = new HumanName(title, name.Value, suffix, request.IsPreferred, request.IsProtected, namesource, effectiveFrom.Value, effectiveTo.Value);
+                //LambdaLogger.Log($"INFO: CreatePatientCommandHandler: HumanName object created.");
 
                 Result<BirthDate> birthDate = BirthDate.Create(request.BirthDate);
                 if (birthDate.IsFailure)
@@ -116,9 +121,27 @@ namespace Application.Commands.CreatePatient
                     throw new ValidationException("Gender is not valid.");
                 }
 
-                var patnt = new Patient(nhi.Value, humanName, birthDate.Value, birthDateSource, gender);
+
+                var patnt = new Patient(nhi.Value, birthDate.Value, birthDateSource, gender);
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object created.");
 
+                patnt.AddName(title, name.Value, suffix, request.IsPreferred, request.IsProtected, namesource, effectiveFrom.Value, effectiveTo.Value);
+
+                if (request.Ethnicities != null)
+                {
+                    // Add Ethnicities
+                    foreach (var ethnicityCommand in request.Ethnicities)
+                    {
+                        var ethnicity = Ethnicity.FromCode(ethnicityCommand.Code);
+                        if (ethnicity is null)
+                        {
+                            LambdaLogger.Log($"INFO: Ethnicity ${ethnicityCommand.Code} is not valid.");
+                            continue;
+                        }
+                        patnt.AddEthnicity(ethnicity);
+
+                    }
+                    LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient ethnicities added.");
                 //This is the first time we have seen this patient in the Midland region therefore business logic determines the NHI as the major
                var identity = new Identifier(nhi.Value, true);
                LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Identity created.");
@@ -138,24 +161,42 @@ namespace Application.Commands.CreatePatient
                 }
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient ethnicities added.");
 
-                // Add addressess
-                foreach (var addrCommand in request.Addresses)
-                {
-                    patnt.AddAddress(ToAddress(addrCommand));
                 }
-                LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient addresses added.");
-                
-                // Add contacts
-                foreach (var contactCommand in request.Contacts)
+                if (request.Addresses != null)
                 {
-                    patnt.AddContact(ToContact(contactCommand));
+                    // Add addressess
+                    foreach (var addrCommand in request.Addresses)
+                    {
+                        var addr = ToAddress(addrCommand);
+                        if (addr is null)
+                        {
+                            continue;
+                        }
+                        patnt.AddAddress(addr);
+                    }
+                    LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient addresses added.");
                 }
-                LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient contacts added.");
-                
+
+                if (request.Contacts != null)
+                {
+                    // Add contacts
+                    foreach (var contactCommand in request.Contacts)
+                    {
+                       patnt.AddContact(ToContact(contactCommand));
+                    }
+                    LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient contacts added.");
+                }
+
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object DB Saving.");
                 _dbContext.Patients.Attach(patnt);
                 await _dbContext.SaveChangesAsync(cancellationToken);
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object DB Saved. Patient Id: {patnt.Id}");
+
+
+                // New patient is saved. Notify all the concerned services.
+                await _newPatientNotificationService.PublishAsync(BuildEventMessage(patnt.Nhi));
+                LambdaLogger.Log($"INFO: Services notified");
+
 
                 // ToDo: If there are any missing data, send message to MissingData Queue.
                 //LambdaLogger.Log($"INFO: Sending message to SQS start...");
@@ -169,7 +210,7 @@ namespace Application.Commands.CreatePatient
             {
                 LambdaLogger.Log($"ERROR: Error occurred in CreatePatientCommandHandler {e.Message}");
                 LambdaLogger.Log($"ERROR: Error occurred in CreatePatientCommandHandler InnerException {e.InnerException?.Message}");
-                throw e;
+                throw;
             }
         }
 
@@ -183,8 +224,10 @@ namespace Application.Commands.CreatePatient
             var addressFormat = AddressFormat.CIQ;
             //var addressFormat = AddressFormat.FromCode(addressCommand.AddressFormat);
 
-            if (string.IsNullOrEmpty(addressCommand.StreetAddress)) {
-                throw new ValidationException("StreetAddress should be valid.");
+            if (string.IsNullOrEmpty(addressCommand.StreetAddress))
+            {
+                LambdaLogger.Log($"ERROR: ToAddress: Street Address should be valid.");
+                return null;
             }
 
             var country = Country.FromCode(addressCommand.Country);
@@ -206,11 +249,11 @@ namespace Application.Commands.CreatePatient
             var domicile = _dbContext.Domiciles.ToList().Where(p => p.Code == addressCommand.Domicile).SingleOrDefault();
 
             var addressType = AddressType.FromCode(addressCommand.AddressType);
-            if(addressType is null)
+            if (addressType is null)
             {
                 throw new ValidationException("AddressType should be valid.");
             }
-            
+
             var address = new Address(addressFormat, addressCommand.BuildingName, addressCommand.StreetAddress,
                                       addressCommand.AdditionalStreetAddress, addressCommand.Suburb,
                                       addressCommand.TownOrCity, addressCommand.PostCode, country,
@@ -226,16 +269,16 @@ namespace Application.Commands.CreatePatient
             var contactUsage = ContactUsage.FromCode(contactCommand.ContactUsage);
             if (contactUsage is null)
             {
-                throw new ValidationException("ContactUsage is not valid.");
+                LambdaLogger.Log($"WARN: ContactUsage is not valid (null).");
             }
 
             var contactType = ContactType.FromCode(contactCommand.ContactType);
             if (contactType is null)
             {
-                throw new ValidationException("ContactType is not valid.");
+                LambdaLogger.Log($"WARN: ContactType is not valid (null).");
             }
 
-            if ( string.IsNullOrEmpty(contactCommand.Detail) )
+            if (string.IsNullOrEmpty(contactCommand.Detail))
             {
                 throw new ValidationException("Detail is not valid.");
             }
@@ -243,7 +286,7 @@ namespace Application.Commands.CreatePatient
             //5.5 is mandatory
             if (string.IsNullOrEmpty(contactCommand.EffectiveFrom))
             {
-                throw new ValidationException("EffectiveFrom is not valid.");
+                LambdaLogger.Log($"WARN: EffectiveFrom is not valid (empty or null).");
             }
 
             Result<Date> contactEffectiveFrom = Date.Create(contactCommand.EffectiveFrom);
@@ -264,14 +307,26 @@ namespace Application.Commands.CreatePatient
 
             Contact contact = new Contact(
                 contactUsage,
-                contactType, 
-                contactCommand.Detail, 
+                contactType,
+                contactCommand.Detail,
                 contactCommand.IsProtected,
                 contactEffectiveFrom.Value,
                 contactEffectiveTo.Value,
                 contactCommand.IsPreferred
                 );
             return contact;
+        }
+
+        private string BuildEventMessage(string nhi)
+        {
+            var msg = new
+            {
+                EventId = Guid.NewGuid(),
+                EventDate = DateTime.UtcNow,
+                EventType = "NewPatient",
+                NHI = nhi
+            };
+            return JsonSerializer.Serialize(msg);
         }
     }
 }

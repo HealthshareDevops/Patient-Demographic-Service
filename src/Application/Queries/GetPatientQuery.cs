@@ -60,7 +60,7 @@ namespace Application.Queries
             } catch(Exception ex)
             {
                 LambdaLogger.Log($"ERROR: Error occurred. {ex.Message}");
-                throw ex;
+                throw;
             }
         }
     }

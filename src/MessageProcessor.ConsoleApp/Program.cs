@@ -1,6 +1,9 @@
 ﻿using Application.Commands.CreatePatient;
+using Application.Commands.UpdatePatient;
+using Application.Common.Interfaces;
 using Application.Commands.MergePatientIdentifier;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -12,6 +15,7 @@ namespace MessageProcessor.ConsoleApp
     class Program
     {
         static IConfiguration Configuration;
+        static IServiceProvider ServiceProvider;
         static async Task Main(string[] args)
         {
             Console.WriteLine("MessageProcessor.ConsoleApp ...");
@@ -21,7 +25,27 @@ namespace MessageProcessor.ConsoleApp
             Configuration = new ConfigurationBuilder()
                 .AddJsonFile($"appsettings.Development.json")
                 .Build();
+            ServiceProvider = Startup.ConfigureServices(Configuration);
+            var mediator = ServiceProvider.GetService<IMediator>();
+            var dbContext = ServiceProvider.GetService<IApplicationDbContext>();
 
+            var payload = new
+            {
+                Nhi = "ZZZ0016",
+                Title = "DR",
+                GivenName = "Jack",
+                MiddleName = "",
+                FamilyName = "Doe",
+                Suffix = "1ST",
+                IsPreferred = true,
+                IsProtected = true,
+                NameSource = "BREG",
+                EffectiveFrom = "",
+                EffectiveTo = "",
+                BirthDate = "19900118",
+                BirthDateSource = "BRCT",
+                Gender = "M",
+                Ethnicities = new[] {
             var mediator = Startup.ConfigureServices(Configuration).GetService<IMediator>();
 
             Console.WriteLine("Select what kind of event you would like to publish");
@@ -61,8 +85,8 @@ namespace MessageProcessor.ConsoleApp
                     },
                     new
                     {
-                        Code = "99",
-                        Description = "Not stated"
+                        Code = "36",
+                        Description = "Fijian"
                     }
                 },
                     Addresses = new[] {
@@ -81,7 +105,7 @@ namespace MessageProcessor.ConsoleApp
                         EffectiveTo="",
                         Domicile="",
                         IsPrimary=true,
-                        AddressType="R"
+                        AddressType="M"
                     },
                     new
                         {
@@ -102,6 +126,19 @@ namespace MessageProcessor.ConsoleApp
                         AddressType="R"
                     }
                 },
+                //Contacts = 
+                //new[] {
+                //    new {
+                //            ContactType = "A",
+                //            ContactUsage = "E",
+                //            Detail = "hello contact",
+                //            IsProtected = false,
+                //            EffectiveFrom = "20220101",
+                //            EffectiveTo = "20220228",
+                //            IsPreferred =  false
+                //        }
+                //}
+            }; //end of payload
                     Contacts = new[] {
                     new {
                             ContactType = "A",
@@ -118,7 +155,20 @@ namespace MessageProcessor.ConsoleApp
                 var payloadJsonString = JsonSerializer.Serialize(payload);
                 Console.WriteLine($"Payload: {payloadJsonString}");
 
+           
+            var createPatientCommand = JsonSerializer.Deserialize<CreatePatientCommand>(payloadJsonString);
                 var createPatientCommand = JsonSerializer.Deserialize<CreatePatientCommand>(payloadJsonString);
+            var found = await dbContext.Patients.AsNoTracking().FirstOrDefaultAsync(x => x.Nhi == createPatientCommand.Nhi);
+            if (found is null)
+            {
+                var response = await mediator.Send(createPatientCommand);
+            } else
+            {
+                var updatePatientCommand = JsonSerializer.Deserialize<UpdatePatientCommand>(payloadJsonString);
+                updatePatientCommand.Contacts = null;
+                var response = await mediator.Send(updatePatientCommand);
+            }
+        }
 
                 var response = await mediator.Send(createPatientCommand);
             }
