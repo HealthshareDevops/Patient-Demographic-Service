@@ -33,6 +33,7 @@ namespace Application.Commands.CreatePatient
         public List<CreateEthnicityCommand> Ethnicities { get; set; } = new List<CreateEthnicityCommand>();
         public List<CreateAddressCommand> Addresses { get; set; } = new List<CreateAddressCommand>();
         public List<CreateContactCommand> Contacts { get; set; } = new List<CreateContactCommand>();
+        public List<CreateIdentityCommand> Identities { get; set; } = new List<CreateIdentityCommand>();
     }
 
     public class CreatePatientCommandHandler : IRequestHandler<CreatePatientCommand, long>
@@ -61,6 +62,8 @@ namespace Application.Commands.CreatePatient
                     LambdaLogger.Log($"ERROR: CreatePatientCommandHandler: Nhi failure.");
                     throw new ValidationException(nhi.Error);
                 }
+               
+
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Nhi: {nhi.Value} created.");
                 // Create HumanName
                 var title = Title.FromCode(request.Title);
@@ -116,6 +119,12 @@ namespace Application.Commands.CreatePatient
                 var patnt = new Patient(nhi.Value, humanName, birthDate.Value, birthDateSource, gender);
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object created.");
 
+                //This is the first time we have seen this patient in the Midland region therefore business logic determines the NHI as the major
+               var identity = new Identifier(nhi.Value, true);
+               LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Identity created.");
+                // LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Nhi: {nhi.Value} created.");
+                patnt.AddIdentity(identity);
+                LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Identity object added to Patient Identity list.");
                 // Add Ethnicities
                 foreach (var ethnicityCommand in request.Ethnicities)
                 {

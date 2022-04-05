@@ -77,6 +77,7 @@
     <Build Include="Tables\ContactUsages.sql" />
     <Build Include="Tables\ContactTypes.sql" />
     <Build Include="Tables\Contacts.sql" />
+    <Build Include="Tables\Identifiers.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="PostDeployments\AddressFormatSeed.PostDeployment.sql" />

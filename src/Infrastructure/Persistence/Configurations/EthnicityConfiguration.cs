@@ -14,6 +14,10 @@ namespace Infrastructure.Persistence.Configurations
             builder.Property(p => p.Description);
             builder.Property(p => p.Priority);
 
+
+            
+
+
         }
     }
 }

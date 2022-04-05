@@ -14,9 +14,9 @@ namespace Domain.Entities
         public Nhi Nhi { get; private set; }
 
         //// Do we need list of Identifier (Part of Nhi) - ToDo
-        ////public Identifier Identifier { get; private set; }
-        //private readonly List<Identifier> _identifiers = new List<Identifier>();
-        //public virtual IReadOnlyList<Identifier> Identifiers => _identifiers.ToList();
+        ///public Identifier Identifier { get; private set; }
+        private readonly List<Identifier> _identifiers = new List<Identifier>();
+        public virtual IReadOnlyList<Identifier> Identifiers => _identifiers.ToList();
 
         // 2.2 Patient name
         private readonly List<HumanName> _humanNames = new List<HumanName>();
@@ -60,11 +60,27 @@ namespace Domain.Entities
             
             AddName(humanName);
 
+            //TODO - This can called from the command handle
+            
+
             Gender = gender ?? throw new ArgumentNullException(nameof(gender));
 
             SetBirthDateAndPlaceInfo(birthDate, birthDateSource); 
         }
 
+        //Merge Patient Identity - use case changes
+        public void AddIdentity(Identifier identity) {
+           // Identifier id = new Identifier(nhi, isMajor);
+
+            if (identity.IsMajor)
+            {
+                foreach (var idtfr  in _identifiers)
+                {
+                    idtfr.MakeMajor(false);
+                }
+            }
+            _identifiers.Add(identity);
+        }
         public void AddName(HumanName humanName)
         {
             _humanNames.Add(humanName);

@@ -40,6 +40,8 @@ namespace Infrastructure.Persistence
         public DbSet<ContactUsage> ContactUsages { get; set; }
         public DbSet<ContactType> ContactTypes { get; set; }
 
+        public DbSet<Identifier> Identifiers { get; set; }
+
 
         public ApplicationDbContext(string connectionString)
         {
@@ -97,6 +99,7 @@ namespace Infrastructure.Persistence
             modelBuilder.ApplyConfiguration(new ContactConfiguration());
             modelBuilder.ApplyConfiguration(new ContactTypeConfiguration());
             modelBuilder.ApplyConfiguration(new ContactUsageConfiguration());
+            modelBuilder.ApplyConfiguration(new IdentifierConfiguration());
         }
     }
 }
