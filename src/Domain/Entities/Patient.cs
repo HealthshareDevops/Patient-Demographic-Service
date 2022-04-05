@@ -76,6 +76,12 @@ namespace Domain.Entities
             NameSource nameSource,
             Date effectiveFrom,
             Date effectiveTo)
+        {
+            var humanName = new HumanName(this, title, name, suffix, isPreferred, isProtected, nameSource, effectiveFrom, effectiveTo);
+            _humanNames.Add(humanName);
+        }
+
+
         //Merge Patient Identity - use case changes
         public void AddIdentity(Identifier identity) {
            // Identifier id = new Identifier(nhi, isMajor);
@@ -89,11 +95,11 @@ namespace Domain.Entities
             }
             _identifiers.Add(identity);
         }
-        public void AddName(HumanName humanName)
-        {
-            var humanName = new HumanName(this, title, name, suffix, isPreferred, isProtected, nameSource, effectiveFrom, effectiveTo);
-            _humanNames.Add(humanName);
-        }
+    //    public void AddName(HumanName humanName)
+    //    {
+    //        var humanName = new HumanName(this, title, name, suffix, isPreferred, isProtected, nameSource, effectiveFrom, effectiveTo);
+    //       _humanNames.Add(humanName);
+    //   }
 
         public void AddEthnicity(Ethnicity ethnicity)
         {

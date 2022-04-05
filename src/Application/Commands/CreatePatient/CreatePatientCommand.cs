@@ -127,6 +127,16 @@ namespace Application.Commands.CreatePatient
 
                 patnt.AddName(title, name.Value, suffix, request.IsPreferred, request.IsProtected, namesource, effectiveFrom.Value, effectiveTo.Value);
 
+                //Create the identity list
+                //This is the first time we have seen this patient in the Midland region therefore business logic determines the NHI as the major
+               
+                var identity = new Identifier(nhi.Value, true);
+                LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Identity created.");
+
+                // LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Nhi: {nhi.Value} created.");
+                patnt.AddIdentity(identity);
+                LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Identity object added to Patient Identity list.");
+
                 if (request.Ethnicities != null)
                 {
                     // Add Ethnicities
@@ -142,26 +152,22 @@ namespace Application.Commands.CreatePatient
 
                     }
                     LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient ethnicities added.");
-                //This is the first time we have seen this patient in the Midland region therefore business logic determines the NHI as the major
-               var identity = new Identifier(nhi.Value, true);
-               LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Identity created.");
-                // LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Nhi: {nhi.Value} created.");
-                patnt.AddIdentity(identity);
-                LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Identity object added to Patient Identity list.");
+                //TODO this is old
                 // Add Ethnicities
-                foreach (var ethnicityCommand in request.Ethnicities)
-                {
-                    var ethnicity = Ethnicity.FromCode(ethnicityCommand.Code);
-                    if (ethnicity is null)
-                    {
-                        throw new ValidationException("Ethnicity is not valid.");
-                    }
-                    patnt.AddEthnicity(ethnicity);
+                //foreach (var ethnicityCommand in request.Ethnicities)
+                //{
+                //    var ethnicity = Ethnicity.FromCode(ethnicityCommand.Code);
+                //    if (ethnicity is null)
+                //    {
+                //        throw new ValidationException("Ethnicity is not valid.");
+                //    }
+                //    patnt.AddEthnicity(ethnicity);
                     
-                }
-                LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient ethnicities added.");
+                //}
+                //LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient ethnicities added.");
 
                 }
+
                 if (request.Addresses != null)
                 {
                     // Add addressess

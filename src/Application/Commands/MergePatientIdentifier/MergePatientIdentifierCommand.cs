@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace Application.Commands.MergePatientIdentifier
 {
@@ -27,10 +28,10 @@ namespace Application.Commands.MergePatientIdentifier
     public class MergePatientIdentifierCommandHandler : IRequestHandler<MergePatientIdentifierCommand, long> 
     {
         private readonly IApplicationDbContext _dbContext;
-        private readonly IMissingDataQueueService _queueService;
-        public MergePatientIdentifierCommandHandler(IApplicationDbContext dbContext, IMissingDataQueueService queueService) {
+        private readonly INewPatientNotificationService _newPatientNotificationService;
+        public MergePatientIdentifierCommandHandler(IApplicationDbContext dbContext, INewPatientNotificationService newPatientNotificationService) {
             _dbContext = dbContext;
-            _queueService = queueService;
+            _newPatientNotificationService = newPatientNotificationService;
         }
 
         public async Task<long> Handle(MergePatientIdentifierCommand request, CancellationToken cancellationToken) {
@@ -43,35 +44,38 @@ namespace Application.Commands.MergePatientIdentifier
 
             if (curntPatntWHoHasTheMajorNhi == null && curntPatntWhoWillRecieveNewMajorNhi == null) {
 
-                throw new System.NotImplementedException()
+                throw new System.NotImplementedException();
             }
 
             //1. With the current patient who has the major find the major identifier.
             //2. Set the IsMajor boolean flag to false. This means that Nhi still with them its just no longer major
 
-            var id = curntPatntWHoHasTheMajorNhi.Identifiers.FirstOrDefault(x => x.IsMajor);
-            id.MakeMajor(false);
+            var currentMajorId = curntPatntWHoHasTheMajorNhi.Identifiers.FirstOrDefault(x => x.IsMajor);
+            currentMajorId.MakeMajor(false);
           
             //1. for the patient who will recieve the new Major NHI create a new Identifier, set its IsMajor property to True
             //2. Add identifier to the patient who will revieve the new Major Nhi identities list.
 
-            var newMajorId = new Identifier(id.Nhi, true);
+            var newMajorId = new Identifier(currentMajorId.Nhi, true);
             curntPatntWhoWillRecieveNewMajorNhi.AddIdentity(newMajorId);
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 
+            await _newPatientNotificationService.PublishAsync(BuildEventMessage(currentMajorId.Nhi.ToString(), newMajorId.Nhi.ToString() ));
+            LambdaLogger.Log($"INFO: MergePatientIdentifierCommand -- Publishing external merge event Services");
+
             return curntPatntWhoWillRecieveNewMajorNhi.Id;
 
         }
-        private string BuildEventMessage(string nhi)
+        private string BuildEventMessage(string currentMajorNhi, string newMajorNhi)
         {
             var msg = new
             {
                 EventId = Guid.NewGuid(),
                 EventDate = DateTime.UtcNow,
-                EventType = "MergePatient",
-                CurrentMajorNHI = "Old Nhi",
-                NewMajorNhi = "New Nhi"
+                EventType = "MergePatientNhi",
+                CurrentMajorNhi = currentMajorNhi,
+                NewMajorNhi = newMajorNhi
             };
             return JsonSerializer.Serialize(msg);
         }
