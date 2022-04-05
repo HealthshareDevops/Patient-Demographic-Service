@@ -17,10 +17,10 @@ namespace Application.Commands.MergePatientIdentifier
 {
     public class MergePatientIdentifierCommand : IRequest<long>
     {
-        public string EventId;
-        public string Nhi;
-        public string CurrentMajorNhi;
-        public string NewMajorNhi;
+        public string EventId { get; set; }
+        public string Nhi { get; set; }
+        public string NhiOfPatientWithCurrentMajorNhi { get; set; }
+        public string NhiOfPatientWhoWillRecieveNewMajor { get; set; }
     }
 
     //Handler
@@ -37,12 +37,43 @@ namespace Application.Commands.MergePatientIdentifier
 
             LambdaLogger.Log($"INFO: MergePatientIdentifierCommandHandler start...");
 
-            var patnt = await _dbContext.Patients.Include(x => x.Identifiers).FirstOrDefaultAsync(x => x.Nhi == request.Nhi);
+            var curntPatntWHoHasTheMajorNhi = await _dbContext.Patients.Include(x => x.Identifiers).FirstOrDefaultAsync(x => x.Nhi == request.NhiOfPatientWithCurrentMajorNhi);
+ 
+            var curntPatntWhoWillRecieveNewMajorNhi = await _dbContext.Patients.Include(x => x.Identifiers).FirstOrDefaultAsync(x => x.Nhi == request.NhiOfPatientWhoWillRecieveNewMajor);
 
+            if (curntPatntWHoHasTheMajorNhi == null && curntPatntWhoWillRecieveNewMajorNhi == null) {
 
-            return patnt.Id;
+                throw new System.NotImplementedException()
+            }
 
+            //1. With the current patient who has the major find the major identifier.
+            //2. Set the IsMajor boolean flag to false. This means that Nhi still with them its just no longer major
 
+            var id = curntPatntWHoHasTheMajorNhi.Identifiers.FirstOrDefault(x => x.IsMajor);
+            id.MakeMajor(false);
+          
+            //1. for the patient who will recieve the new Major NHI create a new Identifier, set its IsMajor property to True
+            //2. Add identifier to the patient who will revieve the new Major Nhi identities list.
+
+            var newMajorId = new Identifier(id.Nhi, true);
+            curntPatntWhoWillRecieveNewMajorNhi.AddIdentity(newMajorId);
+
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            return curntPatntWhoWillRecieveNewMajorNhi.Id;
+
+        }
+        private string BuildEventMessage(string nhi)
+        {
+            var msg = new
+            {
+                EventId = Guid.NewGuid(),
+                EventDate = DateTime.UtcNow,
+                EventType = "MergePatient",
+                CurrentMajorNHI = "Old Nhi",
+                NewMajorNhi = "New Nhi"
+            };
+            return JsonSerializer.Serialize(msg);
         }
     }
 }

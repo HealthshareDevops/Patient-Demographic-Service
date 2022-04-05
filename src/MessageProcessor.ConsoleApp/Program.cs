@@ -128,14 +128,10 @@ namespace MessageProcessor.ConsoleApp
                 var payload = new
                 {
                     EventId = Guid.NewGuid().ToString(),
-                    Nhi = "PRP1660",
-                    CurrentMajorNhi = "PRP1660",
-                    NewMajorNhi = "PRP2340"
+                    EventType = "MergePatient"
+                    NhiOfPatientWithCurrentMajorNhi = "PRP1660", 
+                    NhiOfPatientWhoWillRecieveNewMajor = "ZZZ0008"
 
-                    /*public string EventId;
-                      public string Nhi;
-                      public string CurrentMajorNhi;
-                      public string NewMajorNhi;*/
                 };
                 var payloadJsonString = JsonSerializer.Serialize(payload);
                 Console.WriteLine($"Payload:{payloadJsonString}");
