@@ -39,11 +39,12 @@ namespace Application.Commands.MergePatientIdentifier
             LambdaLogger.Log($"INFO: MergePatientIdentifierCommandHandler start...");
 
             var curntPatntWHoHasTheMajorNhi = await _dbContext.Patients.Include(x => x.Identifiers).FirstOrDefaultAsync(x => x.Nhi == request.NhiOfPatientWithCurrentMajorNhi);
- 
+            LambdaLogger.Log($"INFO: MergePatientIdentifierCommandHandler curntPatntWHoHasTheMajorNhi: {curntPatntWHoHasTheMajorNhi} ");
             var curntPatntWhoWillRecieveNewMajorNhi = await _dbContext.Patients.Include(x => x.Identifiers).FirstOrDefaultAsync(x => x.Nhi == request.NhiOfPatientWhoWillRecieveNewMajor);
-
+            LambdaLogger.Log($"INFO: MergePatientIdentifierCommandHandler curntPatntWhoWillRecieveNewMajorNhi: {curntPatntWhoWillRecieveNewMajorNhi} ");
             if (curntPatntWHoHasTheMajorNhi == null && curntPatntWhoWillRecieveNewMajorNhi == null) {
 
+                LambdaLogger.Log($"ERROR: MergePatientIdentifierCommandHandler Both NHIs null.");
                 throw new System.NotImplementedException();
             }
 
