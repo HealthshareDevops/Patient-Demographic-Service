@@ -110,6 +110,7 @@ namespace MessageProcessor.ConsoleApp
                         AddressType="R"
                     }
                 },
+
                     //Contacts = 
                     //new[] {
                     //    new {
@@ -122,11 +123,11 @@ namespace MessageProcessor.ConsoleApp
                     //            IsPreferred =  false
                     //        }
                     //}
+                    //CreatedBy = "Rhapsody"
                 }; //end of payload
                
                 var payloadJsonString = JsonSerializer.Serialize(payload);
                 Console.WriteLine($"Payload: {payloadJsonString}");
-
 
                 var createPatientCommand = JsonSerializer.Deserialize<CreatePatientCommand>(payloadJsonString);
                 //var createPatientCommand = JsonSerializer.Deserialize<CreatePatientCommand>(payloadJsonString);

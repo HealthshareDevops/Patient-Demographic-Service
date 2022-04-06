@@ -79,7 +79,8 @@ namespace Application.Tests
                         IsPrimary=true,
                         AddressType="R"
                     },
-                }
+                },
+                CreatedBy = "Rhapsody"
             };
             // Act
             var res = await _createPatientCommandHandler.Handle(request, CancellationToken.None);
@@ -126,7 +127,8 @@ namespace Application.Tests
                         IsPrimary=false,
                         AddressType="R"
                     },
-                }
+                },
+                CreatedBy = "Rhapsody"
             };
 
             // Act
@@ -174,7 +176,8 @@ namespace Application.Tests
                         IsPrimary=false,
                         AddressType="R"
                     },
-                }
+                },
+                CreatedBy = "Rhapsody"
             };
 
             // Act
@@ -233,7 +236,8 @@ namespace Application.Tests
                         IsPrimary = false,
                         AddressType = "R"
                     },
-                }
+                },
+                CreatedBy = "Rhapsody"
             };
 
             var expectedAddressCount = 0;
@@ -290,7 +294,8 @@ namespace Application.Tests
                         IsPrimary = false,
                         AddressType = addressType
                     },
-                }
+                },
+                CreatedBy = "Rhapsody"
             };
 
             // Act
