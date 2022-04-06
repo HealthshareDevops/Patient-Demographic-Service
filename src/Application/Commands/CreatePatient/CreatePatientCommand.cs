@@ -34,6 +34,7 @@ namespace Application.Commands.CreatePatient
         public List<CreateEthnicityCommand> Ethnicities { get; set; } = new List<CreateEthnicityCommand>();
         public List<CreateAddressCommand> Addresses { get; set; } = new List<CreateAddressCommand>();
         public List<CreateContactCommand> Contacts { get; set; } = new List<CreateContactCommand>();
+        public string CreatedBy { get; set; }
     }
 
     public class CreatePatientCommandHandler : IRequestHandler<CreatePatientCommand, long>
@@ -118,8 +119,7 @@ namespace Application.Commands.CreatePatient
                     throw new ValidationException("Gender is not valid.");
                 }
 
-
-                var patnt = new Patient(nhi.Value, birthDate.Value, birthDateSource, gender);
+                var patnt = new Patient(nhi.Value, birthDate.Value, birthDateSource, gender, request.CreatedBy);
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object created.");
 
                 patnt.AddName(title, name.Value, suffix, request.IsPreferred, request.IsProtected, namesource, effectiveFrom.Value, effectiveTo.Value);

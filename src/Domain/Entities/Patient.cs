@@ -41,6 +41,12 @@ namespace Domain.Entities
         private readonly List<Contact> _contacts = new List<Contact>();
         public virtual IReadOnlyList<Contact> Contacts => _contacts.ToList();
 
+        //6 Created By
+        public string CreatedBy { get; private set; }
+
+        //7 Modified By
+        public string LastModifiedBy { get; private set; }
+
         public int Age
         {
             get
@@ -54,13 +60,15 @@ namespace Domain.Entities
 
         protected Patient() { }
 
-        public Patient(Nhi nhi, BirthDate birthDate, BirthDateSource birthDateSource, Gender gender)
+        public Patient(Nhi nhi, BirthDate birthDate, BirthDateSource birthDateSource, Gender gender, string createdBy)
         {
             Nhi = nhi ?? throw new ArgumentNullException(nameof(nhi));
             
             //AddName(humanName);
 
             Gender = gender ?? throw new ArgumentNullException(nameof(gender));
+
+            CreatedBy = createdBy ?? throw new ArgumentNullException(nameof(createdBy));
 
             SetBirthDateAndPlaceInfo(birthDate, birthDateSource); 
         }
@@ -106,9 +114,11 @@ namespace Domain.Entities
             BirthDateSource = birthDateSource ?? throw new ArgumentNullException(nameof(birthDateSource));
         }
 
-        public void UpdatePatientInfo(BirthDate birthDate, BirthDateSource birthDateSource, Gender gender, List<HumanName> humanNames, List<Address> addresses, List<Ethnicity> ethnicities, List<Contact> contacts)
+        public void UpdatePatientInfo(BirthDate birthDate, BirthDateSource birthDateSource, Gender gender, List<HumanName> humanNames, List<Address> addresses, List<Ethnicity> ethnicities, List<Contact> contacts, string createdBy)
         {
             UpdateHumanNameList(humanNames);
+
+            LastModifiedBy = createdBy ?? throw new ArgumentNullException(nameof(createdBy));
 
             ArgumentNullException.ThrowIfNull(gender);
             if (!gender.Equals(Gender))
