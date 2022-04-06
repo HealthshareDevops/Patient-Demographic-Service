@@ -90,7 +90,8 @@ namespace Application.Tests
                             EffectiveTo = "20220228",
                             IsPreferred =  false
                         }
-                }
+                },
+                CreatedBy = "Rhapsody"
             };
             // Act
             var res = await _createPatientCommandHandler.Handle(request, CancellationToken.None);
@@ -167,7 +168,8 @@ namespace Application.Tests
                             EffectiveTo = "20220228",
                             IsPreferred =  false
                         }
-                }
+                },
+                CreatedBy = "Rhapsody"
             };
             // Act
             var res = await _createPatientCommandHandler.Handle(request, CancellationToken.None);
@@ -243,7 +245,8 @@ namespace Application.Tests
                             EffectiveTo = "20220228",
                             IsPreferred =  false
                         }
-                }
+                },
+                CreatedBy = "Rhapsody"
             };
             // Act
             var res = await _createPatientCommandHandler.Handle(request, CancellationToken.None);
@@ -319,7 +322,8 @@ namespace Application.Tests
                             EffectiveTo = "20220228",
                             IsPreferred =  false
                         }
-                }
+                },
+                CreatedBy = "Rhapsody"
             };
             // Act
             var res = await _createPatientCommandHandler.Handle(request, CancellationToken.None);
@@ -398,7 +402,8 @@ namespace Application.Tests
                             EffectiveTo = "20220228",
                             IsPreferred =  false
                         }
-                }
+                },
+                CreatedBy = "Rhapsody"
             };
             // Act
             var res = await _createPatientCommandHandler.Handle(request, CancellationToken.None);
@@ -475,7 +480,8 @@ namespace Application.Tests
                             EffectiveTo = "20220228",
                             IsPreferred =  false
                         }
-                }
+                },
+                CreatedBy = "Rhapsody"
             };
             // Act
             var res = await _createPatientCommandHandler.Handle(request, CancellationToken.None);
@@ -550,7 +556,8 @@ namespace Application.Tests
                             EffectiveTo = "20220228",
                             IsPreferred =  false
                         }
-                }
+                },
+                CreatedBy = "Rhapsody"
             };
             // Act
             var res = await _createPatientCommandHandler.Handle(request, CancellationToken.None);
@@ -626,7 +633,8 @@ namespace Application.Tests
                             EffectiveTo = "20220228",
                             IsPreferred =  false
                         }
-                }
+                },
+                CreatedBy = "Rhapsody"
             };
             // Act
             // Act
