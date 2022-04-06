@@ -34,7 +34,6 @@ namespace Application.Commands.CreatePatient
         public List<CreateEthnicityCommand> Ethnicities { get; set; } = new List<CreateEthnicityCommand>();
         public List<CreateAddressCommand> Addresses { get; set; } = new List<CreateAddressCommand>();
         public List<CreateContactCommand> Contacts { get; set; } = new List<CreateContactCommand>();
-        public List<CreateIdentityCommand> Identities { get; set; } = new List<CreateIdentityCommand>();
         public string CreatedBy { get; set; }
     }
 
@@ -152,19 +151,6 @@ namespace Application.Commands.CreatePatient
 
                     }
                     LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient ethnicities added.");
-                //TODO this is old
-                // Add Ethnicities
-                //foreach (var ethnicityCommand in request.Ethnicities)
-                //{
-                //    var ethnicity = Ethnicity.FromCode(ethnicityCommand.Code);
-                //    if (ethnicity is null)
-                //    {
-                //        throw new ValidationException("Ethnicity is not valid.");
-                //    }
-                //    patnt.AddEthnicity(ethnicity);
-                    
-                //}
-                //LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient ethnicities added.");
 
                 }
 

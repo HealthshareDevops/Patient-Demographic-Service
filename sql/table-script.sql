@@ -213,6 +213,15 @@ CREATE TABLE [Contacts]
 );
 GO
 
+CREATE TABLE [Identifiers]
+(
+	[Id] BIGINT  NOT NULL IDENTITY PRIMARY KEY, 
+    [Nhi] NVARCHAR(7) NOT NULL, 
+    [IsMajor] BIT NOT NULL DEFAULT 0, 
+    [PatientId] BIGINT NOT NULL
+);
+GO
+
 /**
   *  Indices
 **/

@@ -19,7 +19,6 @@ namespace MessageProcessor.ConsoleApp
 
             // ToDo: Register services with DI system
             serviceCollection.AddMediatR(typeof(CreatePatientCommand).GetTypeInfo().Assembly);
-            serviceCollection.AddMediatR(typeof(MergePatientIdentifierCommand).GetTypeInfo().Assembly);
             serviceCollection.AddInfrastructure(configuration);
             return serviceCollection.BuildServiceProvider();
         }
