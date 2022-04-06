@@ -1,6 +1,7 @@
 using Amazon.Lambda.Core;
 using Amazon.Lambda.SQSEvents;
 using Application.Commands.CreatePatient;
+using Application.Commands.MergePatientIdentifier;
 using Application.Commands.UpdatePatient;
 using Application.Common.Interfaces;
 using MediatR;
@@ -72,27 +73,48 @@ namespace MessageProcessor.Lambda
             context.Logger.LogLine($"INFO: MessageProcessor.Lambda.ProcessMessageAsync start...");
             context.Logger.LogLine($"INFO: Processing MessageId: {message.MessageId}");
             context.Logger.LogLine($"INFO: Message Body: {message.Body}");
-            
+
             long response = 0L;
 
+            var jsonDocument = JsonDocument.Parse(message.Body);
+            var root = jsonDocument.RootElement;
+
+            root.TryGetProperty("EventType", out var eventTypeProp);
+            var eventType = eventTypeProp.ToString();
+
+            if(eventType == "MergePatient")
+            {
+                context.Logger.LogLine($"INFO: MessageProcessor.Lambda.ProcessMessageAsync(): EventType is MergePatient");
+                var mergePatientCommand = JsonSerializer.Deserialize<MergePatientIdentifierCommand>(message.Body);
+                response = await _mediator.Send(mergePatientCommand);
+            }
+            else
+            {
+                context.Logger.LogLine($"INFO: MessageProcessor.Lambda.ProcessMessageAsync(): EventType is empty. Calling AddOrUpdate");
+                response = await AddOrUpdateEvent(message, context);
+            }
+            
+            context.Logger.LogLine($"INFO: {response}");
+            context.Logger.LogLine($"INFO: MessageProcessor.Lambda.ProcessMessageAsync end...");
+            await Task.CompletedTask;
+        }
+
+        private async Task<long> AddOrUpdateEvent(SQSEvent.SQSMessage message, ILambdaContext context)
+        {
             var createPatientCommand = JsonSerializer.Deserialize<CreatePatientCommand>(message.Body);
             var found = await _dbContext.Patients.AsNoTracking().FirstOrDefaultAsync(x => x.Nhi == createPatientCommand.Nhi);
-            
+
             if (found is null)
             {
                 context.Logger.LogLine($"INFO: MessageProcessor.Lambda.ProcessMessageAsync(): NHI {createPatientCommand.Nhi} does not exist. Creating Patient ...");
-                response = await _mediator.Send(createPatientCommand);
+                return await _mediator.Send(createPatientCommand);
             }
             else
             {
                 context.Logger.LogLine($"INFO: MessageProcessor.Lambda.ProcessMessageAsync(): NHI {createPatientCommand.Nhi} exists. Updating Patient ...");
                 var updatePatientCommand = JsonSerializer.Deserialize<UpdatePatientCommand>(message.Body);
-                response = await _mediator.Send(updatePatientCommand);
+                return await _mediator.Send(updatePatientCommand);
             }
-
-            context.Logger.LogLine($"INFO: {response}");
-            context.Logger.LogLine($"INFO: MessageProcessor.Lambda.ProcessMessageAsync end...");
-            await Task.CompletedTask;
         }
     }
 }

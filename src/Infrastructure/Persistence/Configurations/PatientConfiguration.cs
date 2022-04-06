@@ -18,6 +18,9 @@ namespace Infrastructure.Persistence.Configurations
             builder.HasMany(p => p.HumanNames).WithOne()
                 .OnDelete(DeleteBehavior.Cascade)
                 .Metadata.PrincipalToDependent.SetPropertyAccessMode(PropertyAccessMode.Field);
+            builder.HasMany(p => p.Identifiers).WithOne()
+                .OnDelete(DeleteBehavior.Cascade)
+                .Metadata.PrincipalToDependent.SetPropertyAccessMode(PropertyAccessMode.Field);
             builder.HasMany(p => p.Contacts).WithOne()
                 .OnDelete(DeleteBehavior.Cascade)
                 .Metadata.PrincipalToDependent.SetPropertyAccessMode(PropertyAccessMode.Field);
