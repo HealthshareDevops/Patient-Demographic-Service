@@ -68,7 +68,7 @@ namespace Domain.Entities
 
             Gender = gender ?? throw new ArgumentNullException(nameof(gender));
 
-            CreatedBy = createdBy ?? throw new ArgumentNullException(nameof(createdBy));
+            CreatedBy = createdBy;
 
             SetBirthDateAndPlaceInfo(birthDate, birthDateSource); 
         }
@@ -118,7 +118,7 @@ namespace Domain.Entities
         {
             UpdateHumanNameList(humanNames);
 
-            LastModifiedBy = createdBy ?? throw new ArgumentNullException(nameof(createdBy));
+            LastModifiedBy = createdBy;
 
             ArgumentNullException.ThrowIfNull(gender);
             if (!gender.Equals(Gender))

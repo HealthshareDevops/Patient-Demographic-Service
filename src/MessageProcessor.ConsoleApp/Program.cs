@@ -107,7 +107,7 @@ namespace MessageProcessor.ConsoleApp
                 //            IsPreferred =  false
                 //        }
                 //}
-                CreatedBy = "Rhapsody"
+                //CreatedBy = "Rhapsody"
             }; //end of payload
 
             var payloadJsonString = JsonSerializer.Serialize(payload);
