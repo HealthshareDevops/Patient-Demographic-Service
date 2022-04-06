@@ -47,20 +47,23 @@ namespace Application.Commands.MergePatientIdentifier
                 LambdaLogger.Log($"ERROR: MergePatientIdentifierCommandHandler Both NHIs null.");
                 throw new System.NotImplementedException();
             }
-
+            LambdaLogger.Log($"INFO: MergePatientIdentifierCommandHandler Both NHIs are not null");
             //1. With the current patient who has the major find the major identifier.
             //2. Set the IsMajor boolean flag to false. This means that Nhi still with them its just no longer major
 
             var currentMajorId = curntPatntWHoHasTheMajorNhi.Identifiers.FirstOrDefault(x => x.IsMajor);
             currentMajorId.MakeMajor(false);
-          
+            LambdaLogger.Log($"INFO: MergePatientIdentifierCommandHandler: Set CurrentMajorId to false");
+
             //1. for the patient who will recieve the new Major NHI create a new Identifier, set its IsMajor property to True
             //2. Add identifier to the patient who will revieve the new Major Nhi identities list.
 
             var newMajorId = new Identifier(currentMajorId.Nhi, true);
             curntPatntWhoWillRecieveNewMajorNhi.AddIdentity(newMajorId);
+            LambdaLogger.Log($"INFO: MergePatientIdentifierCommandHandler: Adding newMajorId");
 
             await _dbContext.SaveChangesAsync(cancellationToken);
+            LambdaLogger.Log($"INFO: MergePatientIdentifierCommandHandler: Db saved");
 
             await _newPatientNotificationService.PublishAsync(BuildEventMessage(currentMajorId.Nhi.ToString(), newMajorId.Nhi.ToString() ));
             LambdaLogger.Log($"INFO: MergePatientIdentifierCommand -- Publishing external merge event Services");
