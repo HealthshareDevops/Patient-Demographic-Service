@@ -20,6 +20,9 @@ namespace Application.Common.Interfaces
         DbSet<Country> Countries { get; set; }
         DbSet<Domicile> Domiciles { get; set; }
 
+        DbSet<ContactUsage> ContactUsages { get; set; }
+        DbSet<ContactType> ContactTypes { get; set; }
+
         Task<int> SaveChangesAsync(CancellationToken cancellationToken);
         EntityEntry<TEntity> Entry<TEntity>([NotNullAttribute] TEntity entity) where TEntity : class;
     }
