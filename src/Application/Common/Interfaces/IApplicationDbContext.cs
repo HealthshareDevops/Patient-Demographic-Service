@@ -25,5 +25,6 @@ namespace Application.Common.Interfaces
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken);
         EntityEntry<TEntity> Entry<TEntity>([NotNullAttribute] TEntity entity) where TEntity : class;
+        ChangeTracker ChangeTracker { get; }
     }
 }
