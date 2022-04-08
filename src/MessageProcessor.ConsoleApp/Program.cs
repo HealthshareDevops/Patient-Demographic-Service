@@ -47,94 +47,123 @@ namespace MessageProcessor.ConsoleApp
             {
                 Console.WriteLine("---Create/Update Patient Event---");
 
-                //var payload = new
-                //{
-                //    Nhi = "ZZZ0008",
-                //    Title = "DR",
-                //    GivenName = "Jack",
-                //    MiddleName = "",
-                //    FamilyName = "Doe",
-                //    Suffix = "1ST",
-                //    IsPreferred = true,
-                //    IsProtected = true,
-                //    NameSource = "BREG",
-                //    EffectiveFrom = "",
-                //    EffectiveTo = "",
-                //    BirthDate = "19900118",
-                //    BirthDateSource = "BRCT",
-                //    Gender = "M",
-                //    Ethnicities = new[] {
-                //        new {
-                //            Code = "21",
-                //            Description = "21 [Maori]"
-                //        },
-                //        new {
-                //            Code = "11",
-                //            Description = "11 [New Zealander]"
-                //        },
-                //        new
-                //        {
-                //            Code = "36",
-                //            Description = "Fijian"
-                //        }
-                //    },
-                //    Addresses = new[] {
-                //        new {
-                //            AddressFormat="CIQ",
-                //            BuildingName = "hello",
-                //            StreetAddress="92 Hillcrest Road",
-                //            AdditionalStreetAddress="",
-                //            Suburb="Hillcrest",
-                //            TownOrCity="Hamilton",
-                //            PostCode="3216",
-                //            Country="572",
-                //            IsProtected=false,
-                //            IsPermanent=true,
-                //            EffectiveFrom="",
-                //            EffectiveTo="",
-                //            Domicile="",
-                //            IsPrimary=true,
-                //            AddressType="M"
-                //        },
-                //        new {
-                //            AddressFormat="CIQ",
-                //            BuildingName = "world",
-                //            StreetAddress="16 Clarence Street",
-                //            AdditionalStreetAddress="",
-                //            Suburb="",
-                //            TownOrCity="Hamilton",
-                //            PostCode="3204",
-                //            Country="572",
-                //            IsProtected=false,
-                //            IsPermanent=false,
-                //            EffectiveFrom="",
-                //            EffectiveTo="",
-                //            Domicile="",
-                //            IsPrimary=true,
-                //            AddressType="R"
-                //        }
-                //    },
-                //    Contacts = new[] {
-                //        new {
-                //            ContactType = "A",
-                //            ContactUsage = "E",
-                //            Detail = "hello contact",
-                //            IsProtected = false,
-                //            EffectiveFrom = "20220101",
-                //            EffectiveTo = "20220228",
-                //            IsPreferred =  false
-                //        }
-                //    },
-                //    CreatedBy = "Rhapsody"
-                //}; //end of payload
-
                 var payload = new
                 {
-                    EventId = Guid.NewGuid().ToString(),
-                    EventType = "MergePatient",
-                    NhiOfPatientWithCurrentMajorNhi = "ZZZ0016",
-                    NhiOfPatientWhoWillRecieveNewMajor = "ZZZ0008"
-                };
+                    Nhi = "ZZZ0008",
+                    Title = "DR",
+                    GivenName = "Jack",
+                    MiddleName = "",
+                    FamilyName = "Doe",
+                    Suffix = "1ST",
+                    IsPreferred = true,
+                    IsProtected = true,
+                    NameSource = "BREG",
+                    EffectiveFrom = "",
+                    EffectiveTo = "",
+                    BirthDate = "19900118",
+                    BirthDateSource = "BRCT",
+                    Gender = "M",
+                    Ethnicities = new[] {
+                        new {
+                            Code = "21",
+                            Description = "21 [Maori]"
+                        },
+                        new {
+                            Code = "11",
+                            Description = "11 [New Zealander]"
+                        },
+                        new
+                        {
+                            Code = "36",
+                            Description = "Fijian"
+                        }
+                    },
+                    Addresses = new[] {
+                        new {
+                            AddressFormat="CIQ",
+                            BuildingName = "hello",
+                            StreetAddress="92 Hillcrest Road",
+                            AdditionalStreetAddress="",
+                            Suburb="Hillcrest",
+                            TownOrCity="Hamilton",
+                            PostCode="3216",
+                            Country="572",
+                            IsProtected=false,
+                            IsPermanent=true,
+                            EffectiveFrom="",
+                            EffectiveTo="",
+                            Domicile="",
+                            IsPrimary=true,
+                            AddressType="M"
+                        },
+                        new {
+                            AddressFormat="CIQ",
+                            BuildingName = "world",
+                            StreetAddress="16 Clarence Street",
+                            AdditionalStreetAddress="",
+                            Suburb="",
+                            TownOrCity="Hamilton",
+                            PostCode="3204",
+                            Country="572",
+                            IsProtected=false,
+                            IsPermanent=false,
+                            EffectiveFrom="",
+                            EffectiveTo="",
+                            Domicile="",
+                            IsPrimary=true,
+                            AddressType="R"
+                        }
+                    },
+                    Contacts = new[] {
+                        //new {
+                        //    ContactType = "A",
+                        //    ContactUsage = "E",
+                        //    Detail = "hello contact",
+                        //    IsProtected = false,
+                        //    EffectiveFrom = "20220101",
+                        //    EffectiveTo = "20220228",
+                        //    IsPreferred =  false
+                        //},
+                        new {
+                            ContactType = "PH",
+                            ContactUsage = "PRN",
+                            Detail = "0274895656",
+                            IsProtected = false,
+                            EffectiveFrom = "20220225",
+                            EffectiveTo = "",
+                            IsPreferred =  false
+                        },
+                        new {
+                            
+                            ContactType = "NET",
+                            ContactUsage = "PRN",
+                            Detail = "test@api.com",
+                            IsProtected = false,
+                            EffectiveFrom = "20220225",
+                            EffectiveTo = "",
+                            IsPreferred =  false
+                        },
+                        new {
+                            ContactType = "NET",
+                            ContactUsage = "PRN",
+                            Detail = "babyflower@gmail.com",
+                            IsProtected = false,
+                            EffectiveFrom = "20220225",
+                            EffectiveTo = "",
+                            IsPreferred =  false
+                        }
+
+                    },
+                    CreatedBy = "Rhapsody"
+                }; //end of payload
+
+                //var payload = new
+                //{
+                //    EventId = Guid.NewGuid().ToString(),
+                //    EventType = "MergePatient",
+                //    NhiOfPatientWithCurrentMajorNhi = "ZZZ0016",
+                //    NhiOfPatientWhoWillRecieveNewMajor = "ZZZ0008"
+                //};
 
                 var payloadJsonString = JsonSerializer.Serialize(payload);
                 Console.WriteLine($"Payload: {payloadJsonString}");
@@ -176,9 +205,9 @@ namespace MessageProcessor.ConsoleApp
         private static async Task AddOrUpdateEvent(string payloadJsonString)
         {
             var createPatientCommand = JsonSerializer.Deserialize<CreatePatientCommand>(payloadJsonString);
-            //var found = await dbContext.Patients.Include(p => p.Identifiers).AsNoTracking().FirstOrDefaultAsync(x => x.Identifiers. == createPatientCommand.Nhi);
+            var found = await _dbContext.Patients.AsNoTracking().FirstOrDefaultAsync(x => x.Nhi == createPatientCommand.Nhi);
             // assuming it will return only one.
-            var found = _dbContext.Patients.Include(p => p.Identifiers).AsNoTracking().Where(p => p.Identifiers.Any(i => i.Nhi == createPatientCommand.Nhi && i.IsMajor == true)).FirstOrDefault();
+            //var found = _dbContext.Patients.Include(p => p.Identifiers).AsNoTracking().Where(p => p.Identifiers.Any(i => i.Nhi == createPatientCommand.Nhi && i.IsMajor == true)).FirstOrDefault();
             if (found is null)
             {
                 var response = await _mediator.Send(createPatientCommand);

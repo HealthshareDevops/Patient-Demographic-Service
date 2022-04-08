@@ -190,21 +190,13 @@ namespace Application.Commands.UpdatePatient
 
 
             patnt.UpdatePatientInfo(birthDate.Value, birthDateSource, gender, humanNames, addresses, ethnicities, contacts, request.CreatedBy);
-
-
-
-
-
-
+            
             LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object DB Saving.");
-
-
-
+            
             //LambdaLogger.Log($"State: {_dbContext.Entry(existingPatnt).State}");
             //LambdaLogger.Log($"State: {_dbContext.Entry(existingPatnt.HumanNames[0].Suffix).State}");
             //LambdaLogger.Log($"State: {_dbContext.Entry(existingPatnt).Collection(s=>s.Addresses).State}");
             //_dbContext.Patients.Attach(existingPatnt);
-
 
             await _dbContext.SaveChangesAsync(cancellationToken);
             LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object DB Saved. Patient Id: {patnt.Id}");
@@ -272,13 +264,13 @@ namespace Application.Commands.UpdatePatient
 
         private Contact ToContact(UpdateContactCommand contactCommand)
         {
-            var contactUsage = ContactUsage.FromCode(contactCommand.ContactUsage);
+            var contactUsage = _dbContext.ContactUsages.FirstOrDefault(x => x.Code == contactCommand.ContactUsage);
             if (contactUsage is null)
             {
                 LambdaLogger.Log($"WARN: ContactUsage is not valid (null).");
             }
 
-            var contactType = ContactType.FromCode(contactCommand.ContactType);
+            var contactType = _dbContext.ContactTypes.FirstOrDefault(x => x.Code == contactCommand.ContactType);
             if (contactType is null)
             {
                 LambdaLogger.Log($"WARN: ContactType is not valid (null).");
