@@ -49,4 +49,10 @@ The CloudFormation provisions resources as follows:
     6. /PatientDemographicService/&lt;environment&gt;/SqsSettings/SendMessage	
     7. /PatientDemographicService/&lt;environment&gt;/SqsSettings/Url
 
+
+# Software design philosophy
+
+
 [Work In Progress]
+
+
