@@ -85,7 +85,7 @@ namespace Domain.Entities
             Date effectiveFrom,
             Date effectiveTo)
         {
-            var humanName = new HumanName(this, title, name, suffix, isPreferred, isProtected, nameSource, effectiveFrom, effectiveTo);
+            var humanName = new HumanName(title, name, suffix, isPreferred, isProtected, nameSource, effectiveFrom, effectiveTo);
             _humanNames.Add(humanName);
         }
 

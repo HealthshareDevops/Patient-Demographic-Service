@@ -1,7 +1,7 @@
 ﻿using Application.Commands.CreatePatient;
+using Application.Commands.MergePatientIdentifier;
 using Application.Commands.UpdatePatient;
 using Application.Common.Interfaces;
-using Application.Commands.MergePatientIdentifier;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -9,7 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Text.Json;
 using System.Threading.Tasks;
-using System.Linq;
 
 namespace MessageProcessor.ConsoleApp
 {
@@ -53,8 +52,8 @@ namespace MessageProcessor.ConsoleApp
                     Title = "DR",
                     GivenName = "Jack",
                     MiddleName = "",
-                    FamilyName = "Doe",
-                    Suffix = "1ST",
+                    FamilyName = "Dime",
+                    Suffix = "2nd",
                     IsPreferred = true,
                     IsProtected = true,
                     NameSource = "BREG",

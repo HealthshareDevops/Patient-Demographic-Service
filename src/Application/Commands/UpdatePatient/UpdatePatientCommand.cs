@@ -123,7 +123,7 @@ namespace Application.Commands.UpdatePatient
                 throw new ValidationException(effectiveTo.Error);
             }
             
-            humanNames.Add(new HumanName(patnt, title, name.Value, suffix, request.IsPreferred, request.IsProtected, namesource, effectiveFrom.Value, effectiveTo.Value));
+            humanNames.Add(new HumanName(title, name.Value, suffix, request.IsPreferred, request.IsProtected, namesource, effectiveFrom.Value, effectiveTo.Value));
 
             LambdaLogger.Log($"INFO: UpdatePatientCommandHandler.Handle(): HumanNames created.");
             // End  creating HumanNames
