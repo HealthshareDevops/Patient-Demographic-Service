@@ -37,7 +37,7 @@ The Patient Demographic Service is the regional source of truth for Patient Demo
 ## AWS Design
 The CloudFormation provisions resources as follows:
 <br/> 
-![Patient-Demographic-Service](aws-pds.jpg)
+![Patient-Demographic-Service aws](aws-pds.jpg)
 
 # Application Settings to run Patient-Demographic-Service
 1. All application settings parameters are stored in AWS Parameter Store.
@@ -49,9 +49,8 @@ The CloudFormation provisions resources as follows:
     6. /PatientDemographicService/&lt;environment&gt;/SqsSettings/SendMessage	
     7. /PatientDemographicService/&lt;environment&gt;/SqsSettings/Url
 
-
-# Software design philosophy
-
+# Software design
+![Patient-Demographic-Service software design](pds-project-structure.jpg)
 
 [Work In Progress]
 
