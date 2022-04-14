@@ -38,9 +38,15 @@ namespace Application.Commands.MergePatientIdentifier
 
             LambdaLogger.Log($"INFO: MergePatientIdentifierCommandHandler start...");
 
-            var curntPatntWHoHasTheMajorNhi = await _dbContext.Patients.Include(x => x.Identifiers).FirstOrDefaultAsync(x => x.Nhi == request.NhiOfPatientWithCurrentMajorNhi);
+            var curntPatntWHoHasTheMajorNhi = await _dbContext.Patients.Include(x => x.Identifiers).
+                                                                          Where(x => x.Identifiers.
+                                                                          Any(i => i.Nhi == request.NhiOfPatientWithCurrentMajorNhi && i.IsMajor == true)).
+                                                                          FirstOrDefaultAsync();
+
             LambdaLogger.Log($"INFO: MergePatientIdentifierCommandHandler curntPatntWHoHasTheMajorNhi: {curntPatntWHoHasTheMajorNhi} ");
-            var curntPatntWhoWillRecieveNewMajorNhi = await _dbContext.Patients.Include(x => x.Identifiers).FirstOrDefaultAsync(x => x.Nhi == request.NhiOfPatientWhoWillRecieveNewMajor);
+            var curntPatntWhoWillRecieveNewMajorNhi = await _dbContext.Patients.Include(x => x.Identifiers).
+                                                                                Where(x => x.Identifiers.Any(i => i.Nhi == request.NhiOfPatientWhoWillRecieveNewMajor && i.IsMajor == true)).
+                                                                                FirstOrDefaultAsync();
             LambdaLogger.Log($"INFO: MergePatientIdentifierCommandHandler curntPatntWhoWillRecieveNewMajorNhi: {curntPatntWhoWillRecieveNewMajorNhi} ");
             if (curntPatntWHoHasTheMajorNhi == null && curntPatntWhoWillRecieveNewMajorNhi == null) {
 
