@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -85,8 +86,7 @@ namespace MessageProcessor.Lambda
             if(eventType == "MergePatient")
             {
                 context.Logger.LogLine($"INFO: MessageProcessor.Lambda.ProcessMessageAsync(): EventType is MergePatient");
-                var mergePatientCommand = JsonSerializer.Deserialize<MergePatientIdentifierCommand>(message.Body);
-                response = await _mediator.Send(mergePatientCommand);
+                response = await MergeEvent(message, response);
             }
             else
             {
@@ -99,12 +99,24 @@ namespace MessageProcessor.Lambda
             await Task.CompletedTask;
         }
 
+        private async Task<long> MergeEvent(SQSEvent.SQSMessage message, long response)
+        {
+            var mergePatientCommand = JsonSerializer.Deserialize<MergePatientIdentifierCommand>(message.Body);
+            response = await _mediator.Send(mergePatientCommand);
+            return response;
+        }
+
         private async Task<long> AddOrUpdateEvent(SQSEvent.SQSMessage message, ILambdaContext context)
         {
             var createPatientCommand = JsonSerializer.Deserialize<CreatePatientCommand>(message.Body);
-            var found = await _dbContext.Patients.AsNoTracking().FirstOrDefaultAsync(x => x.Nhi == createPatientCommand.Nhi);
 
-            if (found is null)
+            // Check patient exists in the system.
+            // If patient does not exist in the system, create the record
+            // If patient exists, Check NHI is major or minor
+            // If only NHI is major, update the record
+            // If NHI is minor, it means NHI (or patient) is already merged with other NHI, dont need to do anything.
+            var foundPatnts = _dbContext.Patients.Include(p => p.Identifiers).AsNoTracking().Where(p => p.Identifiers.Any(i => i.Nhi == createPatientCommand.Nhi)).ToList();
+            if (foundPatnts.Count <= 0)
             {
                 context.Logger.LogLine($"INFO: MessageProcessor.Lambda.ProcessMessageAsync(): NHI {createPatientCommand.Nhi} does not exist. Creating Patient ...");
                 return await _mediator.Send(createPatientCommand);
@@ -112,6 +124,12 @@ namespace MessageProcessor.Lambda
             else
             {
                 context.Logger.LogLine($"INFO: MessageProcessor.Lambda.ProcessMessageAsync(): NHI {createPatientCommand.Nhi} exists. Updating Patient ...");
+                var majorPatnt = foundPatnts.Where(p => p.Identifiers.Any(i => i.Nhi == createPatientCommand.Nhi && i.IsMajor)).SingleOrDefault();
+                if(majorPatnt is null)
+                {
+                    context.Logger.LogLine($"WARN: MessageProcessor.Lambda.ProcessMessageAsync(): NHI {createPatientCommand.Nhi} is minor. Returning ...");
+                    return -1;
+                }
                 var updatePatientCommand = JsonSerializer.Deserialize<UpdatePatientCommand>(message.Body);
                 return await _mediator.Send(updatePatientCommand);
             }

@@ -5,7 +5,8 @@ namespace Application.Queries
 {
     public class PatientDto
     {
-        public string Nhi { get; set; }
+        //public string Nhi { get; set; }
+        public List<IdentifierDto> Identifiers { get; set; } = new List<IdentifierDto>();
         public List<NameDto> Names { get; set; } = new List<NameDto>();
         public string BirthDate { get; set; }
         public string BirthDateSource { get; set; }
@@ -17,6 +18,15 @@ namespace Application.Queries
 
         public static PatientDto ToPatientDto(Patient patnt)
         {
+            var identifierDtos = new List<IdentifierDto>();
+            foreach(var identifier in patnt.Identifiers)
+            {
+                var identifierDto = new IdentifierDto();
+                identifierDto.Nhi = identifier.Nhi;
+                identifierDto.IsMajor = identifier.IsMajor;
+                identifierDtos.Add(identifierDto);
+            }
+
             var nameDtos = new List<NameDto>();
             foreach (var humanName in patnt.HumanNames)
             {
@@ -69,7 +79,6 @@ namespace Application.Queries
                 addressDtos.Add(addressDto);
             }
 
-
             var contactDtos = new List<ContactDto>();
             foreach (var contact in patnt.Contacts)
             {   var contactDto = new ContactDto();
@@ -85,17 +94,23 @@ namespace Application.Queries
 
             return new PatientDto()
             {
-                Nhi = patnt.Nhi,
+                //Nhi = patnt.Nhi,
                 Names = nameDtos,
                 BirthDate = patnt.BirthDate,
                 BirthDateSource = patnt.BirthDateSource.Code,
                 Age = patnt.Age,
                 Gender = patnt.Gender.Code,
+                Identifiers = identifierDtos,
                 Ethnicities = ethnicityDtos,
                 Addresses = addressDtos,
                 Contacts = contactDtos
             };
         }
+    }
+    public class IdentifierDto
+    {
+        public string Nhi { get; set; }
+        public bool IsMajor { get; set; }
     }
 
     public class NameDto

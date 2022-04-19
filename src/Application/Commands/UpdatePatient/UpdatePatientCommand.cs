@@ -18,6 +18,7 @@ namespace Application.Commands.UpdatePatient
 {
     public class UpdatePatientCommand : IRequest<long>
     {
+        public long Id { get; set; }
         public string Nhi { get; set; }
         public string Title { get; set; }
         public string GivenName { get; set; }
@@ -79,7 +80,7 @@ namespace Application.Commands.UpdatePatient
                         .ThenInclude(c => c.ContactUsage)
                     .Include(x => x.Contacts)
                         .ThenInclude(c => c.ContactType)
-                    .FirstOrDefaultAsync(x => x.Nhi == request.Nhi);
+                    .FirstOrDefaultAsync(x => x.Id == request.Id);
 
             if (patnt is null)
             {
