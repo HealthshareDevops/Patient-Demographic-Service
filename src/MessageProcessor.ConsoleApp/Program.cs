@@ -192,7 +192,7 @@ namespace MessageProcessor.ConsoleApp
                 {
                     EventId = Guid.NewGuid().ToString(),
                     EventType = "MergePatient",
-                    NhiOfPatientWithCurrentMajorNhi = "ZZZ0016",
+                    NhiOfPatientWithCurrentMajorNhi = "PRP1660",
                     NhiOfPatientWhoWillRecieveNewMajor = "ZZZ0008"
 
                 };
