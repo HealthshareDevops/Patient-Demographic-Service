@@ -5,6 +5,7 @@ using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -30,6 +31,7 @@ namespace Application.Queries
             {
                 LambdaLogger.Log($"INFO: GetPatientQueryHandler start...");
                 var response = await _dbContext.Patients
+                    .Include(x => x.Identifiers.OrderByDescending(i => i.IsMajor))
                     .Include(x => x.HumanNames)
                         .ThenInclude(n => n.Suffix)
                     .Include(x => x.HumanNames)
@@ -44,9 +46,11 @@ namespace Application.Queries
                         .ThenInclude(x => x.AddressType)
                     .Include(x => x.Contacts)
                         .ThenInclude(c => c.ContactType)
-                     .Include(x => x.Contacts)
+                    .Include(x => x.Contacts)
                         .ThenInclude(c => c.ContactUsage)
-                    .FirstOrDefaultAsync(x => x.Nhi == request.Nhi);
+                    .AsNoTracking()
+                    .Where(x => x.Identifiers.Any(i => i.Nhi == request.Nhi && i.IsMajor == true))
+                    .FirstOrDefaultAsync();
 
                 if (response is null)
                 {

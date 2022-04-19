@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -40,26 +41,27 @@ namespace MessageProcessor.ConsoleApp
             Console.WriteLine("1. Create/Update Patient event");
             Console.WriteLine("2. Patient Merge event");
 
-            var selection = int.Parse(Console.ReadLine());
+            //var selection = int.Parse(Console.ReadLine());
 
+            var selection = 1;
             if (selection == 1)
             {
                 Console.WriteLine("---Create/Update Patient Event---");
 
                 var payload = new
                 {
-                    Nhi = "ZZZ0008",
+                    Nhi = "ZFA4880",
                     Title = "DR",
-                    GivenName = "Jack",
-                    MiddleName = "",
-                    FamilyName = "Dime",
+                    GivenName = "John",
+                    MiddleName = "Middle",
+                    FamilyName = "Doe",
                     Suffix = "2nd",
                     IsPreferred = true,
                     IsProtected = true,
                     NameSource = "BREG",
                     EffectiveFrom = "",
                     EffectiveTo = "",
-                    BirthDate = "19900118",
+                    BirthDate = "19890118",
                     BirthDateSource = "BRCT",
                     Gender = "M",
                     Ethnicities = new[] {
@@ -71,11 +73,11 @@ namespace MessageProcessor.ConsoleApp
                             Code = "11",
                             Description = "11 [New Zealander]"
                         },
-                        new
-                        {
-                            Code = "36",
-                            Description = "Fijian"
-                        }
+                        //new
+                        //{
+                        //    Code = "36",
+                        //    Description = "Fijian"
+                        //}
                     },
                     Addresses = new[] {
                         new {
@@ -132,25 +134,25 @@ namespace MessageProcessor.ConsoleApp
                             EffectiveTo = "",
                             IsPreferred =  false
                         },
-                        new {
-                            
-                            ContactType = "NET",
-                            ContactUsage = "PRN",
-                            Detail = "test@api.com",
-                            IsProtected = false,
-                            EffectiveFrom = "20220225",
-                            EffectiveTo = "",
-                            IsPreferred =  false
-                        },
-                        new {
-                            ContactType = "NET",
-                            ContactUsage = "PRN",
-                            Detail = "babyflower@gmail.com",
-                            IsProtected = false,
-                            EffectiveFrom = "20220225",
-                            EffectiveTo = "",
-                            IsPreferred =  false
-                        }
+                        //new {
+
+                        //    ContactType = "NET",
+                        //    ContactUsage = "PRN",
+                        //    Detail = "test@api.com",
+                        //    IsProtected = false,
+                        //    EffectiveFrom = "20220225",
+                        //    EffectiveTo = "",
+                        //    IsPreferred =  false
+                        //},
+                        //new {
+                        //    ContactType = "NET",
+                        //    ContactUsage = "PRN",
+                        //    Detail = "babyflower@gmail.com",
+                        //    IsProtected = false,
+                        //    EffectiveFrom = "20220225",
+                        //    EffectiveTo = "",
+                        //    IsPreferred =  false
+                        //}
 
                     },
                     CreatedBy = "Rhapsody"
@@ -204,16 +206,23 @@ namespace MessageProcessor.ConsoleApp
         private static async Task AddOrUpdateEvent(string payloadJsonString)
         {
             var createPatientCommand = JsonSerializer.Deserialize<CreatePatientCommand>(payloadJsonString);
-            var found = await _dbContext.Patients.AsNoTracking().FirstOrDefaultAsync(x => x.Nhi == createPatientCommand.Nhi);
-            // assuming it will return only one.
-            //var found = _dbContext.Patients.Include(p => p.Identifiers).AsNoTracking().Where(p => p.Identifiers.Any(i => i.Nhi == createPatientCommand.Nhi && i.IsMajor == true)).FirstOrDefault();
-            if (found is null)
+            //var found = await _dbContext.Patients.AsNoTracking().FirstOrDefaultAsync(x => x.Nhi == createPatientCommand.Nhi);
+            var foundPatnt = _dbContext.Patients.Include(p => p.Identifiers).AsNoTracking().Where(p => p.Identifiers.Any(i => i.Nhi == createPatientCommand.Nhi)).ToList();
+            if (foundPatnt.Count == 0)
             {
                 var response = await _mediator.Send(createPatientCommand);
             }
             else
             {
+                var majorPatnt = foundPatnt.Where(p => p.Identifiers.Any(i => i.Nhi == createPatientCommand.Nhi && i.IsMajor)).SingleOrDefault();
+
+                if (majorPatnt is null)
+                {
+                    return;
+                } 
                 var updatePatientCommand = JsonSerializer.Deserialize<UpdatePatientCommand>(payloadJsonString);
+                updatePatientCommand.Id = majorPatnt.Id;
+
                 var response = await _mediator.Send(updatePatientCommand);
             }
         }
