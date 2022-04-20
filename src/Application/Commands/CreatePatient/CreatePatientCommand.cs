@@ -121,7 +121,7 @@ namespace Application.Commands.CreatePatient
                     throw new ValidationException("Gender is not valid.");
                 }
 
-                var patnt = new Patient(nhi.Value, birthDate.Value, birthDateSource, gender, request.CreatedBy);
+                var patnt = new Patient(birthDate.Value, birthDateSource, gender, request.CreatedBy);
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object created.");
 
                 patnt.AddName(title, name.Value, suffix, request.IsPreferred, request.IsProtected, namesource, effectiveFrom.Value, effectiveTo.Value);
@@ -186,7 +186,7 @@ namespace Application.Commands.CreatePatient
 
 
                 // New patient is saved. Notify all the concerned services.
-                await _newPatientNotificationService.PublishAsync(BuildEventMessage(patnt.Nhi));
+                await _newPatientNotificationService.PublishAsync(BuildEventMessage(request.Nhi));
                 LambdaLogger.Log($"INFO: Services notified");
 
 

@@ -203,7 +203,7 @@ namespace Application.Commands.UpdatePatient
             LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object DB Saved. Patient Id: {patnt.Id}");
 
             // Patient is updated. Notify all the concerned services.
-            await _newPatientNotificationService.PublishAsync(BuildEventMessage(patnt.Nhi));
+            await _newPatientNotificationService.PublishAsync(BuildEventMessage(request.Nhi));
             LambdaLogger.Log($"INFO: Services notified");
 
             return patnt.Id;

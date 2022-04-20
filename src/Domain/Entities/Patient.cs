@@ -10,9 +10,6 @@ namespace Domain.Entities
 {
     public class Patient : Entity, IAuditableEntity
     {
-        // 2.1 NHI number
-        public Nhi Nhi { get; private set; }
-
         //// Do we need list of Identifier (Part of Nhi) - ToDo
         ///public Identifier Identifier { get; private set; }
         private readonly List<Identifier> _identifiers = new List<Identifier>();
@@ -60,9 +57,9 @@ namespace Domain.Entities
 
         protected Patient() { }
 
-        public Patient(Nhi nhi, BirthDate birthDate, BirthDateSource birthDateSource, Gender gender, string createdBy)
+        public Patient(BirthDate birthDate, BirthDateSource birthDateSource, Gender gender, string createdBy)
         {
-            Nhi = nhi ?? throw new ArgumentNullException(nameof(nhi));
+            
             
             //AddName(humanName);
 

@@ -43,18 +43,18 @@ namespace MessageProcessor.ConsoleApp
 
             //var selection = int.Parse(Console.ReadLine());
 
-            var selection = 1;
+            var selection = 2;
             if (selection == 1)
             {
                 Console.WriteLine("---Create/Update Patient Event---");
 
                 var payload = new
                 {
-                    Nhi = "ZFA4880",
+                    Nhi = "ZZZ0016",
                     Title = "DR",
-                    GivenName = "John",
-                    MiddleName = "Middle",
-                    FamilyName = "Doe",
+                    GivenName = "Went",
+                    MiddleName = "Up The",
+                    FamilyName = "Hill",
                     Suffix = "2nd",
                     IsPreferred = true,
                     IsProtected = true,
@@ -63,20 +63,15 @@ namespace MessageProcessor.ConsoleApp
                     EffectiveTo = "",
                     BirthDate = "19890118",
                     BirthDateSource = "BRCT",
-                    Gender = "M",
+                    Gender = "F",
                     Ethnicities = new[] {
-                        new {
-                            Code = "21",
-                            Description = "21 [Maori]"
-                        },
                         new {
                             Code = "11",
                             Description = "11 [New Zealander]"
                         },
-                        //new
-                        //{
-                        //    Code = "36",
-                        //    Description = "Fijian"
+                        //new {
+                        //    Code = "21",
+                        //    Description = "21 [Maori]"
                         //}
                     },
                     Addresses = new[] {
@@ -135,7 +130,6 @@ namespace MessageProcessor.ConsoleApp
                             IsPreferred =  false
                         },
                         //new {
-
                         //    ContactType = "NET",
                         //    ContactUsage = "PRN",
                         //    Detail = "test@api.com",
@@ -143,17 +137,7 @@ namespace MessageProcessor.ConsoleApp
                         //    EffectiveFrom = "20220225",
                         //    EffectiveTo = "",
                         //    IsPreferred =  false
-                        //},
-                        //new {
-                        //    ContactType = "NET",
-                        //    ContactUsage = "PRN",
-                        //    Detail = "babyflower@gmail.com",
-                        //    IsProtected = false,
-                        //    EffectiveFrom = "20220225",
-                        //    EffectiveTo = "",
-                        //    IsPreferred =  false
                         //}
-
                     },
                     CreatedBy = "Rhapsody"
                 }; //end of payload
@@ -192,7 +176,7 @@ namespace MessageProcessor.ConsoleApp
                 {
                     EventId = Guid.NewGuid().ToString(),
                     EventType = "MergePatient",
-                    NhiOfPatientWithCurrentMajorNhi = "PRP1660",
+                    NhiOfPatientWithCurrentMajorNhi = "ZZZ0016",
                     NhiOfPatientWhoWillRecieveNewMajor = "ZZZ0008"
 
                 };

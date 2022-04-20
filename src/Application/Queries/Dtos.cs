@@ -5,7 +5,6 @@ namespace Application.Queries
 {
     public class PatientDto
     {
-        //public string Nhi { get; set; }
         public List<IdentifierDto> Identifiers { get; set; } = new List<IdentifierDto>();
         public List<NameDto> Names { get; set; } = new List<NameDto>();
         public string BirthDate { get; set; }
@@ -94,7 +93,6 @@ namespace Application.Queries
 
             return new PatientDto()
             {
-                //Nhi = patnt.Nhi,
                 Names = nameDtos,
                 BirthDate = patnt.BirthDate,
                 BirthDateSource = patnt.BirthDateSource.Code,
