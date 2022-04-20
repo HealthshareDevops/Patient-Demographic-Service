@@ -1,4 +1,5 @@
 ﻿using Amazon.Lambda.Core;
+using Application.Common.Exceptions;
 using Application.Common.Interfaces;
 using CSharpFunctionalExtensions;
 using Domain.Entities;
@@ -34,22 +35,30 @@ namespace Application.Commands.MergePatientIdentifier
 
             LambdaLogger.Log($"INFO: MergePatientIdentifierCommandHandler start...");
 
+            LambdaLogger.Log($"INFO: MergePatientIdentifierCommandHandler - 1. Checking curntPatntWHoHasTheMajorNhi: {request.NhiOfPatientWithCurrentMajorNhi} ");
             var curntPatntWHoHasTheMajorNhi = await _dbContext.Patients.Include(x => x.Identifiers).
-                                                                          Where(x => x.Identifiers.
-                                                                          Any(i => i.Nhi == request.NhiOfPatientWithCurrentMajorNhi && i.IsMajor == true)).
+                                                                          Where(x => x.Identifiers.Any(i => i.Nhi == request.NhiOfPatientWithCurrentMajorNhi && i.IsMajor == true)).
                                                                           FirstOrDefaultAsync();
 
-            LambdaLogger.Log($"INFO: MergePatientIdentifierCommandHandler curntPatntWHoHasTheMajorNhi: {curntPatntWHoHasTheMajorNhi} ");
+            if(curntPatntWHoHasTheMajorNhi is null)
+            {
+                LambdaLogger.Log($"ERROR: MergePatientIdentifierCommandHandler -  Nhi \"{request.NhiOfPatientWithCurrentMajorNhi}\" not found.");
+                throw new NotFoundException(nameof(Patient), request.NhiOfPatientWithCurrentMajorNhi);
+            }
+
+
+            LambdaLogger.Log($"INFO: MergePatientIdentifierCommandHandler - 2. Checking NhiOfPatientWhoWillRecieveNewMajor: {request.NhiOfPatientWhoWillRecieveNewMajor} ");
             var curntPatntWhoWillRecieveNewMajorNhi = await _dbContext.Patients.Include(x => x.Identifiers).
                                                                                 Where(x => x.Identifiers.Any(i => i.Nhi == request.NhiOfPatientWhoWillRecieveNewMajor && i.IsMajor == true)).
                                                                                 FirstOrDefaultAsync();
-            LambdaLogger.Log($"INFO: MergePatientIdentifierCommandHandler curntPatntWhoWillRecieveNewMajorNhi: {curntPatntWhoWillRecieveNewMajorNhi} ");
-            if (curntPatntWHoHasTheMajorNhi == null && curntPatntWhoWillRecieveNewMajorNhi == null) {
 
-                LambdaLogger.Log($"ERROR: MergePatientIdentifierCommandHandler Both NHIs null.");
-                throw new System.NotImplementedException();
+            if (curntPatntWhoWillRecieveNewMajorNhi is null)
+            {
+                LambdaLogger.Log($"ERROR: MergePatientIdentifierCommandHandler -  Nhi \"{request.NhiOfPatientWhoWillRecieveNewMajor}\" not found.");
+                throw new NotFoundException(nameof(Patient), request.NhiOfPatientWhoWillRecieveNewMajor);
             }
-            LambdaLogger.Log($"INFO: MergePatientIdentifierCommandHandler Both NHIs are not null");
+                       
+            LambdaLogger.Log($"INFO: MergePatientIdentifierCommandHandler Both NHIs are found");
             //1. With the current patient who has the major find the major identifier.
             //2. Set the IsMajor boolean flag to false. This means that Nhi still with them its just no longer major
 
@@ -70,6 +79,7 @@ namespace Application.Commands.MergePatientIdentifier
             await _newPatientNotificationService.PublishAsync(BuildEventMessage(currentMajorId.Nhi.ToString(), newMajorId.Nhi.ToString() ));
             LambdaLogger.Log($"INFO: MergePatientIdentifierCommand -- Publishing external merge event Services");
 
+            LambdaLogger.Log($"INFO: MergePatientIdentifierCommandHandler end...");
             return curntPatntWhoWillRecieveNewMajorNhi.Id;
 
         }
