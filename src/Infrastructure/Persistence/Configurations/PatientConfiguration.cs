@@ -11,14 +11,14 @@ namespace Infrastructure.Persistence.Configurations
         public void Configure(EntityTypeBuilder<Patient> builder)
         {
             builder.Property(p => p.Id);
-            builder.Property(p => p.Nhi)
-                .HasConversion(p => p.Value, p => Nhi.Create(p).Value)
-                .IsRequired();
-            builder.HasIndex(p => p.Nhi).IsUnique();
+            //builder.Property(p => p.Nhi)
+            //    .HasConversion(p => p.Value, p => Nhi.Create(p).Value)
+            //    .IsRequired();
+            //builder.HasIndex(p => p.Nhi).IsUnique();
             builder.HasMany(p => p.HumanNames).WithOne().HasForeignKey(n => n.PatientId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .Metadata.PrincipalToDependent.SetPropertyAccessMode(PropertyAccessMode.Field);
-            builder.HasMany(p => p.Identifiers).WithOne()
+            builder.HasMany(p => p.Identifiers).WithOne().HasForeignKey(i => i.PatientId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .Metadata.PrincipalToDependent.SetPropertyAccessMode(PropertyAccessMode.Field);
             builder.HasMany(p => p.Contacts).WithOne()

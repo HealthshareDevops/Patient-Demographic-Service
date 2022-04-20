@@ -1,18 +1,14 @@
 ﻿using Amazon.Lambda.Core;
-using Application.Common.Exceptions;
 using Application.Common.Interfaces;
 using CSharpFunctionalExtensions;
 using Domain.Entities;
-using Domain.Enums;
-using Domain.ValueObjects;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
 
 namespace Application.Commands.MergePatientIdentifier
 {

@@ -1,6 +1,5 @@
 ﻿CREATE TABLE [Patients] (
     [Id] bigint NOT NULL IDENTITY,
-    [Nhi] nvarchar(7) NOT NULL,
     [BirthDate] nvarchar(8) NOT NULL,
     [BirthDateSourceId] bigint NULL,
     [GenderId] bigint NULL,

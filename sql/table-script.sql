@@ -259,3 +259,16 @@ GO
 
 COMMIT;
 GO
+
+/**
+*	Drop Index
+*/
+DROP INDEX IF EXISTS IX_Patients_Nhi ON [dbo].[Patients]
+GO
+
+/**
+*	Drop Column
+*/
+ALTER TABLE [dbo].[Patients] 
+DROP COLUMN IF EXISTS [Nhi]
+GO
