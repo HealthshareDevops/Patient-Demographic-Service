@@ -10,8 +10,6 @@ namespace Domain.Entities
 {
     public class Patient : Entity, IAuditableEntity
     {
-        //// Do we need list of Identifier (Part of Nhi) - ToDo
-        ///public Identifier Identifier { get; private set; }
         private readonly List<Identifier> _identifiers = new List<Identifier>();
         public virtual IReadOnlyList<Identifier> Identifiers => _identifiers.ToList();
 
@@ -38,10 +36,10 @@ namespace Domain.Entities
         private readonly List<Contact> _contacts = new List<Contact>();
         public virtual IReadOnlyList<Contact> Contacts => _contacts.ToList();
 
-        //6 Created By
+        // 6 Created by
         public string CreatedBy { get; private set; }
 
-        //7 Modified By
+        // 7 Last modified by
         public string LastModifiedBy { get; private set; }
 
         public int Age
@@ -57,20 +55,31 @@ namespace Domain.Entities
 
         protected Patient() { }
 
-        public Patient(BirthDate birthDate, BirthDateSource birthDateSource, Gender gender, string createdBy)
+        public Patient(Identifier identifier, BirthDate birthDate, BirthDateSource birthDateSource, Gender gender, string createdBy)
         {
-            
-            
-            //AddName(humanName);
+            _ = identifier ?? throw new ArgumentNullException(nameof(identifier));
+            identifier.MakeMajor(true);
 
-            //TODO - This can called from the command handle
-            
+            AddIdentity(identifier);
 
             Gender = gender ?? throw new ArgumentNullException(nameof(gender));
 
             CreatedBy = createdBy;
 
             SetBirthDateAndPlaceInfo(birthDate, birthDateSource); 
+        }
+
+        // Merge Patient Identity - use case changes
+        public void AddIdentity(Identifier identity)
+        {
+            if (identity.IsMajor)
+            {
+                foreach (var idtfr in _identifiers)
+                {
+                    idtfr.MakeMajor(false);
+                }
+            }
+            _identifiers.Add(identity);
         }
 
         public void AddName(Title title,
@@ -85,27 +94,7 @@ namespace Domain.Entities
             var humanName = new HumanName(title, name, suffix, isPreferred, isProtected, nameSource, effectiveFrom, effectiveTo);
             _humanNames.Add(humanName);
         }
-
-
-        //Merge Patient Identity - use case changes
-        public void AddIdentity(Identifier identity) {
-           // Identifier id = new Identifier(nhi, isMajor);
-
-            if (identity.IsMajor)
-            {
-                foreach (var idtfr  in _identifiers)
-                {
-                    idtfr.MakeMajor(false);
-                }
-            }
-            _identifiers.Add(identity);
-        }
-    //    public void AddName(HumanName humanName)
-    //    {
-    //        var humanName = new HumanName(this, title, name, suffix, isPreferred, isProtected, nameSource, effectiveFrom, effectiveTo);
-    //       _humanNames.Add(humanName);
-    //   }
-
+        
         public void AddEthnicity(Ethnicity ethnicity)
         {
             _patientEthnicities.Add(new PatientEthnicity(this, ethnicity));
@@ -185,10 +174,10 @@ namespace Domain.Entities
             _addresses.RemoveAll(a1 => !addressesToKeep.Exists(a2 => a1.IsEqual(a2)));
         }
 
-        private void UpdateEthnicityList(List<Ethnicity> ethnicityToAdd)
+        private void UpdateEthnicityList(List<Ethnicity> ethnicitiesToKeep)
         {
             // Check incoming ethnicity the PatientEthnicities list, if it does not exist in PatientEthnicities list.
-            foreach (var eth in ethnicityToAdd)
+            foreach (var eth in ethnicitiesToKeep)
             {
                 var found = _patientEthnicities.FirstOrDefault(e => e.Ethnicity.Id == eth.Id);
 
@@ -200,7 +189,7 @@ namespace Domain.Entities
             }
 
             // Remove ethnicity from PatientEthnicities list if it does not exist in current list
-            _patientEthnicities.RemoveAll(e => !ethnicityToAdd.Exists(eth => e.Ethnicity.Id == eth.Id));
+            _patientEthnicities.RemoveAll(e => !ethnicitiesToKeep.Exists(eth => e.Ethnicity.Id == eth.Id));
         }
 
         private void UpdateContactList(List<Contact> contactsToKeep)
