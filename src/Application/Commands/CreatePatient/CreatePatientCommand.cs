@@ -67,9 +67,30 @@ namespace Application.Commands.CreatePatient
                     LambdaLogger.Log($"ERROR: CreatePatientCommandHandler: Nhi failure.");
                     throw new ValidationException(nhi.Error);
                 }
-               
-
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Nhi: {nhi.Value} created.");
+
+                // Create the identity
+                // This is the first time we have seen this patient in the Midland region therefore business logic determines the NHI as the major
+                var identity = new Identifier(nhi.Value, true);
+                LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Identity created.");
+
+                Result<BirthDate> birthDate = BirthDate.Create(request.BirthDate);
+                if (birthDate.IsFailure)
+                {
+                    throw new ValidationException(birthDate.Error);
+                }
+                var birthDateSource = BirthDateSource.FromCode(request.BirthDateSource);
+                if (birthDateSource is null)
+                {
+                    throw new ValidationException("BirthDateSource is not valid.");
+                }
+
+                var gender = Gender.FromCode(request.Gender);
+                if (gender is null)
+                {
+                    throw new ValidationException("Gender is not valid.");
+                }
+                
                 // Create HumanName
                 var title = Title.FromCode(request.Title);
                 var suffix = Suffix.FromCode(request.Suffix);
@@ -100,41 +121,13 @@ namespace Application.Commands.CreatePatient
                     throw new ValidationException(effectiveTo.Error);
                 }
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: EffectiveTo date created.");
+                // 
 
-                //var humanName = new HumanName(title, name.Value, suffix, request.IsPreferred, request.IsProtected, namesource, effectiveFrom.Value, effectiveTo.Value);
-                //LambdaLogger.Log($"INFO: CreatePatientCommandHandler: HumanName object created.");
-
-                Result<BirthDate> birthDate = BirthDate.Create(request.BirthDate);
-                if (birthDate.IsFailure)
-                {
-                    throw new ValidationException(birthDate.Error);
-                }
-                var birthDateSource = BirthDateSource.FromCode(request.BirthDateSource);
-                if (birthDateSource is null)
-                {
-                    throw new ValidationException("BirthDateSource is not valid.");
-                }
-
-                var gender = Gender.FromCode(request.Gender);
-                if (gender is null)
-                {
-                    throw new ValidationException("Gender is not valid.");
-                }
-
-                var patnt = new Patient(birthDate.Value, birthDateSource, gender, request.CreatedBy);
+                var patnt = new Patient(identity, birthDate.Value, birthDateSource, gender, request.CreatedBy);
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object created.");
 
                 patnt.AddName(title, name.Value, suffix, request.IsPreferred, request.IsProtected, namesource, effectiveFrom.Value, effectiveTo.Value);
-
-                //Create the identity list
-                //This is the first time we have seen this patient in the Midland region therefore business logic determines the NHI as the major
-               
-                var identity = new Identifier(nhi.Value, true);
-                LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Identity created.");
-
-                // LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Nhi: {nhi.Value} created.");
-                patnt.AddIdentity(identity);
-                LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Identity object added to Patient Identity list.");
+                                
 
                 if (request.Ethnicities != null)
                 {
@@ -151,7 +144,6 @@ namespace Application.Commands.CreatePatient
 
                     }
                     LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient ethnicities added.");
-
                 }
 
                 if (request.Addresses != null)
