@@ -267,8 +267,17 @@ DROP INDEX IF EXISTS IX_Patients_Nhi ON [dbo].[Patients]
 GO
 
 /**
-*	Drop Column
-*/
+  * Drop Column
+  */
 ALTER TABLE [dbo].[Patients] 
 DROP COLUMN IF EXISTS [Nhi]
 GO
+
+/**
+  * Add column "EventDate" in the "Patients" table 
+  */
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'Patients' AND COLUMN_NAME = 'EventDate')
+BEGIN
+  ALTER TABLE Patients
+  ADD EventDate NVARCHAR(12) NULL
+END;
