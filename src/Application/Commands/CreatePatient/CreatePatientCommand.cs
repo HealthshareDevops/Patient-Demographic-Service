@@ -307,7 +307,7 @@ namespace Application.Commands.CreatePatient
             {
                 EventId = Guid.NewGuid(),
                 EventDate = DateTime.UtcNow,
-                EventType = "NewPatient",
+                EventType = "NewPatientCreated",
                 NHI = nhi
             };
             return JsonSerializer.Serialize(msg);

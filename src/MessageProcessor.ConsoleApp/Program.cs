@@ -41,9 +41,9 @@ namespace MessageProcessor.ConsoleApp
             Console.WriteLine("1. Create/Update Patient event");
             Console.WriteLine("2. Patient Merge event");
 
-            //var selection = int.Parse(Console.ReadLine());
+            var selection = int.Parse(Console.ReadLine());
 
-            var selection = 2;
+            //var selection = 2;
             if (selection == 1)
             {
                 Console.WriteLine("---Create/Update Patient Event---");
@@ -177,7 +177,7 @@ namespace MessageProcessor.ConsoleApp
                     EventId = Guid.NewGuid().ToString(),
                     EventType = "MergePatient",
                     NhiOfPatientWithCurrentMajorNhi = "ZZZ0016",
-                    NhiOfPatientWhoWillRecieveNewMajor = "ZZZ0008"
+                    NhiOfPatientWhoWillReceiveNewMajor = "ZZZ0008"
 
                 };
                 var payloadJsonString = JsonSerializer.Serialize(payload);

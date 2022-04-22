@@ -18,7 +18,7 @@ namespace Application.Commands.MergePatientIdentifier
         public string EventId { get; set; }
         public string Nhi { get; set; }
         public string NhiOfPatientWithCurrentMajorNhi { get; set; }
-        public string NhiOfPatientWhoWillRecieveNewMajor { get; set; }
+        public string NhiOfPatientWhoWillReceiveNewMajor { get; set; }
     }
 
     //Handler
@@ -47,15 +47,15 @@ namespace Application.Commands.MergePatientIdentifier
             }
 
 
-            LambdaLogger.Log($"INFO: MergePatientIdentifierCommandHandler - 2. Checking NhiOfPatientWhoWillRecieveNewMajor: {request.NhiOfPatientWhoWillRecieveNewMajor} ");
+            LambdaLogger.Log($"INFO: MergePatientIdentifierCommandHandler - 2. Checking NhiOfPatientWhoWillRecieveNewMajor: {request.NhiOfPatientWhoWillReceiveNewMajor} ");
             var curntPatntWhoWillRecieveNewMajorNhi = await _dbContext.Patients.Include(x => x.Identifiers).
-                                                                                Where(x => x.Identifiers.Any(i => i.Nhi == request.NhiOfPatientWhoWillRecieveNewMajor && i.IsMajor == true)).
+                                                                                Where(x => x.Identifiers.Any(i => i.Nhi == request.NhiOfPatientWhoWillReceiveNewMajor && i.IsMajor == true)).
                                                                                 FirstOrDefaultAsync();
 
             if (curntPatntWhoWillRecieveNewMajorNhi is null)
             {
-                LambdaLogger.Log($"ERROR: MergePatientIdentifierCommandHandler -  Nhi \"{request.NhiOfPatientWhoWillRecieveNewMajor}\" not found.");
-                throw new NotFoundException(nameof(Patient), request.NhiOfPatientWhoWillRecieveNewMajor);
+                LambdaLogger.Log($"ERROR: MergePatientIdentifierCommandHandler -  Nhi \"{request.NhiOfPatientWhoWillReceiveNewMajor}\" not found.");
+                throw new NotFoundException(nameof(Patient), request.NhiOfPatientWhoWillReceiveNewMajor);
             }
                        
             LambdaLogger.Log($"INFO: MergePatientIdentifierCommandHandler Both NHIs are found");
@@ -89,7 +89,7 @@ namespace Application.Commands.MergePatientIdentifier
             {
                 EventId = Guid.NewGuid(),
                 EventDate = DateTime.UtcNow,
-                EventType = "MergePatientNhi",
+                EventType = "MergedPatientNhi",
                 CurrentMajorNhi = currentMajorNhi,
                 NewMajorNhi = newMajorNhi
             };

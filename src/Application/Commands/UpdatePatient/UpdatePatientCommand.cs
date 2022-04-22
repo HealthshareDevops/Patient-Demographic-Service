@@ -323,7 +323,7 @@ namespace Application.Commands.UpdatePatient
             {
                 EventId = Guid.NewGuid(),
                 EventDate = DateTime.UtcNow,
-                EventType = "UpdatePatient",
+                EventType = "PatientDetailsUpdated",
                 NHI = nhi
             };
             return JsonSerializer.Serialize(msg);
