@@ -166,7 +166,12 @@ namespace Application.Commands.CreatePatient
                     // Add contacts
                     foreach (var contactCommand in request.Contacts)
                     {
-                       patnt.AddContact(ToContact(contactCommand));
+                        var contact = ToContact(contactCommand);
+                        if(contact is null)
+                        {
+                            continue;
+                        }
+                       patnt.AddContact(contact);
                     }
                     LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient contacts added.");
                 }
@@ -210,7 +215,7 @@ namespace Application.Commands.CreatePatient
 
             if (string.IsNullOrEmpty(addressCommand.StreetAddress))
             {
-                LambdaLogger.Log($"ERROR: ToAddress: Street Address should be valid.");
+                LambdaLogger.Log($"WARN: ToAddress: Street Address should be valid.");
                 return null;
             }
 
@@ -264,7 +269,8 @@ namespace Application.Commands.CreatePatient
 
             if (string.IsNullOrEmpty(contactCommand.Detail))
             {
-                throw new ValidationException("Detail is not valid.");
+                LambdaLogger.Log($"WARN: ToContact: Detail is not valid.");
+                return null;
             }
 
             //5.5 is mandatory
