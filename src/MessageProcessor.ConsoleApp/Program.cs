@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -41,16 +42,16 @@ namespace MessageProcessor.ConsoleApp
             Console.WriteLine("1. Create/Update Patient event");
             Console.WriteLine("2. Patient Merge event");
 
-            var selection = int.Parse(Console.ReadLine());
+            //var selection = int.Parse(Console.ReadLine());
 
-            //var selection = 2;
+            var selection = 1;
             if (selection == 1)
             {
                 Console.WriteLine("---Create/Update Patient Event---");
 
                 var payload = new
                 {
-                    Nhi = "ZZZ0016",
+                    Nhi = "ZZZ0024",
                     Title = "DR",
                     GivenName = "Went",
                     MiddleName = "Up The",
@@ -139,6 +140,7 @@ namespace MessageProcessor.ConsoleApp
                         //    IsPreferred =  false
                         //}
                     },
+                    //EventDate = "20220426094501",
                     CreatedBy = "Rhapsody"
                 }; //end of payload
 
@@ -161,8 +163,7 @@ namespace MessageProcessor.ConsoleApp
                 var eventType = eventTypeProp.ToString();
                 if (eventType == "MergePatient")
                 {
-                    var mergePatientCommand = JsonSerializer.Deserialize<MergePatientIdentifierCommand>(payloadJsonString);
-                    var response = await _mediator.Send(mergePatientCommand);
+                    await MergeEvent(payloadJsonString);
                 }
                 else
                 {
@@ -187,28 +188,60 @@ namespace MessageProcessor.ConsoleApp
             }
         }
 
+        private static async Task MergeEvent(string payloadJsonString)
+        {
+            var mergePatientCommand = JsonSerializer.Deserialize<MergePatientIdentifierCommand>(payloadJsonString);
+            var response = await _mediator.Send(mergePatientCommand);
+        }
+
         private static async Task AddOrUpdateEvent(string payloadJsonString)
         {
             var createPatientCommand = JsonSerializer.Deserialize<CreatePatientCommand>(payloadJsonString);
-            //var found = await _dbContext.Patients.AsNoTracking().FirstOrDefaultAsync(x => x.Nhi == createPatientCommand.Nhi);
+
+            // Check patient exists in the system.
+            // If patient does not exist in the system, create the record
+            // If patient exists, Check NHI is major or minor
+            // If only NHI is major, update the record
+            // If NHI is minor, it means NHI (or patient) is already merged with other NHI, dont need to do anything.
             var foundPatnt = _dbContext.Patients.Include(p => p.Identifiers).AsNoTracking().Where(p => p.Identifiers.Any(i => i.Nhi == createPatientCommand.Nhi)).ToList();
-            if (foundPatnt.Count == 0)
+            if (foundPatnt.Count <= 0)
             {
+                Console.WriteLine($"INFO: NHI {createPatientCommand.Nhi} does not exist. Creating Patient ...");
                 var response = await _mediator.Send(createPatientCommand);
             }
             else
             {
+                Console.WriteLine($"INFO: NHI {createPatientCommand.Nhi} exists. Updating Patient ...");
                 var majorPatnt = foundPatnt.Where(p => p.Identifiers.Any(i => i.Nhi == createPatientCommand.Nhi && i.IsMajor)).SingleOrDefault();
 
                 if (majorPatnt is null)
                 {
+                    Console.WriteLine($"WARN: NHI {createPatientCommand.Nhi} is minor. Returning ...");
                     return;
-                } 
+                }
                 var updatePatientCommand = JsonSerializer.Deserialize<UpdatePatientCommand>(payloadJsonString);
                 updatePatientCommand.Id = majorPatnt.Id;
-
+                
+                if(!IsLatestMessage(updatePatientCommand.EventDate, majorPatnt.EventDate)) {
+                    Console.WriteLine($"WARN: Messge event date is earlier than existing one. Returning ...");
+                    return;
+                }
+                
                 var response = await _mediator.Send(updatePatientCommand);
             }
+        }
+
+        private static bool IsLatestMessage(string newEventDt, string curEventDt)
+        {
+            if (!DateTime.TryParseExact(newEventDt, "yyyyMMddHHmmss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var newMsgEventDt))
+            {
+                Console.WriteLine($"WARN: EventDate of incoming message is null or empty or not valid. EventDate {newEventDt}. After parse {newMsgEventDt.ToString()}");
+            }
+            if (!DateTime.TryParseExact(curEventDt, "yyyyMMddHHmmss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var curMsgEventDt))
+            {
+                Console.WriteLine($"WARN: EventDate of last message is null or empty or not valid. EventDate {newEventDt}. After parse {newMsgEventDt.ToString()}");
+            }
+            return newMsgEventDt > curMsgEventDt;
         }
     }
 }

@@ -42,6 +42,8 @@ namespace Domain.Entities
         // 7 Last modified by
         public string LastModifiedBy { get; private set; }
 
+        public string EventDate { get; private set; }
+
         public int Age
         {
             get
@@ -55,7 +57,7 @@ namespace Domain.Entities
 
         protected Patient() { }
 
-        public Patient(Identifier identifier, BirthDate birthDate, BirthDateSource birthDateSource, Gender gender, string createdBy)
+        public Patient(Identifier identifier, BirthDate birthDate, BirthDateSource birthDateSource, Gender gender, string createdBy, string eventDate)
         {
             _ = identifier ?? throw new ArgumentNullException(nameof(identifier));
             identifier.MakeMajor(true);
@@ -65,6 +67,7 @@ namespace Domain.Entities
             Gender = gender ?? throw new ArgumentNullException(nameof(gender));
 
             CreatedBy = createdBy;
+            EventDate = eventDate;
 
             SetBirthDateAndPlaceInfo(birthDate, birthDateSource); 
         }
@@ -123,11 +126,12 @@ namespace Domain.Entities
             BirthDateSource = birthDateSource ?? throw new ArgumentNullException(nameof(birthDateSource));
         }
 
-        public void UpdatePatientInfo(BirthDate birthDate, BirthDateSource birthDateSource, Gender gender, List<HumanName> humanNames, List<Address> addresses, List<Ethnicity> ethnicities, List<Contact> contacts, string createdBy)
+        public void UpdatePatientInfo(BirthDate birthDate, BirthDateSource birthDateSource, Gender gender, List<HumanName> humanNames, List<Address> addresses, List<Ethnicity> ethnicities, List<Contact> contacts, string createdBy, string eventDate)
         {
             UpdateHumanNameList(humanNames);
 
             LastModifiedBy = createdBy;
+            EventDate = eventDate;
 
             ArgumentNullException.ThrowIfNull(gender);
             if (!gender.Equals(Gender))

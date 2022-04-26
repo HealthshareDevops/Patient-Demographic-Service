@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -133,8 +134,26 @@ namespace MessageProcessor.Lambda
                 var updatePatientCommand = JsonSerializer.Deserialize<UpdatePatientCommand>(message.Body);
                 updatePatientCommand.Id = majorPatnt.Id;
 
+                if(!IsLatestMessage(updatePatientCommand.EventDate, majorPatnt.EventDate, context))
+                {
+                    context.Logger.LogLine($"WARN: MessageProcessor.Lambda.ProcessMessageAsync(): Messge event date is earlier than existing one. Returning ...");
+                    return -1;
+                }
                 return await _mediator.Send(updatePatientCommand);
             }
+        }
+
+        private bool IsLatestMessage(string newEventDt, string curEventDt, ILambdaContext context)
+        {
+            if (!DateTime.TryParseExact(newEventDt, "yyyyMMddHHmmss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var newMsgEventDt))
+            {
+                context.Logger.LogLine($"WARN: EventDate of incoming message is null or empty or not valid. EventDate {newEventDt}. After parse {newMsgEventDt.ToString()}");
+            }
+            if (!DateTime.TryParseExact(curEventDt, "yyyyMMddHHmmss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var curMsgEventDt))
+            {
+                context.Logger.LogLine($"WARN: EventDate of last message is null or empty or not valid. EventDate {newEventDt}. After parse {newMsgEventDt.ToString()}");
+            }
+            return newMsgEventDt > curMsgEventDt;
         }
     }
 }

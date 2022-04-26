@@ -76,9 +76,9 @@ namespace Infrastructure.Persistence
             if (!options.IsConfigured)
             {
                 options
-                    .UseLoggerFactory(_loggerFactory)
-                    .UseSqlServer(_connectionString)
-                    .EnableSensitiveDataLogging();
+                    //.UseLoggerFactory(_loggerFactory)
+                    .UseSqlServer(_connectionString);
+                    //.EnableSensitiveDataLogging();
             }
         }
 

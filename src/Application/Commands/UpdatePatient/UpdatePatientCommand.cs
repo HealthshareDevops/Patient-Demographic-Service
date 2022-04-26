@@ -37,6 +37,7 @@ namespace Application.Commands.UpdatePatient
         public List<UpdateAddressCommand> Addresses { get; set; } = new List<UpdateAddressCommand>();
         public List<UpdateContactCommand> Contacts { get; set; } = new List<UpdateContactCommand>();
         public string CreatedBy { get; set; }
+        public string EventDate { get; set; }
     }
 
     public class UpdatePatientCommandHandler : IRequestHandler<UpdatePatientCommand, long>
@@ -191,7 +192,7 @@ namespace Application.Commands.UpdatePatient
             // End Contacts ...
 
 
-            patnt.UpdatePatientInfo(birthDate.Value, birthDateSource, gender, humanNames, addresses, ethnicities, contacts, request.CreatedBy);
+            patnt.UpdatePatientInfo(birthDate.Value, birthDateSource, gender, humanNames, addresses, ethnicities, contacts, request.CreatedBy, request.EventDate);
             
             LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object DB Saving.");
             
