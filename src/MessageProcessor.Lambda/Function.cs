@@ -131,6 +131,8 @@ namespace MessageProcessor.Lambda
                     return -1;
                 }
                 var updatePatientCommand = JsonSerializer.Deserialize<UpdatePatientCommand>(message.Body);
+                updatePatientCommand.Id = majorPatnt.Id;
+
                 return await _mediator.Send(updatePatientCommand);
             }
         }

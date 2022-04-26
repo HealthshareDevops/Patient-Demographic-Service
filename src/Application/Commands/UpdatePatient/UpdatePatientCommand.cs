@@ -53,6 +53,7 @@ namespace Application.Commands.UpdatePatient
         public async Task<long> Handle(UpdatePatientCommand request, CancellationToken cancellationToken)
         {
             LambdaLogger.Log($"INFO: UpdatePatientCommandHandler.Handle(): Start...");
+            LambdaLogger.Log($"INFO: UpdatePatientCommandHandler: Updating Id {request.Id}");
 
             // Some validations
             request.Addresses = request.Addresses ?? new List<UpdateAddressCommand>();
@@ -279,8 +280,8 @@ namespace Application.Commands.UpdatePatient
 
             if (string.IsNullOrEmpty(contactCommand.Detail))
             {
-                LambdaLogger.Log($"ERROR: Detail is not valid.");
-                throw new ValidationException("Detail is not valid.");
+                LambdaLogger.Log($"WARN: ToContact: Detail is not valid.");
+                return null;
             }
 
             //5.5 is mandatory
