@@ -35,6 +35,7 @@ namespace Application.Commands.CreatePatient
         public List<CreateAddressCommand> Addresses { get; set; } = new List<CreateAddressCommand>();
         public List<CreateContactCommand> Contacts { get; set; } = new List<CreateContactCommand>();
         public string CreatedBy { get; set; }
+        public string EventDate { get; set; }
     }
 
     public class CreatePatientCommandHandler : IRequestHandler<CreatePatientCommand, long>
@@ -123,7 +124,7 @@ namespace Application.Commands.CreatePatient
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: EffectiveTo date created.");
                 // 
 
-                var patnt = new Patient(identity, birthDate.Value, birthDateSource, gender, request.CreatedBy);
+                var patnt = new Patient(identity, birthDate.Value, birthDateSource, gender, request.CreatedBy, request.EventDate);
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object created.");
 
                 patnt.AddName(title, name.Value, suffix, request.IsPreferred, request.IsProtected, namesource, effectiveFrom.Value, effectiveTo.Value);
@@ -269,7 +270,7 @@ namespace Application.Commands.CreatePatient
 
             if (string.IsNullOrEmpty(contactCommand.Detail))
             {
-                LambdaLogger.Log($"WARN: ToContact: Detail is not valid.");
+                LambdaLogger.Log($"WARN: ToContact: Detail should be valid.");
                 return null;
             }
 
