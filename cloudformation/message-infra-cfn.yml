@@ -50,7 +50,7 @@ Resources:
             Statement:
               - Action: sqs:SendMessage
                 Effect: Allow
-                Resource: !GetAtt MessageQueue.Arn
+                Resource: !GetAtt MessageQueueFifo.Arn
               - Action:
                   - kms:DescribeKey
                   - kms:GenerateDataKey
@@ -90,7 +90,7 @@ Resources:
             - :sqs:path/
             - !Ref 'AWS::AccountId'
             - /
-            - !GetAtt MessageQueue.QueueName
+            - !GetAtt MessageQueueFifo.QueueName
       MethodResponses:
         - ResponseModels:
             application/json: Empty
@@ -113,10 +113,12 @@ Resources:
       RestApiId: !Ref MessageApiGateway
       StageName: sandbox
   
-  MessageQueue:
+  MessageQueueFifo:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: PatientDemographic-MessageQueue
+      QueueName: PatientDemographic-MessageFifoQueue.fifo
+      FifoQueue: true
+      ContentBasedDeduplication: true
       VisibilityTimeout: 180
       RedrivePolicy:
         deadLetterTargetArn: !GetAtt DeadLetterMessageQueue.Arn
@@ -199,7 +201,7 @@ Resources:
     Properties:
       BatchSize: 10
       Enabled: true
-      EventSourceArn: !GetAtt MessageQueue.Arn
+      EventSourceArn: !GetAtt MessageQueueFifo.Arn
       FunctionName: !GetAtt MessageLambda.Arn
 
   NewMessageEventQueue:
