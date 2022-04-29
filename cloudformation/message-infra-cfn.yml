@@ -121,14 +121,16 @@ Resources:
       ContentBasedDeduplication: true
       VisibilityTimeout: 180
       RedrivePolicy:
-        deadLetterTargetArn: !GetAtt DeadLetterMessageQueue.Arn
+        deadLetterTargetArn: !GetAtt DeadLetterMessageFifoQueue.Arn
         maxReceiveCount: 1
       KmsMasterKeyId: !Ref ParamStoreKMSMasterKeyIdARN
   
-  DeadLetterMessageQueue:
+  DeadLetterMessageFifoQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: PatientDemographic-DeadLetterMessageQueue
+      QueueName: PatientDemographic-DeadLetterMessageFifoQueue.fifo
+      FifoQueue: true
+      ContentBasedDeduplication: true
       KmsMasterKeyId: !Ref ParamStoreKMSMasterKeyIdARN
   
   MessageLambdaRole:
