@@ -50,7 +50,7 @@ Resources:
             Statement:
               - Action: sqs:SendMessage
                 Effect: Allow
-                Resource: !GetAtt MessageQueue.Arn
+                Resource: !GetAtt MessageQueueFifo.Arn
               - Action:
                   - kms:DescribeKey
                   - kms:GenerateDataKey
@@ -81,7 +81,7 @@ Resources:
         RequestParameters:
           integration.request.header.Content-Type: '''application/x-www-form-urlencoded'''
         RequestTemplates:
-          application/json: Action=SendMessage&MessageBody=$input.body
+          application/json: Action=SendMessage&MessageBody=$input.body&MessageGroupId=100
         Type: AWS
         Uri: !Join
           - ''
@@ -90,7 +90,7 @@ Resources:
             - :sqs:path/
             - !Ref 'AWS::AccountId'
             - /
-            - !GetAtt MessageQueue.QueueName
+            - !GetAtt MessageQueueFifo.QueueName
       MethodResponses:
         - ResponseModels:
             application/json: Empty
@@ -113,20 +113,24 @@ Resources:
       RestApiId: !Ref MessageApiGateway
       StageName: sandbox
   
-  MessageQueue:
+  MessageQueueFifo:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: PatientDemographic-MessageQueue
+      QueueName: PatientDemographic-MessageFifoQueue.fifo
+      FifoQueue: true
+      ContentBasedDeduplication: true
       VisibilityTimeout: 180
       RedrivePolicy:
-        deadLetterTargetArn: !GetAtt DeadLetterMessageQueue.Arn
+        deadLetterTargetArn: !GetAtt DeadLetterMessageFifoQueue.Arn
         maxReceiveCount: 1
       KmsMasterKeyId: !Ref ParamStoreKMSMasterKeyIdARN
   
-  DeadLetterMessageQueue:
+  DeadLetterMessageFifoQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: PatientDemographic-DeadLetterMessageQueue
+      QueueName: PatientDemographic-DeadLetterMessageFifoQueue.fifo
+      FifoQueue: true
+      ContentBasedDeduplication: true
       KmsMasterKeyId: !Ref ParamStoreKMSMasterKeyIdARN
   
   MessageLambdaRole:
@@ -199,7 +203,7 @@ Resources:
     Properties:
       BatchSize: 10
       Enabled: true
-      EventSourceArn: !GetAtt MessageQueue.Arn
+      EventSourceArn: !GetAtt MessageQueueFifo.Arn
       FunctionName: !GetAtt MessageLambda.Arn
 
   NewMessageEventQueue:
