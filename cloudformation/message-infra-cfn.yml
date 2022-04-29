@@ -81,7 +81,7 @@ Resources:
         RequestParameters:
           integration.request.header.Content-Type: '''application/x-www-form-urlencoded'''
         RequestTemplates:
-          application/json: Action=SendMessage&MessageBody=$input.body
+          application/json: Action=SendMessage&MessageBody=$input.body&MessageGroupId=100
         Type: AWS
         Uri: !Join
           - ''
