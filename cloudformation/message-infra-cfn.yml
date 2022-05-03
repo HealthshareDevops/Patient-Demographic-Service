@@ -112,7 +112,11 @@ Resources:
     Properties: 
       RestApiId: !Ref MessageApiGateway
       StageName: sandbox
-  
+      StageDescription:
+        DataTraceEnabled: true
+        LoggingLevel: INFO
+        MetricsEnabled: true
+        
   MessageQueueFifo:
     Type: AWS::SQS::Queue
     Properties:
