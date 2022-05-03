@@ -67,6 +67,29 @@ Resources:
           PolicyName: PatientDemographic-ApiG-SQS-SendMessage-Policy
       RoleName: PatientDemographic-ApiG-SQS-SendMessage-Role
   
+  MessageApiGatewayCloudWatchRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+    AssumeRolePolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+              - apigateway.amazonaws.com
+          Action: 
+            - sts:AssumeRole
+    Path: /
+    ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs
+
+  Account:
+    Type: 'AWS::ApiGateway::Account'
+    DependsOn:
+      - MessageApiGateway
+    Properties:
+      CloudWatchRoleArn: !GetAtt 'MessageApiGatewayCloudWatchRole.Arn'
+
   MessageApiGatewayMethod:
     Type: AWS::ApiGateway::Method
     Properties:
