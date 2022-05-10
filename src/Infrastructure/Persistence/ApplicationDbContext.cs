@@ -41,6 +41,8 @@ namespace Infrastructure.Persistence
         public DbSet<ContactUsage> ContactUsages { get; set; }
         public DbSet<ContactType> ContactTypes { get; set; }
 
+        public DbSet<Identifier> Identifiers { get; set; }
+
 
         public ApplicationDbContext(string connectionString)
         {
@@ -74,9 +76,9 @@ namespace Infrastructure.Persistence
             if (!options.IsConfigured)
             {
                 options
-                    .UseLoggerFactory(_loggerFactory)
-                    .UseSqlServer(_connectionString)
-                    .EnableSensitiveDataLogging();
+                    //.UseLoggerFactory(_loggerFactory)
+                    .UseSqlServer(_connectionString);
+                    //.EnableSensitiveDataLogging();
             }
         }
 
@@ -99,6 +101,7 @@ namespace Infrastructure.Persistence
             modelBuilder.ApplyConfiguration(new ContactConfiguration());
             modelBuilder.ApplyConfiguration(new ContactTypeConfiguration());
             modelBuilder.ApplyConfiguration(new ContactUsageConfiguration());
+            modelBuilder.ApplyConfiguration(new IdentifierConfiguration());
         }
     }
 }

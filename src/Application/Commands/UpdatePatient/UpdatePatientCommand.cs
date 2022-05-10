@@ -18,6 +18,7 @@ namespace Application.Commands.UpdatePatient
 {
     public class UpdatePatientCommand : IRequest<long>
     {
+        public long Id { get; set; }
         public string Nhi { get; set; }
         public string Title { get; set; }
         public string GivenName { get; set; }
@@ -35,6 +36,8 @@ namespace Application.Commands.UpdatePatient
         public List<UpdateEthnicityCommand> Ethnicities { get; set; } = new List<UpdateEthnicityCommand>();
         public List<UpdateAddressCommand> Addresses { get; set; } = new List<UpdateAddressCommand>();
         public List<UpdateContactCommand> Contacts { get; set; } = new List<UpdateContactCommand>();
+        public string CreatedBy { get; set; }
+        public string EventDate { get; set; }
     }
 
     public class UpdatePatientCommandHandler : IRequestHandler<UpdatePatientCommand, long>
@@ -51,6 +54,12 @@ namespace Application.Commands.UpdatePatient
         public async Task<long> Handle(UpdatePatientCommand request, CancellationToken cancellationToken)
         {
             LambdaLogger.Log($"INFO: UpdatePatientCommandHandler.Handle(): Start...");
+            LambdaLogger.Log($"INFO: UpdatePatientCommandHandler: Updating Id {request.Id}");
+
+            // Some validations
+            request.Addresses = request.Addresses ?? new List<UpdateAddressCommand>();
+            request.Ethnicities = request.Ethnicities ?? new List<UpdateEthnicityCommand>();
+            request.Contacts = request.Contacts ?? new List<UpdateContactCommand>();
 
             var patnt = await _dbContext.Patients
                     .Include(x => x.HumanNames)
@@ -69,7 +78,11 @@ namespace Application.Commands.UpdatePatient
                         .ThenInclude(a => a.AddressType)
                     .Include(x => x.PatientEthnicities)
                         .ThenInclude(e => e.Ethnicity)
-                    .FirstOrDefaultAsync(x => x.Nhi == request.Nhi);
+                    .Include(x => x.Contacts)
+                        .ThenInclude(c => c.ContactUsage)
+                    .Include(x => x.Contacts)
+                        .ThenInclude(c => c.ContactType)
+                    .FirstOrDefaultAsync(x => x.Id == request.Id);
 
             if (patnt is null)
             {
@@ -113,7 +126,7 @@ namespace Application.Commands.UpdatePatient
                 throw new ValidationException(effectiveTo.Error);
             }
             
-            humanNames.Add(new HumanName(patnt, title, name.Value, suffix, request.IsPreferred, request.IsProtected, namesource, effectiveFrom.Value, effectiveTo.Value));
+            humanNames.Add(new HumanName(title, name.Value, suffix, request.IsPreferred, request.IsProtected, namesource, effectiveFrom.Value, effectiveTo.Value));
 
             LambdaLogger.Log($"INFO: UpdatePatientCommandHandler.Handle(): HumanNames created.");
             // End  creating HumanNames
@@ -159,28 +172,40 @@ namespace Application.Commands.UpdatePatient
                 var ethnicity = Ethnicity.FromCode(ethnicityCommand.Code);
                 if (ethnicity is null)
                 {
-                    LambdaLogger.Log($"INFO: Ethnicity ${ethnicityCommand.Code} is not valid.");
+                    LambdaLogger.Log($"WARN: Ethnicity ${ethnicityCommand.Code} is not valid.");
                     continue;
                 }
                 ethnicities.Add(ethnicity);
             }
-            patnt.UpdatePatientInfo(birthDate.Value, birthDateSource, gender, humanNames, addresses, ethnicities);
 
+            // Start Contacts ...
+            var contacts = new List<Contact>();
+            foreach(var contactCommand in request.Contacts)
+            {
+                var contact = ToContact(contactCommand);
+                if(contact is null)
+                {
+                    continue;
+                }
+                contacts.Add(contact);
+            }
+            // End Contacts ...
+
+
+            patnt.UpdatePatientInfo(birthDate.Value, birthDateSource, gender, humanNames, addresses, ethnicities, contacts, request.CreatedBy, request.EventDate);
+            
             LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object DB Saving.");
-
-
-
+            
             //LambdaLogger.Log($"State: {_dbContext.Entry(existingPatnt).State}");
             //LambdaLogger.Log($"State: {_dbContext.Entry(existingPatnt.HumanNames[0].Suffix).State}");
             //LambdaLogger.Log($"State: {_dbContext.Entry(existingPatnt).Collection(s=>s.Addresses).State}");
             //_dbContext.Patients.Attach(existingPatnt);
 
-
             await _dbContext.SaveChangesAsync(cancellationToken);
             LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object DB Saved. Patient Id: {patnt.Id}");
 
             // Patient is updated. Notify all the concerned services.
-            await _newPatientNotificationService.PublishAsync(BuildEventMessage(patnt.Nhi));
+            await _newPatientNotificationService.PublishAsync(BuildEventMessage(request.Nhi));
             LambdaLogger.Log($"INFO: Services notified");
 
             return patnt.Id;
@@ -240,13 +265,67 @@ namespace Application.Commands.UpdatePatient
             return address;
         }
 
+        private Contact ToContact(UpdateContactCommand contactCommand)
+        {
+            var contactUsage = _dbContext.ContactUsages.FirstOrDefault(x => x.Code == contactCommand.ContactUsage);
+            if (contactUsage is null)
+            {
+                LambdaLogger.Log($"WARN: ContactUsage is not valid (null).");
+            }
+
+            var contactType = _dbContext.ContactTypes.FirstOrDefault(x => x.Code == contactCommand.ContactType);
+            if (contactType is null)
+            {
+                LambdaLogger.Log($"WARN: ContactType is not valid (null).");
+            }
+
+            if (string.IsNullOrEmpty(contactCommand.Detail))
+            {
+                LambdaLogger.Log($"WARN: ToContact: Detail is not valid.");
+                return null;
+            }
+
+            //5.5 is mandatory
+            if (string.IsNullOrEmpty(contactCommand.EffectiveFrom))
+            {
+                LambdaLogger.Log($"WARN: EffectiveFrom is not valid (empty or null).");
+            }
+
+            Result<Date> contactEffectiveFrom = Date.Create(contactCommand.EffectiveFrom);
+            if (contactEffectiveFrom.IsFailure)
+            {
+                LambdaLogger.Log($"ERROR: ToContact: EffectiveFrom date failure.");
+                throw new ValidationException(contactEffectiveFrom.Error);
+            }
+
+            // 5.6 Optional
+            Result<Date> contactEffectiveTo = Date.Create(contactCommand.EffectiveTo);
+            if (contactEffectiveTo.IsFailure)
+            {
+                LambdaLogger.Log($"ERROR: ToContract: EffectiveTo date failure.");
+                throw new ValidationException(contactEffectiveTo.Error);
+            }
+
+
+            Contact contact = new Contact(
+                contactUsage,
+                contactType,
+                contactCommand.Detail,
+                contactCommand.IsProtected,
+                contactEffectiveFrom.Value,
+                contactEffectiveTo.Value,
+                contactCommand.IsPreferred
+                );
+            return contact;
+        }
+
         private string BuildEventMessage(string nhi)
         {
             var msg = new
             {
                 EventId = Guid.NewGuid(),
                 EventDate = DateTime.UtcNow,
-                EventType = "UpdatePatient",
+                EventType = "PatientDetailsUpdated",
                 NHI = nhi
             };
             return JsonSerializer.Serialize(msg);

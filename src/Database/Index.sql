@@ -24,6 +24,3 @@ GO
 
 CREATE INDEX [IX_Patients_GenderId] ON [Patients] ([GenderId]);
 GO
-
-CREATE UNIQUE INDEX [IX_Patients_Nhi] ON [Patients] ([Nhi]);
-GO

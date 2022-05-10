@@ -1,4 +1,5 @@
 ﻿using Application.Commands.CreatePatient;
+using Application.Commands.MergePatientIdentifier;
 using Infrastructure;
 using MediatR;
 using Microsoft.Extensions.Configuration;
@@ -19,7 +20,6 @@ namespace MessageProcessor.ConsoleApp
             // ToDo: Register services with DI system
             serviceCollection.AddMediatR(typeof(CreatePatientCommand).GetTypeInfo().Assembly);
             serviceCollection.AddInfrastructure(configuration);
-
             return serviceCollection.BuildServiceProvider();
         }
     }

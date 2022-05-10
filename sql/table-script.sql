@@ -213,6 +213,17 @@ CREATE TABLE [Contacts]
 );
 GO
 
+CREATE TABLE [Identifiers]
+(
+	[Id] BIGINT  NOT NULL IDENTITY, 
+    [Nhi] NVARCHAR(7) NOT NULL, 
+    [IsMajor] BIT NOT NULL DEFAULT 0, 
+    [PatientId] BIGINT NOT NULL,
+    CONSTRAINT [PK_Identifiers] PRIMARY KEY ([Id]),
+    CONSTRAINT [FK_Identifiers_Patients_PatientId] FOREIGN KEY([PatientId]) REFERENCES [Patients]([Id]) ON DELETE CASCADE
+);
+GO
+
 /**
   *  Indices
 **/
@@ -248,3 +259,25 @@ GO
 
 COMMIT;
 GO
+
+/**
+*	Drop Index
+*/
+DROP INDEX IF EXISTS IX_Patients_Nhi ON [dbo].[Patients]
+GO
+
+/**
+  * Drop Column
+  */
+ALTER TABLE [dbo].[Patients] 
+DROP COLUMN IF EXISTS [Nhi]
+GO
+
+/**
+  * Add column "EventDate" in the "Patients" table 
+  */
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'Patients' AND COLUMN_NAME = 'EventDate')
+BEGIN
+  ALTER TABLE Patients
+  ADD EventDate NVARCHAR(14) NULL
+END;
