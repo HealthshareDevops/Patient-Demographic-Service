@@ -17,11 +17,15 @@ namespace MissingData.ConsoleApp
                 .AddJsonFile("appsettings.json")
                 //.AddSystemsManager("/PatientDemographicService/sandbox")
                 .Build();
-            var qUrl = "https://sqs.ap-southeast-2.amazonaws.com/428762063575/PatientDemographic-MissingDataQueue";
+            
+            var qUrl = "";
+            var profileName = "";
+
             CredentialProfile basicProfile;
             AWSCredentials awsCredentials;
             var sharedFile = new SharedCredentialsFile();
-            if (sharedFile.TryGetProfile("428762063575_AWSAdministratorAccess", out basicProfile) 
+            
+            if (sharedFile.TryGetProfile(profileName, out basicProfile) 
                 && AWSCredentialsFactory.TryGetAWSCredentials(basicProfile, sharedFile, out awsCredentials))
             {
                 // use awsCredentials to create an Amazon S3 service client
