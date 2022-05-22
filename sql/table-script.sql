@@ -281,3 +281,33 @@ BEGIN
   ALTER TABLE Patients
   ADD EventDate NVARCHAR(14) NULL
 END;
+
+
+-- Adding Indexes
+-- ***************
+
+/**
+ *  Index Addresses
+ */
+CREATE INDEX [IX_Addresses_CountryId] ON [Addresses] ([CountryId])
+CREATE INDEX [IX_Addresses_DomicileId] ON [Addresses] ([DomicileId])
+
+/**
+ *  Index Contacts
+ */
+CREATE INDEX [IX_Contacts_ContactUsageId] ON [Contacts] ([ContactUsageId])
+CREATE INDEX [IX_Contacts_ContactTypeId] ON [Contacts] ([ContactTypeId])
+CREATE INDEX [IX_Contacts_PatientId] ON [Contacts] ([PatientId])
+
+/**
+ *  Index PatientEthnicities
+ */
+CREATE INDEX [IX_PatientEthnicities_PatientId] ON [PatientEthnicities] ([PatientId])
+CREATE INDEX [IX_PatientEthnicities_EthnicityId] ON [PatientEthnicities] ([EthnicityId])
+
+/**
+ *  Index Identifiers
+ */
+CREATE INDEX [IX_Identifiers_PatientId] ON [Identifiers] ([PatientId]);
+CREATE INDEX [IX_Identifiers_Nhi_IsMajor] ON [Identifiers] ([Nhi], [IsMajor])
+CREATE INDEX [IX_Identifiers_Nhi] ON [Identifiers] ([Nhi])
