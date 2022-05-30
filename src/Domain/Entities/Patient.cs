@@ -10,13 +10,8 @@ namespace Domain.Entities
 {
     public class Patient : Entity, IAuditableEntity
     {
-        // 2.1 NHI number
-        public Nhi Nhi { get; private set; }
-
-        //// Do we need list of Identifier (Part of Nhi) - ToDo
-        ////public Identifier Identifier { get; private set; }
-        //private readonly List<Identifier> _identifiers = new List<Identifier>();
-        //public virtual IReadOnlyList<Identifier> Identifiers => _identifiers.ToList();
+        private readonly List<Identifier> _identifiers = new List<Identifier>();
+        public virtual IReadOnlyList<Identifier> Identifiers => _identifiers.ToList();
 
         // 2.2 Patient name
         private readonly List<HumanName> _humanNames = new List<HumanName>();
@@ -41,6 +36,14 @@ namespace Domain.Entities
         private readonly List<Contact> _contacts = new List<Contact>();
         public virtual IReadOnlyList<Contact> Contacts => _contacts.ToList();
 
+        // 6 Created by
+        public string CreatedBy { get; private set; }
+
+        // 7 Last modified by
+        public string LastModifiedBy { get; private set; }
+
+        public string EventDate { get; private set; }
+
         public int Age
         {
             get
@@ -54,15 +57,32 @@ namespace Domain.Entities
 
         protected Patient() { }
 
-        public Patient(Nhi nhi, BirthDate birthDate, BirthDateSource birthDateSource, Gender gender)
+        public Patient(Identifier identifier, BirthDate birthDate, BirthDateSource birthDateSource, Gender gender, string createdBy, string eventDate)
         {
-            Nhi = nhi ?? throw new ArgumentNullException(nameof(nhi));
-            
-            //AddName(humanName);
+            _ = identifier ?? throw new ArgumentNullException(nameof(identifier));
+            identifier.MakeMajor(true);
+
+            AddIdentity(identifier);
 
             Gender = gender ?? throw new ArgumentNullException(nameof(gender));
 
+            CreatedBy = createdBy;
+            EventDate = eventDate;
+
             SetBirthDateAndPlaceInfo(birthDate, birthDateSource); 
+        }
+
+        // Merge Patient Identity - use case changes
+        public void AddIdentity(Identifier identity)
+        {
+            if (identity.IsMajor)
+            {
+                foreach (var idtfr in _identifiers)
+                {
+                    idtfr.MakeMajor(false);
+                }
+            }
+            _identifiers.Add(identity);
         }
 
         public void AddName(Title title,
@@ -74,10 +94,10 @@ namespace Domain.Entities
             Date effectiveFrom,
             Date effectiveTo)
         {
-            var humanName = new HumanName(this, title, name, suffix, isPreferred, isProtected, nameSource, effectiveFrom, effectiveTo);
+            var humanName = new HumanName(title, name, suffix, isPreferred, isProtected, nameSource, effectiveFrom, effectiveTo);
             _humanNames.Add(humanName);
         }
-
+        
         public void AddEthnicity(Ethnicity ethnicity)
         {
             _patientEthnicities.Add(new PatientEthnicity(this, ethnicity));
@@ -106,10 +126,12 @@ namespace Domain.Entities
             BirthDateSource = birthDateSource ?? throw new ArgumentNullException(nameof(birthDateSource));
         }
 
-        public void UpdatePatientInfo(BirthDate birthDate, BirthDateSource birthDateSource, Gender gender, List<HumanName> humanNames, List<Address> addresses, List<Ethnicity> ethnicities)
+        public void UpdatePatientInfo(BirthDate birthDate, BirthDateSource birthDateSource, Gender gender, List<HumanName> humanNames, List<Address> addresses, List<Ethnicity> ethnicities, List<Contact> contacts, string createdBy, string eventDate)
         {
-            UpdateHumanNameInfoList(humanNames);
-            DeleteHumanNameInfoList(humanNames);
+            UpdateHumanNameList(humanNames);
+
+            LastModifiedBy = createdBy;
+            EventDate = eventDate;
 
             ArgumentNullException.ThrowIfNull(gender);
             if (!gender.Equals(Gender))
@@ -119,90 +141,51 @@ namespace Domain.Entities
 
             SetBirthDateAndPlaceInfo(birthDate, birthDateSource);
 
-            UpdateAddressInfoList(addresses);
-            DeleteAddressInfoList(addresses);
+            UpdateAddressList(addresses);
 
-            UpdateEthnicityInfoList(ethnicities);
+            UpdateEthnicityList(ethnicities);
+
+            UpdateContactList(contacts);
         }
 
-        private void UpdateHumanNameInfoList(List<HumanName> namesToAdd)
+        private void UpdateHumanNameList(List<HumanName> namesToKeep)
         {
-            foreach(var name in namesToAdd)
+            foreach(var name in namesToKeep)
             {
-                var found = _humanNames.Find(n =>
-                {
-                    return n.Title == name.Title
-                                && n.Name.Equals(name.Name)
-                                && n.Suffix == name.Suffix
-                                && n.IsPreferred == n.IsPreferred
-                                && n.IsProtected == n.IsProtected
-                                && n.NameSource == name.NameSource
-                                && n.EffectiveFrom.Equals(name.EffectiveFrom)
-                                && n.EffectiveTo.Equals(name.EffectiveTo);
-                });
+                var found = _humanNames.Find(n => name.IsEqual(n));
 
                 if (found is null)
                 {
                     _humanNames.Add(name);
                 }
             }
+
+            _humanNames.RemoveAll(n1 => !namesToKeep.Exists(n2 => n1.IsEqual(n2)));
         }
 
-        private void DeleteHumanNameInfoList(List<HumanName> namesToKeep)
+        private void UpdateAddressList(List<Address> addressesToKeep)
         {
-            _humanNames.RemoveAll(n => !namesToKeep.Exists(k => n.Title == k.Title 
-                                                                                                        && n.Name.Equals(k.Name) 
-                                                                                                        && n.Suffix == k.Suffix 
-                                                                                                        && n.IsPreferred == n.IsPreferred
-                                                                                                        && n.IsProtected == n.IsProtected
-                                                                                                        && n.NameSource == k.NameSource
-                                                                                                        && n.EffectiveFrom.Equals(k.EffectiveFrom)
-                                                                                                        && n.EffectiveTo.Equals(k.EffectiveTo)));
-        }
-
-        private void UpdateAddressInfoList(List<Address> addressesToAdd)
-        {
-            foreach (var addr in addressesToAdd)
+            foreach (var addr in addressesToKeep)
             {
-                var found = _addresses.FirstOrDefault(a => IsTwoAddressesEqual(a, addr));
+                var found = _addresses.FirstOrDefault(a => addr.IsEqual(a));
 
                 if (found is null)
                 {
                     _addresses.Add(addr);
                 }
             }
+
+            _addresses.RemoveAll(a1 => !addressesToKeep.Exists(a2 => a1.IsEqual(a2)));
         }
 
-        private void DeleteAddressInfoList(List<Address> addressesToKeep)
+        private void UpdateEthnicityList(List<Ethnicity> ethnicitiesToKeep)
         {
-            _addresses.RemoveAll(a => !addressesToKeep.Exists(addr => IsTwoAddressesEqual(a, addr)));
-        }
-
-        private bool IsTwoAddressesEqual(Address addr1, Address addr2)
-        {
-            return addr1.AddressFormat == addr2.AddressFormat
-                                && addr1.BuildingName == addr2.BuildingName
-                                && addr1.StreetAddress == addr2.StreetAddress
-                                && addr1.AdditionalStreetAddress == addr2.AdditionalStreetAddress
-                                && addr1.Suburb == addr2.Suburb
-                                && addr1.TownOrCity == addr2.TownOrCity
-                                && addr1.PostCode == addr2.PostCode
-                                && addr1.Country == addr2.Country
-                                && addr1.IsProtected == addr2.IsProtected
-                                && addr1.IsPermanent == addr2.IsPermanent
-                                && addr1.EffectiveFrom.Equals(addr2.EffectiveFrom)
-                                && addr1.EffectiveTo.Equals(addr2.EffectiveTo)
-                                && addr1.Domicile == addr2.Domicile
-                                && addr1.AddressType == addr2.AddressType;
-        }
-
-        private void UpdateEthnicityInfoList(List<Ethnicity> ethnicityToAdd)
-        {
-            // Add ethnicity for current list to the PatientEthnicities list if it does not exist in PatientEthnicities list
-            foreach (var eth in ethnicityToAdd)
+            // Check incoming ethnicity the PatientEthnicities list, if it does not exist in PatientEthnicities list.
+            foreach (var eth in ethnicitiesToKeep)
             {
                 var found = _patientEthnicities.FirstOrDefault(e => e.Ethnicity.Id == eth.Id);
 
+                // New ethnicity, add it to the Patient list.
                 if (found is null)
                 {
                     _patientEthnicities.Add(new PatientEthnicity(this, eth));
@@ -210,7 +193,22 @@ namespace Domain.Entities
             }
 
             // Remove ethnicity from PatientEthnicities list if it does not exist in current list
-            _patientEthnicities.RemoveAll(e => !ethnicityToAdd.Exists(eth => e.Ethnicity.Id == eth.Id));
+            _patientEthnicities.RemoveAll(e => !ethnicitiesToKeep.Exists(eth => e.Ethnicity.Id == eth.Id));
+        }
+
+        private void UpdateContactList(List<Contact> contactsToKeep)
+        {
+            foreach(var contact in contactsToKeep)
+            {
+                var found = _contacts.FirstOrDefault(c => contact.IsEqual(c));
+                if(found is null)
+                {
+                    _contacts.Add(contact);
+                }
+            }
+
+            // Remove contacts from the Patient contacts list, which do not exists in the incoming list.
+            _contacts.RemoveAll(c1 => !contactsToKeep.Exists(c2 => c1.IsEqual(c2)));
         }
     }
 }

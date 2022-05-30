@@ -67,5 +67,23 @@ namespace Domain.Entities
         {
             IsPrimary = val;
         }
+
+        public bool IsEqual(Address address)
+        {
+            return AddressFormat == address.AddressFormat
+                && BuildingName == address.BuildingName
+                && StreetAddress == address.StreetAddress
+                && AdditionalStreetAddress == address.AdditionalStreetAddress
+                && Suburb == address.Suburb
+                && TownOrCity == address.TownOrCity
+                && PostCode == address.PostCode
+                && Country == address.Country
+                && IsProtected == address.IsProtected
+                && IsPermanent == address.IsPermanent
+                && EffectiveFrom.Equals(address.EffectiveFrom)
+                && EffectiveTo.Equals(address.EffectiveTo)
+                && Domicile == address.Domicile
+                && AddressType == address.AddressType;
+        }
     }
 }

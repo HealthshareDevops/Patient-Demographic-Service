@@ -34,6 +34,8 @@ namespace Application.Commands.CreatePatient
         public List<CreateEthnicityCommand> Ethnicities { get; set; } = new List<CreateEthnicityCommand>();
         public List<CreateAddressCommand> Addresses { get; set; } = new List<CreateAddressCommand>();
         public List<CreateContactCommand> Contacts { get; set; } = new List<CreateContactCommand>();
+        public string CreatedBy { get; set; }
+        public string EventDate { get; set; }
     }
 
     public class CreatePatientCommandHandler : IRequestHandler<CreatePatientCommand, long>
@@ -67,6 +69,29 @@ namespace Application.Commands.CreatePatient
                     throw new ValidationException(nhi.Error);
                 }
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Nhi: {nhi.Value} created.");
+
+                // Create the identity
+                // This is the first time we have seen this patient in the Midland region therefore business logic determines the NHI as the major
+                var identity = new Identifier(nhi.Value, true);
+                LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Identity created.");
+
+                Result<BirthDate> birthDate = BirthDate.Create(request.BirthDate);
+                if (birthDate.IsFailure)
+                {
+                    throw new ValidationException(birthDate.Error);
+                }
+                var birthDateSource = BirthDateSource.FromCode(request.BirthDateSource);
+                if (birthDateSource is null)
+                {
+                    throw new ValidationException("BirthDateSource is not valid.");
+                }
+
+                var gender = Gender.FromCode(request.Gender);
+                if (gender is null)
+                {
+                    throw new ValidationException("Gender is not valid.");
+                }
+                
                 // Create HumanName
                 var title = Title.FromCode(request.Title);
                 var suffix = Suffix.FromCode(request.Suffix);
@@ -97,32 +122,13 @@ namespace Application.Commands.CreatePatient
                     throw new ValidationException(effectiveTo.Error);
                 }
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: EffectiveTo date created.");
+                // 
 
-                //var humanName = new HumanName(title, name.Value, suffix, request.IsPreferred, request.IsProtected, namesource, effectiveFrom.Value, effectiveTo.Value);
-                //LambdaLogger.Log($"INFO: CreatePatientCommandHandler: HumanName object created.");
-
-                Result<BirthDate> birthDate = BirthDate.Create(request.BirthDate);
-                if (birthDate.IsFailure)
-                {
-                    throw new ValidationException(birthDate.Error);
-                }
-                var birthDateSource = BirthDateSource.FromCode(request.BirthDateSource);
-                if (birthDateSource is null)
-                {
-                    throw new ValidationException("BirthDateSource is not valid.");
-                }
-
-                var gender = Gender.FromCode(request.Gender);
-                if (gender is null)
-                {
-                    throw new ValidationException("Gender is not valid.");
-                }
-
-
-                var patnt = new Patient(nhi.Value, birthDate.Value, birthDateSource, gender);
+                var patnt = new Patient(identity, birthDate.Value, birthDateSource, gender, request.CreatedBy, request.EventDate);
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object created.");
 
                 patnt.AddName(title, name.Value, suffix, request.IsPreferred, request.IsProtected, namesource, effectiveFrom.Value, effectiveTo.Value);
+                                
 
                 if (request.Ethnicities != null)
                 {
@@ -139,8 +145,8 @@ namespace Application.Commands.CreatePatient
 
                     }
                     LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient ethnicities added.");
-
                 }
+
                 if (request.Addresses != null)
                 {
                     // Add addressess
@@ -161,7 +167,12 @@ namespace Application.Commands.CreatePatient
                     // Add contacts
                     foreach (var contactCommand in request.Contacts)
                     {
-                       patnt.AddContact(ToContact(contactCommand));
+                        var contact = ToContact(contactCommand);
+                        if(contact is null)
+                        {
+                            continue;
+                        }
+                       patnt.AddContact(contact);
                     }
                     LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient contacts added.");
                 }
@@ -173,7 +184,7 @@ namespace Application.Commands.CreatePatient
 
 
                 // New patient is saved. Notify all the concerned services.
-                await _newPatientNotificationService.PublishAsync(BuildEventMessage(patnt.Nhi));
+                await _newPatientNotificationService.PublishAsync(BuildEventMessage(request.Nhi));
                 LambdaLogger.Log($"INFO: Services notified");
 
 
@@ -205,7 +216,7 @@ namespace Application.Commands.CreatePatient
 
             if (string.IsNullOrEmpty(addressCommand.StreetAddress))
             {
-                LambdaLogger.Log($"ERROR: ToAddress: Street Address should be valid.");
+                LambdaLogger.Log($"WARN: ToAddress: Street Address should be valid.");
                 return null;
             }
 
@@ -259,7 +270,8 @@ namespace Application.Commands.CreatePatient
 
             if (string.IsNullOrEmpty(contactCommand.Detail))
             {
-                throw new ValidationException("Detail is not valid.");
+                LambdaLogger.Log($"WARN: ToContact: Detail should be valid.");
+                return null;
             }
 
             //5.5 is mandatory
@@ -302,7 +314,7 @@ namespace Application.Commands.CreatePatient
             {
                 EventId = Guid.NewGuid(),
                 EventDate = DateTime.UtcNow,
-                EventType = "NewPatient",
+                EventType = "NewPatientCreated",
                 NHI = nhi
             };
             return JsonSerializer.Serialize(msg);

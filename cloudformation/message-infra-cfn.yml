@@ -50,7 +50,7 @@ Resources:
             Statement:
               - Action: sqs:SendMessage
                 Effect: Allow
-                Resource: !GetAtt MessageQueue.Arn
+                Resource: !GetAtt MessageQueueFifo.Arn
               - Action:
                   - kms:DescribeKey
                   - kms:GenerateDataKey
@@ -67,6 +67,28 @@ Resources:
           PolicyName: PatientDemographic-ApiG-SQS-SendMessage-Policy
       RoleName: PatientDemographic-ApiG-SQS-SendMessage-Role
   
+  MessageApiGatewayCloudWatchRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - apigateway.amazonaws.com
+            Action: 
+              - sts:AssumeRole
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs
+      RoleName: PatientDemographic-ApiG-CloudWatch-Role
+
+  MessageApiGatewayAccount:
+    Type: AWS::ApiGateway::Account
+    Properties:
+      CloudWatchRoleArn: !GetAtt MessageApiGatewayCloudWatchRole.Arn
+
   MessageApiGatewayMethod:
     Type: AWS::ApiGateway::Method
     Properties:
@@ -81,7 +103,7 @@ Resources:
         RequestParameters:
           integration.request.header.Content-Type: '''application/x-www-form-urlencoded'''
         RequestTemplates:
-          application/json: Action=SendMessage&MessageBody=$input.body
+          application/json: Action=SendMessage&MessageBody=$util.urlEncode($input.body)&MessageGroupId=100
         Type: AWS
         Uri: !Join
           - ''
@@ -90,7 +112,7 @@ Resources:
             - :sqs:path/
             - !Ref 'AWS::AccountId'
             - /
-            - !GetAtt MessageQueue.QueueName
+            - !GetAtt MessageQueueFifo.QueueName
       MethodResponses:
         - ResponseModels:
             application/json: Empty
@@ -112,21 +134,25 @@ Resources:
     Properties: 
       RestApiId: !Ref MessageApiGateway
       StageName: sandbox
-  
-  MessageQueue:
+        
+  MessageQueueFifo:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: PatientDemographic-MessageQueue
+      QueueName: PatientDemographic-MessageFifoQueue.fifo
+      FifoQueue: true
+      ContentBasedDeduplication: true
       VisibilityTimeout: 180
       RedrivePolicy:
-        deadLetterTargetArn: !GetAtt DeadLetterMessageQueue.Arn
+        deadLetterTargetArn: !GetAtt DeadLetterMessageFifoQueue.Arn
         maxReceiveCount: 1
       KmsMasterKeyId: !Ref ParamStoreKMSMasterKeyIdARN
   
-  DeadLetterMessageQueue:
+  DeadLetterMessageFifoQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: PatientDemographic-DeadLetterMessageQueue
+      QueueName: PatientDemographic-DeadLetterMessageFifoQueue.fifo
+      FifoQueue: true
+      ContentBasedDeduplication: true
       KmsMasterKeyId: !Ref ParamStoreKMSMasterKeyIdARN
   
   MessageLambdaRole:
@@ -199,7 +225,7 @@ Resources:
     Properties:
       BatchSize: 10
       Enabled: true
-      EventSourceArn: !GetAtt MessageQueue.Arn
+      EventSourceArn: !GetAtt MessageQueueFifo.Arn
       FunctionName: !GetAtt MessageLambda.Arn
 
   NewMessageEventQueue:

@@ -5,16 +5,17 @@ The Patient Demographic Service is the regional source of truth for Patient Demo
 # How to deploy?
 1. Patient-Demographic-Service repository uses GitHub Actions for CI/CD automation.
 2. CI/CD automation provisions AWS resources by using CloudFormation templates from cloudformation folder as well as deploy code to the AWS lambda.
-2. Create S3 bucket mhip-patient-demographic-service-&lt;environment-name&gt;
-2. Update CloudFormation execution role __AWS_CFN_EXECUTION_ROLE__ in aws-pipeline-&lt;envirionment-name&gt;.yml 
-3. Create/Update GitHub secrets
-    &lt;environment-name&gt;_AWS_ACCESS_KEY
-    &lt;environment-name&gt;_AWS_SECRET_KEY
-    &lt;environment-name&gt;_AWS_SESSION_TOKEN
-4. Create/Update Parameter store
-    /PatientDemographicService/&lt;environment-name&gt;/CloudFormation/Lambda-Security-GroupIds
-    /PatientDemographicService/&lt;environment-name&gt;/CloudFormation/Lambda-SubnetIds
-5. CI/CD pipeline is setup as 
+3. Create S3 bucket _mhip-patient-demographic-service-&lt;environment-name&gt;_. Bucket to upload artifacts.
+4. Create/Update GitHub secrets parameters - Required by CI/CD pipeline
+    1. &lt;environment-name&gt;_AWS_ACCESS_KEY
+    2. &lt;environment-name&gt;_AWS_SECRET_KEY
+    3. &lt;environment-name&gt;_AWS_SESSION_TOKEN
+    4. &lt;environment-name&gt;_AWS_CFN_EXECUTION_ROLE
+5. Create/Update Parameter store
+    1. /PatientDemographicService/&lt;environment&gt;/CloudFormation/KMS-Master-KeyIdARN 
+    2. /PatientDemographicService/&lt;environment-name&gt;/CloudFormation/Lambda-Security-GroupIds
+    3. /PatientDemographicService/&lt;environment-name&gt;/CloudFormation/Lambda-SubnetIds
+6. CI/CD pipeline is setup as 
     When code is pushed to the feature branch, it will deploy to the sandbox environment
     When feature branch is merged with dev branch, it will deploy to the dev environment
     When dev branch is merged with test branch, it will deploy to the test environment
@@ -22,10 +23,35 @@ The Patient Demographic Service is the regional source of truth for Patient Demo
 
 
 ##### Create RDS
-1. Update parameters in rds-cfn.yml
-2. Create CloudFormation stack with rds-cfn.yml file manually.
+1. Update parameters in _rds-cfn.yml_.
+2. Create CloudFormation stack with _rds-cfn.yml_ file manually. This will create  DB Instance in AWS RDS.
+3. Connect to the DB Instance using SSMS 
+4. Create database. For example; PatientDemographicService.App
+5. Run all sql scripts from sql folder sequentially
+    1. table-script.sql
+    2. seed-script.sql
+    3. country-script.sql
+    4. domicile-script.sql
+    4. additional-seed-to-include-dhb-code-script.sql
 
+## AWS Design
+The CloudFormation provisions resources as follows:
+<br/> 
+![Patient-Demographic-Service aws](aws-pds.jpg)
 
 # Application Settings to run Patient-Demographic-Service
 1. All application settings parameters are stored in AWS Parameter Store.
+    1. /PatientDemographicService/&lt;environment&gt;/CognitoSettings/Domain	
+    2. /PatientDemographicService/&lt;environment&gt;/CognitoSettings/Issuer	
+    3. /PatientDemographicService/&lt;environment&gt;/ConnectionStrings/DefaultConnection	
+    4. /PatientDemographicService/&lt;environment&gt;/SNSSettings/NewPatientNotify	
+    5. /PatientDemographicService/&lt;environment&gt;/SNSSettings/NewPatientTopicARN	
+    6. /PatientDemographicService/&lt;environment&gt;/SqsSettings/SendMessage	
+    7. /PatientDemographicService/&lt;environment&gt;/SqsSettings/Url
+
+# Software design
+![Patient-Demographic-Service software design](pds-project-structure.jpg)
+
+[Work In Progress]
+
 
