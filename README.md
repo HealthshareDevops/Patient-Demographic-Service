@@ -34,6 +34,20 @@ The Patient Demographic Service is the regional source of truth for Patient Demo
     4. domicile-script.sql
     4. additional-seed-to-include-dhb-code-script.sql
 
+##### After deployment
+Turn on CloudWatch Logs for API Gateway REST API Log
+1. In the API Gateway PatientDemographic-Message-APIGateway API console, open Stage Editor pane. 
+   Click Stages (left) > sandbox (middle)
+2. On the Stage Editor pane, choose the Logs/Tracing tab.
+3. On the Logs/Tracing tab, under CloudWatch Settings, do the following to turn on execution logging:
+   Choose the Enable CloudWatch Logs check box.
+   Choose INFO to generate execution logs for all requests.
+   Choose the Log full requests/responses data check box. 
+4. Choose Save Changes.
+
+https://aws.amazon.com/premiumsupport/knowledge-center/api-gateway-cloudwatch-logs/
+
+
 ## AWS Design
 The CloudFormation provisions resources as follows:
 <br/> 

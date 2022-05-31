@@ -311,3 +311,11 @@ CREATE INDEX [IX_PatientEthnicities_EthnicityId] ON [PatientEthnicities] ([Ethni
 CREATE INDEX [IX_Identifiers_PatientId] ON [Identifiers] ([PatientId]);
 CREATE INDEX [IX_Identifiers_Nhi_IsMajor] ON [Identifiers] ([Nhi], [IsMajor])
 CREATE INDEX [IX_Identifiers_Nhi] ON [Identifiers] ([Nhi])
+/**
+ * Unique Index (Nhi, IsMajor)
+ */
+CREATE UNIQUE NONCLUSTERED INDEX IX_Identifiers_Nhi_IsMajor_Unique_Filtered
+ON Identifiers(Nhi, IsMajor)
+WHERE IsMajor = 1;
+
+

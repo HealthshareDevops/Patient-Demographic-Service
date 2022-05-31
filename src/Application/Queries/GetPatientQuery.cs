@@ -59,8 +59,9 @@ namespace Application.Queries
                 }
 
                 LambdaLogger.Log($"INFO: Nhi: {request.Nhi} found info.");
-
-                return PatientDto.ToPatientDto(response);
+                var patntDto = PatientDto.ToPatientDto(response);
+                LambdaLogger.Log($"INFO: Mapped to PatientDto");
+                return patntDto;
             } catch(Exception ex)
             {
                 LambdaLogger.Log($"ERROR: Error occurred. {ex.Message}");
