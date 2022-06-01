@@ -43,7 +43,7 @@
           "Bucket": { "Ref": "BucketName" },
           "Key": { "Ref": "CodeKey" }
         },
-        "MemorySize": 256,
+        "MemorySize": 3072,
         "Timeout": 30,
         "Role": null,
         "Policies": [
