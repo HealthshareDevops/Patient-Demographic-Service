@@ -215,6 +215,7 @@ Resources:
             - !Ref Environment
       Runtime: dotnet6
       Handler: MessageProcessor.Lambda::MessageProcessor.Lambda.Function::FunctionHandler
+      MemorySize: 1024
       Timeout: 180
       VpcConfig:
         SecurityGroupIds: !Ref ParamStoreLambdaSecurityGroupIds
