@@ -70,10 +70,11 @@ namespace MessageProcessor.ConsoleApp
                             Code = "11",
                             Description = "11 [New Zealander]"
                         },
-                        //new {
-                        //    Code = "21",
-                        //    Description = "21 [Maori]"
-                        //}
+                        new {
+                            Code = "NSP",
+                            Description = "Not Specified"
+                        }
+                        
                     },
                     Addresses = new[] {
                         new {
