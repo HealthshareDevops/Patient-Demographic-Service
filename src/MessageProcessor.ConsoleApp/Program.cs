@@ -51,7 +51,7 @@ namespace MessageProcessor.ConsoleApp
 
                 var payload = new
                 {
-                    Nhi = "ZZZ0024",
+                    Nhi = "ZZZ0008",
                     Title = "DR",
                     GivenName = "Went",
                     MiddleName = "Up The",
@@ -140,7 +140,7 @@ namespace MessageProcessor.ConsoleApp
                         //    IsPreferred =  false
                         //}
                     },
-                    //EventDate = "20220426094501",
+                    EventDate = "20220429094501",
                     CreatedBy = "Rhapsody"
                 }; //end of payload
 
@@ -203,7 +203,7 @@ namespace MessageProcessor.ConsoleApp
             // If patient exists, Check NHI is major or minor
             // If only NHI is major, update the record
             // If NHI is minor, it means NHI (or patient) is already merged with other NHI, dont need to do anything.
-            var foundPatnt = _dbContext.Patients.Include(p => p.Identifiers).AsNoTracking().Where(p => p.Identifiers.Any(i => i.Nhi == createPatientCommand.Nhi)).ToList();
+            var foundPatnt = _dbContext.Patients.Include(p => p.Identifiers).Where(p => p.Identifiers.Any(i => i.Nhi == createPatientCommand.Nhi)).ToList();
             if (foundPatnt.Count <= 0)
             {
                 Console.WriteLine($"INFO: NHI {createPatientCommand.Nhi} does not exist. Creating Patient ...");
