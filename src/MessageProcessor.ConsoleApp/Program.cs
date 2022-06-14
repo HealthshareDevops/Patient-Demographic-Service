@@ -18,7 +18,7 @@ namespace MessageProcessor.ConsoleApp
     {
         static IConfiguration Configuration;
         static IServiceProvider ServiceProvider;
-        
+
         private static IMediator _mediator;
         private static IApplicationDbContext _dbContext;
         static async Task Main(string[] args)
@@ -71,9 +71,16 @@ namespace MessageProcessor.ConsoleApp
                             Description = "11 [New Zealander]"
                         },
                         new {
+
                             Code = "12",
                             Description = "NZ European"
+                        },
+                        new {
+                            Code = "NSP",
+                            Description = "Not Specified"
                         }
+
+
                     },
                     Addresses = new[] {
                         new {
@@ -140,7 +147,7 @@ namespace MessageProcessor.ConsoleApp
                             IsPreferred =  false
                         }
                     },
-                    EventDate = "20220507094501",
+                    EventDate = "20220508094501",
                     CreatedBy = "Rhapsody"
                 }; //end of payload
 
@@ -221,12 +228,13 @@ namespace MessageProcessor.ConsoleApp
                 }
                 var updatePatientCommand = JsonSerializer.Deserialize<UpdatePatientCommand>(payloadJsonString);
                 updatePatientCommand.Id = majorPatnt.Id;
-                
-                if(!IsLatestMessage(updatePatientCommand.EventDate, majorPatnt.EventDate)) {
+
+                if (!IsLatestMessage(updatePatientCommand.EventDate, majorPatnt.EventDate))
+                {
                     Console.WriteLine($"WARN: Messge event date is earlier than existing one. Returning ...");
                     return;
                 }
-                
+
                 var response = await _mediator.Send(updatePatientCommand);
             }
         }

@@ -138,15 +138,20 @@ namespace Application.Commands.CreatePatient
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object created.");
 
                 patnt.AddName(title, name.Value, suffix, request.IsPreferred, request.IsProtected, namesource, effectiveFrom.Value, effectiveTo.Value);
-                                
+
 
                 if (request.Ethnicities != null)
                 {
                     // Add Ethnicities
                     foreach (var ethnicityCommand in request.Ethnicities)
                     {
+
+                        //MHIP-147 - Tactial solution - MHIP-148 would resolve this with a permanent code set solution.
+                        if (ethnicityCommand.Code == "NSP")
+                            ethnicityCommand.Code = "99";
                         //var ethnicity = Ethnicity.FromCode(ethnicityCommand.Code);
                         var ethnicity = _dbContext.Ethnicities.FirstOrDefault(x => x.Code == ethnicityCommand.Code);
+
                         if (ethnicity is null)
                         {
                             LambdaLogger.Log($"INFO: CreatePatientCommand - Ethnicity ({ethnicityCommand.Code}) is not valid. (null)");
