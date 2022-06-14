@@ -71,10 +71,22 @@ namespace MessageProcessor.ConsoleApp
                             Description = "11 [New Zealander]"
                         },
                         new {
+                            Code = "11",
+                            Description = "11 [New Zealander]"
+                        },
+                        new {
                             Code = "NSP",
                             Description = "Not Specified"
-                        }
-                        
+                        },
+                        new {
+                            Code = "NSP",
+                            Description = "Not Specified"
+                        },
+                         new {
+                            Code = "43",
+                            Description = "Indian"
+                        },
+
                     },
                     Addresses = new[] {
                         new {
@@ -141,7 +153,7 @@ namespace MessageProcessor.ConsoleApp
                         //    IsPreferred =  false
                         //}
                     },
-                    EventDate = "20220429094501",
+                    EventDate = "20220501094501",
                     CreatedBy = "Rhapsody"
                 }; //end of payload
 

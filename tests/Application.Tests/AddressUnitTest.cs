@@ -302,7 +302,7 @@ namespace Application.Tests
             var ex = await Assert.ThrowsAsync<ValidationException>(() => _createPatientCommandHandler.Handle(request, CancellationToken.None));
 
             // Assert
-            Assert.Equal("AddressType should be valid.", ex.Message);
+            Assert.Equal($"AddressType ({addressType}) should be valid.", ex.Message);
         }
     }
 }

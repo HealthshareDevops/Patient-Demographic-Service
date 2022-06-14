@@ -100,7 +100,11 @@ namespace Domain.Entities
         
         public void AddEthnicity(Ethnicity ethnicity)
         {
-            _patientEthnicities.Add(new PatientEthnicity(this, ethnicity));
+            var found = _patientEthnicities.FirstOrDefault(e => e.Ethnicity.Id == ethnicity.Id);
+            if (found is null)
+            {
+                _patientEthnicities.Add(new PatientEthnicity(this, ethnicity));
+            }
         }
 
         public void AddAddress(Address address)
