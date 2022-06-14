@@ -54,166 +54,180 @@ namespace Application.Commands.UpdatePatient
         public async Task<long> Handle(UpdatePatientCommand request, CancellationToken cancellationToken)
         {
             LambdaLogger.Log($"INFO: UpdatePatientCommandHandler.Handle(): Start...");
-            LambdaLogger.Log($"INFO: UpdatePatientCommandHandler: Updating Id {request.Id}");
-
-            // Some validations
-            request.Addresses = request.Addresses ?? new List<UpdateAddressCommand>();
-            request.Ethnicities = request.Ethnicities ?? new List<UpdateEthnicityCommand>();
-            request.Contacts = request.Contacts ?? new List<UpdateContactCommand>();
-
-            var patnt = await _dbContext.Patients
-                    .Include(x => x.HumanNames)
-                        .ThenInclude(n => n.Suffix)
-                    .Include(x => x.HumanNames)
-                        .ThenInclude(n => n.Title)
-                    .Include(x => x.HumanNames)
-                        .ThenInclude(n => n.NameSource)
-                    .Include(x => x.Addresses)
-                        .ThenInclude(a => a.AddressFormat)
-                    .Include(x => x.Addresses)
-                        .ThenInclude(a => a.Country)
-                    .Include(x => x.Addresses)
-                        .ThenInclude(a => a.Domicile)
-                    .Include(x => x.Addresses)
-                        .ThenInclude(a => a.AddressType)
-                    .Include(x => x.PatientEthnicities)
-                        .ThenInclude(e => e.Ethnicity)
-                    .Include(x => x.Contacts)
-                        .ThenInclude(c => c.ContactUsage)
-                    .Include(x => x.Contacts)
-                        .ThenInclude(c => c.ContactType)
-                    .FirstOrDefaultAsync(x => x.Id == request.Id);
-
-            if (patnt is null)
+            try
             {
-                throw new System.NotImplementedException();
-            }
+                LambdaLogger.Log($"INFO: UpdatePatientCommandHandler: Updating Id {request.Id}");
 
-            // Creating HumanNames...
-            var humanNames = new List<HumanName>();
+                // Some validations
+                request.Addresses = request.Addresses ?? new List<UpdateAddressCommand>();
+                request.Ethnicities = request.Ethnicities ?? new List<UpdateEthnicityCommand>();
+                request.Contacts = request.Contacts ?? new List<UpdateContactCommand>();
 
-            // ToDo:
-            // When try to detached object like title, suffix and namesource to existingPatnt, getting error.
-            // The instance of entity type 'Suffix' cannot be tracked because another instance with the key value '{Id: 1}' is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached.
-            // Need to analyze more.
+                var patnt = await _dbContext.Patients
+                        .Include(x => x.HumanNames)
+                            .ThenInclude(n => n.Suffix)
+                        .Include(x => x.HumanNames)
+                            .ThenInclude(n => n.Title)
+                        .Include(x => x.HumanNames)
+                            .ThenInclude(n => n.NameSource)
+                        .Include(x => x.Addresses)
+                            .ThenInclude(a => a.AddressFormat)
+                        .Include(x => x.Addresses)
+                            .ThenInclude(a => a.Country)
+                        .Include(x => x.Addresses)
+                            .ThenInclude(a => a.Domicile)
+                        .Include(x => x.Addresses)
+                            .ThenInclude(a => a.AddressType)
+                        .Include(x => x.PatientEthnicities)
+                            .ThenInclude(e => e.Ethnicity)
+                        .Include(x => x.Contacts)
+                            .ThenInclude(c => c.ContactUsage)
+                        .Include(x => x.Contacts)
+                            .ThenInclude(c => c.ContactType)
+                        .FirstOrDefaultAsync(x => x.Id == request.Id);
 
-            //var title = Title.FromCode(request.Title);
-            //var suffix = Suffix.FromCode(request.Suffix);
-            //var namesource = NameSource.FromCode(request.NameSource);
-
-            var title = _dbContext.Titles.FirstOrDefault(x => x.Code == request.Title);
-            var suffix = _dbContext.Suffixes.FirstOrDefault(x => x.Code == request.Suffix);
-            var namesource = _dbContext.NameSources.FirstOrDefault(x => x.Code == request.NameSource);
-
-            Result<Name> name = Name.Create(request.GivenName, request.MiddleName, request.FamilyName);
-            if (name.IsFailure)
-            {
-                LambdaLogger.Log($"ERROR: UpdatePatientCommandHandler.Handle(): Name failure.");
-                throw new ValidationException(name.Error);
-            }
-           
-            Result<Date> effectiveFrom = Date.Create(request.EffectiveFrom);
-            if (effectiveFrom.IsFailure)
-            {
-                LambdaLogger.Log($"ERROR: UpdatePatientCommandHandler.Handle(): EffectiveFrom date failure.");
-                throw new ValidationException(effectiveFrom.Error);
-            }
-            
-            Result<Date> effectiveTo = Date.Create(request.EffectiveTo);
-            if (effectiveTo.IsFailure)
-            {
-                LambdaLogger.Log($"ERROR: UpdatePatientCommandHandler.Handle(): EffectiveTo date failure.");
-                throw new ValidationException(effectiveTo.Error);
-            }
-            
-            humanNames.Add(new HumanName(title, name.Value, suffix, request.IsPreferred, request.IsProtected, namesource, effectiveFrom.Value, effectiveTo.Value));
-
-            LambdaLogger.Log($"INFO: UpdatePatientCommandHandler.Handle(): HumanNames created.");
-            // End  creating HumanNames
-
-
-            // Start PatientInfo...
-            Result<BirthDate> birthDate = BirthDate.Create(request.BirthDate);
-            if (birthDate.IsFailure)
-            {
-                throw new ValidationException(birthDate.Error);
-            }
-
-            var birthDateSource = BirthDateSource.FromCode(request.BirthDateSource);
-            if (birthDateSource is null)
-            {
-                throw new ValidationException("BirthDateSource is not valid.");
-            }
-
-            var gender = Gender.FromCode(request.Gender);
-            if (gender is null)
-            {
-                throw new ValidationException("Gender is not valid.");
-            }
-            // End PatientInfo..
-
-            // Start Addressess...
-            var addresses = new List<Address>();
-            foreach (var addrCommand in request.Addresses)
-            {
-                var addr = ToAddress(addrCommand);
-                if (addr is null)
+                if (patnt is null)
                 {
-                    continue;
+                    throw new System.NotImplementedException();
                 }
-                addresses.Add(addr);
-            }
-            // End Addresses...
 
-            var ethnicities = new List<Ethnicity>();
-            // Add Ethnicities
-            foreach (var ethnicityCommand in request.Ethnicities)
-            {
-                var ethnicity = Ethnicity.FromCode(ethnicityCommand.Code);
-                if (ethnicity is null)
+                // Creating HumanNames...
+                var humanNames = new List<HumanName>();
+
+                // ToDo:
+                // When try to detached object like title, suffix and namesource to existingPatnt, getting error.
+                // The instance of entity type 'Suffix' cannot be tracked because another instance with the key value '{Id: 1}' is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached.
+                // Need to analyze more.
+
+                //var title = Title.FromCode(request.Title);
+                //var suffix = Suffix.FromCode(request.Suffix);
+                //var namesource = NameSource.FromCode(request.NameSource);
+
+                var title = _dbContext.Titles.FirstOrDefault(x => x.Code == request.Title);
+                var suffix = _dbContext.Suffixes.FirstOrDefault(x => x.Code == request.Suffix);
+                var namesource = _dbContext.NameSources.FirstOrDefault(x => x.Code == request.NameSource);
+
+                Result<Name> name = Name.Create(request.GivenName, request.MiddleName, request.FamilyName);
+                if (name.IsFailure)
                 {
-                    LambdaLogger.Log($"WARN: Ethnicity ${ethnicityCommand.Code} is not valid.");
-                    continue;
+                    LambdaLogger.Log($"ERROR: UpdatePatientCommand - Name - GivenName ({request.GivenName}), MiddleName ({request.MiddleName}), FamilyName ({request.FamilyName}) name create failure. ({name.Error})");
+                    throw new ValidationException(name.Error);
                 }
-                ethnicities.Add(ethnicity);
-            }
 
-            // Start Contacts ...
-            var contacts = new List<Contact>();
-            foreach(var contactCommand in request.Contacts)
-            {
-                var contact = ToContact(contactCommand);
-                if(contact is null)
+                Result<Date> effectiveFrom = Date.Create(request.EffectiveFrom);
+                if (effectiveFrom.IsFailure)
                 {
-                    continue;
+                    LambdaLogger.Log($"ERROR: UpdatePatientCommand - Name - EffectiveFrom ({request.EffectiveFrom}) date create failure. ({effectiveFrom.Error})");
+                    throw new ValidationException(effectiveFrom.Error);
                 }
-                contacts.Add(contact);
+
+                Result<Date> effectiveTo = Date.Create(request.EffectiveTo);
+                if (effectiveTo.IsFailure)
+                {
+                    LambdaLogger.Log($"ERROR: UpdatePatientCommand - Name - EffectiveTo ({request.EffectiveTo}) date create failure. ({effectiveTo.Error})");
+                    throw new ValidationException(effectiveTo.Error);
+                }
+
+                humanNames.Add(new HumanName(title, name.Value, suffix, request.IsPreferred, request.IsProtected, namesource, effectiveFrom.Value, effectiveTo.Value));
+
+                LambdaLogger.Log($"INFO: UpdatePatientCommandHandler.Handle(): HumanNames created.");
+                // End  creating HumanNames
+
+
+                // Start PatientInfo...
+                Result<BirthDate> birthDate = BirthDate.Create(request.BirthDate);
+                if (birthDate.IsFailure)
+                {
+                    LambdaLogger.Log($"ERROR: UpdatePatientCommand - BirthDate ({request.BirthDate}) create failure. ({birthDate.Error})");
+                    throw new ValidationException(birthDate.Error);
+                }
+
+                //var birthDateSource = BirthDateSource.FromCode(request.BirthDateSource);
+                var birthDateSource = _dbContext.BirthDateSources.FirstOrDefault(x => x.Code == request.BirthDateSource);
+                if (birthDateSource is null)
+                {
+                    LambdaLogger.Log($"ERROR: UpdatePatientCommand - BirthDateSource ({request.BirthDateSource}) should be valid. (null)");
+                    throw new ValidationException("BirthDateSource is not valid.");
+                }
+
+                //var gender = Gender.FromCode(request.Gender);
+                var gender = _dbContext.Genders.FirstOrDefault(x => x.Code == request.Gender);
+                if (gender is null)
+                {
+                    LambdaLogger.Log($"ERROR: UpdatePatientCommand - Gender ({request.Gender}) create failure. (null)");
+                    throw new ValidationException($"Gender ({request.Gender}) is not valid.");
+                }
+                // End PatientInfo..
+
+                // Start Addressess...
+                var addresses = new List<Address>();
+                foreach (var addrCommand in request.Addresses)
+                {
+                    var addr = ToAddress(addrCommand);
+                    if (addr is null)
+                    {
+                        continue;
+                    }
+                    addresses.Add(addr);
+                }
+                // End Addresses...
+
+                var ethnicities = new List<Ethnicity>();
+                // Add Ethnicities
+                foreach (var ethnicityCommand in request.Ethnicities)
+                {
+                    //var ethnicity = Ethnicity.FromCode(ethnicityCommand.Code);
+                    var ethnicity = _dbContext.Ethnicities.FirstOrDefault(x => x.Code == ethnicityCommand.Code);
+                    if (ethnicity is null)
+                    {
+                        LambdaLogger.Log($"INFO: UpdatePatientCommand - Ethnicity ({ethnicityCommand.Code}) is not valid. (null)");
+                        continue;
+                    }
+                    ethnicities.Add(ethnicity);
+                }
+
+                // Start Contacts ...
+                var contacts = new List<Contact>();
+                foreach (var contactCommand in request.Contacts)
+                {
+                    var contact = ToContact(contactCommand);
+                    if (contact is null)
+                    {
+                        continue;
+                    }
+                    contacts.Add(contact);
+                }
+                // End Contacts ...
+
+
+                patnt.UpdatePatientInfo(birthDate.Value, birthDateSource, gender, humanNames, addresses, ethnicities, contacts, request.CreatedBy, request.EventDate);
+
+                LambdaLogger.Log($"INFO: UpdatePatientCommandHandler: Patient object DB Saving.");
+
+                //LambdaLogger.Log($"State: {_dbContext.Entry(existingPatnt).State}");
+                //LambdaLogger.Log($"State: {_dbContext.Entry(existingPatnt.HumanNames[0].Suffix).State}");
+                //LambdaLogger.Log($"State: {_dbContext.Entry(existingPatnt).Collection(s=>s.Addresses).State}");
+                //_dbContext.Patients.Attach(existingPatnt);
+
+                await _dbContext.SaveChangesAsync(cancellationToken);
+                LambdaLogger.Log($"INFO: UpdatePatientCommandHandler: Patient object DB Saved. Patient Id: {patnt.Id}");
+
+                // Patient is updated. Notify all the concerned services.
+                await _newPatientNotificationService.PublishAsync(BuildEventMessage(request.Nhi));
+                LambdaLogger.Log($"INFO: Services notified");
+
+                return patnt.Id;
+            } catch (Exception e)
+            {
+                LambdaLogger.Log($"ERROR: Error occurred in UpdatePatientCommandHandler for Nhi {request.Nhi}: {e.Message}");
+                LambdaLogger.Log($"ERROR: Error occurred in UpdatePatientCommandHandler InnerException {e.InnerException?.Message}");
+                throw;
             }
-            // End Contacts ...
-
-
-            patnt.UpdatePatientInfo(birthDate.Value, birthDateSource, gender, humanNames, addresses, ethnicities, contacts, request.CreatedBy, request.EventDate);
-            
-            LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object DB Saving.");
-            
-            //LambdaLogger.Log($"State: {_dbContext.Entry(existingPatnt).State}");
-            //LambdaLogger.Log($"State: {_dbContext.Entry(existingPatnt.HumanNames[0].Suffix).State}");
-            //LambdaLogger.Log($"State: {_dbContext.Entry(existingPatnt).Collection(s=>s.Addresses).State}");
-            //_dbContext.Patients.Attach(existingPatnt);
-
-            await _dbContext.SaveChangesAsync(cancellationToken);
-            LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Patient object DB Saved. Patient Id: {patnt.Id}");
-
-            // Patient is updated. Notify all the concerned services.
-            await _newPatientNotificationService.PublishAsync(BuildEventMessage(request.Nhi));
-            LambdaLogger.Log($"INFO: Services notified");
-
-            return patnt.Id;
         }
 
         private Address ToAddress(UpdateAddressCommand addressCommand)
         {
-            LambdaLogger.Log($"INFO: CreatePatientCommandHandler - ToAddress start ...");
+            LambdaLogger.Log($"INFO: UpdatePatientCommandHandler.ToAddress(...) start ...");
             // ToDo:
             // Address format can be captured in two formats - NZ CIQ Address Profile and NZ Post Address Standard.
             // HL7 message does not capture the address format,  seems it uses NZ CIQ Address Profile.
@@ -225,7 +239,7 @@ namespace Application.Commands.UpdatePatient
 
             if (string.IsNullOrEmpty(addressCommand.StreetAddress))
             {
-                LambdaLogger.Log($"ERROR: ToAddress: Street Address should be valid.");
+                LambdaLogger.Log($"WARN: UpdatePatientCommand - Address - StreetAddress ({addressCommand.StreetAddress}) should be valid. (empty or null)");
                 return null;
             }
 
@@ -235,14 +249,14 @@ namespace Application.Commands.UpdatePatient
             Result<Date> addrEffectiveFrom = Date.Create(addressCommand.EffectiveFrom);
             if (addrEffectiveFrom.IsFailure)
             {
-                LambdaLogger.Log($"ERROR: ToAddress: EffectiveFrom date failure.");
+                LambdaLogger.Log($"ERROR: UpdatePatientCommand - Address - EffectiveFrom ({addressCommand.EffectiveFrom}) date failure. ({addrEffectiveFrom.Error})");
                 throw new ValidationException(addrEffectiveFrom.Error);
             }
 
             Result<Date> addrEffectiveTo = Date.Create(addressCommand.EffectiveTo);
             if (addrEffectiveTo.IsFailure)
             {
-                LambdaLogger.Log($"ERROR: ToAddress: EffectiveTo date failure.");
+                LambdaLogger.Log($"ERROR: UpdatePatientCommand - Address - EffectiveTo ({addressCommand.EffectiveTo}) date failure. ({addrEffectiveTo.Error})");
                 throw new ValidationException(addrEffectiveTo.Error);
             }
 
@@ -252,7 +266,8 @@ namespace Application.Commands.UpdatePatient
             var addressType = _dbContext.AddressTypes.FirstOrDefault(x => x.Code == addressCommand.AddressType);
             if (addressType is null)
             {
-                throw new ValidationException("AddressType should be valid.");
+                LambdaLogger.Log($"ERROR: UpdatePatientCommand - Address - AddressType ({addressCommand.AddressType}) should be valid. (null)");
+                throw new ValidationException($"AddressType ({addressCommand.AddressType}) should be valid.");
             }
 
             var address = new Address(addressFormat, addressCommand.BuildingName, addressCommand.StreetAddress,
@@ -261,7 +276,7 @@ namespace Application.Commands.UpdatePatient
                                       addressCommand.IsProtected, addressCommand.IsPermanent,
                                       addrEffectiveFrom.Value, addrEffectiveTo.Value, domicile,
                                       addressCommand.IsPrimary, addressType);
-            LambdaLogger.Log($"INFO: CreatePatientCommandHandler - ToAddress end ...");
+            LambdaLogger.Log($"INFO: UpdatePatientCommandHandler - ToAddress end ...");
             return address;
         }
 
@@ -270,31 +285,31 @@ namespace Application.Commands.UpdatePatient
             var contactUsage = _dbContext.ContactUsages.FirstOrDefault(x => x.Code == contactCommand.ContactUsage);
             if (contactUsage is null)
             {
-                LambdaLogger.Log($"WARN: ContactUsage is not valid (null).");
+                LambdaLogger.Log($"WARN: UpdatePatientCommand - Contact - ContactUsage ({contactCommand.ContactUsage}) is not valid. (null)");
             }
 
             var contactType = _dbContext.ContactTypes.FirstOrDefault(x => x.Code == contactCommand.ContactType);
             if (contactType is null)
             {
-                LambdaLogger.Log($"WARN: ContactType is not valid (null).");
+                LambdaLogger.Log($"WARN: UpdatePatientCommand - Contact - ContactType ({contactCommand.ContactType}) is not valid. (null)");
             }
 
             if (string.IsNullOrEmpty(contactCommand.Detail))
             {
-                LambdaLogger.Log($"WARN: ToContact: Detail is not valid.");
+                LambdaLogger.Log($"WARN: UpdatePatientCommand - Contact - Detail ({contactCommand.Detail}) should be valid. (empty or null)");
                 return null;
             }
 
             //5.5 is mandatory
             if (string.IsNullOrEmpty(contactCommand.EffectiveFrom))
             {
-                LambdaLogger.Log($"WARN: EffectiveFrom is not valid (empty or null).");
+                LambdaLogger.Log($"WARN: UpdatePatientCommand - Contact - EffectiveFrom ({contactCommand.EffectiveFrom}) is not valid. (empty or null).");
             }
 
             Result<Date> contactEffectiveFrom = Date.Create(contactCommand.EffectiveFrom);
             if (contactEffectiveFrom.IsFailure)
             {
-                LambdaLogger.Log($"ERROR: ToContact: EffectiveFrom date failure.");
+                LambdaLogger.Log($"ERROR: UpdatePatientCommand - Contact - EffectiveFrom ({contactCommand.EffectiveFrom}) date failure. ({contactEffectiveFrom.Error})");
                 throw new ValidationException(contactEffectiveFrom.Error);
             }
 
@@ -302,7 +317,7 @@ namespace Application.Commands.UpdatePatient
             Result<Date> contactEffectiveTo = Date.Create(contactCommand.EffectiveTo);
             if (contactEffectiveTo.IsFailure)
             {
-                LambdaLogger.Log($"ERROR: ToContract: EffectiveTo date failure.");
+                LambdaLogger.Log($"ERROR: UpdatePatientCommand - Contact - EffectiveTo ({contactCommand.EffectiveTo}) date failure. ({contactEffectiveTo.Error})");
                 throw new ValidationException(contactEffectiveTo.Error);
             }
 

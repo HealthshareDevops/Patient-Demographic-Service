@@ -51,7 +51,7 @@ namespace MessageProcessor.ConsoleApp
 
                 var payload = new
                 {
-                    Nhi = "ZZZ0008",
+                    Nhi = "ZZZ0032",
                     Title = "DR",
                     GivenName = "Went",
                     MiddleName = "Up The",
@@ -63,17 +63,17 @@ namespace MessageProcessor.ConsoleApp
                     EffectiveFrom = "",
                     EffectiveTo = "",
                     BirthDate = "19890118",
-                    BirthDateSource = "BRCT",
+                    BirthDateSource = "BREG",
                     Gender = "F",
                     Ethnicities = new[] {
                         new {
                             Code = "11",
                             Description = "11 [New Zealander]"
                         },
-                        //new {
-                        //    Code = "21",
-                        //    Description = "21 [Maori]"
-                        //}
+                        new {
+                            Code = "12",
+                            Description = "NZ European"
+                        }
                     },
                     Addresses = new[] {
                         new {
@@ -130,17 +130,17 @@ namespace MessageProcessor.ConsoleApp
                             EffectiveTo = "",
                             IsPreferred =  false
                         },
-                        //new {
-                        //    ContactType = "NET",
-                        //    ContactUsage = "PRN",
-                        //    Detail = "test@api.com",
-                        //    IsProtected = false,
-                        //    EffectiveFrom = "20220225",
-                        //    EffectiveTo = "",
-                        //    IsPreferred =  false
-                        //}
+                        new {
+                            ContactType = "NET",
+                            ContactUsage = "PRN",
+                            Detail = "test@api.com",
+                            IsProtected = false,
+                            EffectiveFrom = "20220225",
+                            EffectiveTo = "",
+                            IsPreferred =  false
+                        }
                     },
-                    EventDate = "20220429094501",
+                    EventDate = "20220507094501",
                     CreatedBy = "Rhapsody"
                 }; //end of payload
 

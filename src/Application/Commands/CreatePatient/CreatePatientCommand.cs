@@ -65,7 +65,7 @@ namespace Application.Commands.CreatePatient
                 Result<Nhi> nhi = Nhi.Create(request.Nhi);
                 if (nhi.IsFailure)
                 {
-                    LambdaLogger.Log($"ERROR: CreatePatientCommandHandler: Nhi failure.");
+                    LambdaLogger.Log($"ERROR: CreatePatientCommand - Nhi ({request.Nhi}) create failure. ({nhi.Error})");
                     throw new ValidationException(nhi.Error);
                 }
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Nhi: {nhi.Value} created.");
@@ -78,31 +78,41 @@ namespace Application.Commands.CreatePatient
                 Result<BirthDate> birthDate = BirthDate.Create(request.BirthDate);
                 if (birthDate.IsFailure)
                 {
+                    LambdaLogger.Log($"ERROR: CreatePatientCommand - BirthDate ({request.BirthDate}) create failure. ({birthDate.Error})");
                     throw new ValidationException(birthDate.Error);
                 }
-                var birthDateSource = BirthDateSource.FromCode(request.BirthDateSource);
+                //var birthDateSource = BirthDateSource.FromCode(request.BirthDateSource);
+                var birthDateSource = _dbContext.BirthDateSources.FirstOrDefault(x => x.Code == request.BirthDateSource);
+
                 if (birthDateSource is null)
                 {
+                    LambdaLogger.Log($"ERROR: CreatePatientCommand - BirthDateSource ({request.BirthDateSource}) should be valid. (null)");
                     throw new ValidationException("BirthDateSource is not valid.");
                 }
 
-                var gender = Gender.FromCode(request.Gender);
+                //var gender = Gender.FromCode(request.Gender);
+                var gender = _dbContext.Genders.FirstOrDefault(x => x.Code == request.Gender);
                 if (gender is null)
                 {
+                    LambdaLogger.Log($"ERROR: CreatePatientCommand - Gender ({request.Gender}) create failure. (null)");
                     throw new ValidationException("Gender is not valid.");
                 }
                 
                 // Create HumanName
-                var title = Title.FromCode(request.Title);
-                var suffix = Suffix.FromCode(request.Suffix);
-                var namesource = NameSource.FromCode(request.NameSource);
+                //var title = Title.FromCode(request.Title);
+                //var suffix = Suffix.FromCode(request.Suffix);
+                //var namesource = NameSource.FromCode(request.NameSource);
+
+                var title = _dbContext.Titles.FirstOrDefault(x => x.Code == request.Title);
+                var suffix = _dbContext.Suffixes.FirstOrDefault(x => x.Code == request.Suffix);
+                var namesource = _dbContext.NameSources.FirstOrDefault(x => x.Code == request.NameSource);
 
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Title, Suffix, NameSource created.");
 
                 Result<Name> name = Name.Create(request.GivenName, request.MiddleName, request.FamilyName);
                 if (name.IsFailure)
                 {
-                    LambdaLogger.Log($"ERROR: CreatePatientCommandHandler: Name failure.");
+                    LambdaLogger.Log($"ERROR: CreatePatientCommand - Name - GivenName ({request.GivenName}), MiddleName ({request.MiddleName}), FamilyName ({request.FamilyName}) name create failure. ({name.Error})");
                     throw new ValidationException(name.Error);
                 }
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: Name created.");
@@ -110,7 +120,7 @@ namespace Application.Commands.CreatePatient
                 Result<Date> effectiveFrom = Date.Create(request.EffectiveFrom);
                 if (effectiveFrom.IsFailure)
                 {
-                    LambdaLogger.Log($"ERROR: CreatePatientCommandHandler: EffectiveFrom date failure.");
+                    LambdaLogger.Log($"ERROR: CreatePatientCommand - Name - EffectiveFrom ({request.EffectiveFrom}) date create failure. ({effectiveFrom.Error})");
                     throw new ValidationException(effectiveFrom.Error);
                 }
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: EffectiveFrom date created.");
@@ -118,7 +128,7 @@ namespace Application.Commands.CreatePatient
                 Result<Date> effectiveTo = Date.Create(request.EffectiveTo);
                 if (effectiveTo.IsFailure)
                 {
-                    LambdaLogger.Log($"ERROR: CreatePatientCommandHandler: EffectiveTo date failure.");
+                    LambdaLogger.Log($"ERROR: CreatePatientCommand - Name - EffectiveTo ({request.EffectiveTo}) date create failure. ({effectiveTo.Error})");
                     throw new ValidationException(effectiveTo.Error);
                 }
                 LambdaLogger.Log($"INFO: CreatePatientCommandHandler: EffectiveTo date created.");
@@ -135,10 +145,11 @@ namespace Application.Commands.CreatePatient
                     // Add Ethnicities
                     foreach (var ethnicityCommand in request.Ethnicities)
                     {
-                        var ethnicity = Ethnicity.FromCode(ethnicityCommand.Code);
+                        //var ethnicity = Ethnicity.FromCode(ethnicityCommand.Code);
+                        var ethnicity = _dbContext.Ethnicities.FirstOrDefault(x => x.Code == ethnicityCommand.Code);
                         if (ethnicity is null)
                         {
-                            LambdaLogger.Log($"INFO: Ethnicity ${ethnicityCommand.Code} is not valid.");
+                            LambdaLogger.Log($"INFO: CreatePatientCommand - Ethnicity ({ethnicityCommand.Code}) is not valid. (null)");
                             continue;
                         }
                         patnt.AddEthnicity(ethnicity);
@@ -198,7 +209,7 @@ namespace Application.Commands.CreatePatient
             }
             catch (Exception e)
             {
-                LambdaLogger.Log($"ERROR: Error occurred in CreatePatientCommandHandler {e.Message}");
+                LambdaLogger.Log($"ERROR: Error occurred in CreatePatientCommandHandler for Nhi {request.Nhi}: {e.Message}");
                 LambdaLogger.Log($"ERROR: Error occurred in CreatePatientCommandHandler InnerException {e.InnerException?.Message}");
                 throw;
             }
@@ -211,37 +222,41 @@ namespace Application.Commands.CreatePatient
             // Address format can be captured in two formats - NZ CIQ Address Profile and NZ Post Address Standard.
             // HL7 message does not capture the address format,  seems it uses NZ CIQ Address Profile.
             // Defaulting to CIQ Address Profile
-            var addressFormat = AddressFormat.CIQ;
+            //var addressFormat = AddressFormat.CIQ;
             //var addressFormat = AddressFormat.FromCode(addressCommand.AddressFormat);
+            var addressFormat = _dbContext.AddressFormats.FirstOrDefault(x => x.Code == AddressFormat.CIQ.Code);
 
             if (string.IsNullOrEmpty(addressCommand.StreetAddress))
             {
-                LambdaLogger.Log($"WARN: ToAddress: Street Address should be valid.");
+                LambdaLogger.Log($"WARN: CreatePatientCommand - Address - StreetAddress ({addressCommand.StreetAddress}) should be valid. (empty or null)");
                 return null;
             }
 
-            var country = Country.FromCode(addressCommand.Country);
+            //var country = Country.FromCode(addressCommand.Country);
+            var country = _dbContext.Countries.FirstOrDefault(x => x.Code == addressCommand.Country);
 
             Result<Date> addrEffectiveFrom = Date.Create(addressCommand.EffectiveFrom);
             if (addrEffectiveFrom.IsFailure)
             {
-                LambdaLogger.Log($"ERROR: ToAddress: EffectiveFrom date failure.");
+                LambdaLogger.Log($"ERROR: CreatePatientCommand - Address - EffectiveFrom ({addressCommand.EffectiveFrom}) date failure. ({addrEffectiveFrom.Error})");
                 throw new ValidationException(addrEffectiveFrom.Error);
             }
 
             Result<Date> addrEffectiveTo = Date.Create(addressCommand.EffectiveTo);
             if (addrEffectiveTo.IsFailure)
             {
-                LambdaLogger.Log($"ERROR: ToAddress: EffectiveTo date failure.");
+                LambdaLogger.Log($"ERROR: CreatePatientCommand - Address - EffectiveTo ({addressCommand.EffectiveTo}) date failure. ({addrEffectiveTo.Error})");
                 throw new ValidationException(addrEffectiveTo.Error);
             }
 
             var domicile = _dbContext.Domiciles.ToList().Where(p => p.Code == addressCommand.Domicile).SingleOrDefault();
 
-            var addressType = AddressType.FromCode(addressCommand.AddressType);
+            //var addressType = AddressType.FromCode(addressCommand.AddressType);
+            var addressType = _dbContext.AddressTypes.FirstOrDefault(x => x.Code == addressCommand.AddressType);
             if (addressType is null)
             {
-                throw new ValidationException("AddressType should be valid.");
+                LambdaLogger.Log($"ERROR: CreatePatientCommand - Address - AddressType ({addressCommand.AddressType}) should be valid. (null)");
+                throw new ValidationException($"AddressType ({addressCommand.AddressType}) should be valid.");
             }
 
             var address = new Address(addressFormat, addressCommand.BuildingName, addressCommand.StreetAddress,
@@ -256,34 +271,36 @@ namespace Application.Commands.CreatePatient
 
         private Contact ToContact(CreateContactCommand contactCommand)
         {
-            var contactUsage = ContactUsage.FromCode(contactCommand.ContactUsage);
+            //var contactUsage = ContactUsage.FromCode(contactCommand.ContactUsage);
+            var contactUsage = _dbContext.ContactUsages.FirstOrDefault(x => x.Code == contactCommand.ContactUsage);
             if (contactUsage is null)
             {
-                LambdaLogger.Log($"WARN: ContactUsage is not valid (null).");
+                LambdaLogger.Log($"WARN: CreatePatientCommand - Contact - ContactUsage ({contactCommand.ContactUsage}) is not valid. (null)");
             }
 
-            var contactType = ContactType.FromCode(contactCommand.ContactType);
+            //var contactType = ContactType.FromCode(contactCommand.ContactType);
+            var contactType = _dbContext.ContactTypes.FirstOrDefault(x => x.Code == contactCommand.ContactType);
             if (contactType is null)
             {
-                LambdaLogger.Log($"WARN: ContactType is not valid (null).");
+                LambdaLogger.Log($"WARN: CreatePatientCommand - Contact - ContactType ({contactCommand.ContactType}) is not valid. (null)");
             }
 
             if (string.IsNullOrEmpty(contactCommand.Detail))
             {
-                LambdaLogger.Log($"WARN: ToContact: Detail should be valid.");
+                LambdaLogger.Log($"WARN: CreatePatientCommand - Contact - Detail ({contactCommand.Detail}) should be valid. (empty or null)");
                 return null;
             }
 
             //5.5 is mandatory
             if (string.IsNullOrEmpty(contactCommand.EffectiveFrom))
             {
-                LambdaLogger.Log($"WARN: EffectiveFrom is not valid (empty or null).");
+                LambdaLogger.Log($"WARN: CreatePatientCommand - Contact - EffectiveFrom ({contactCommand.EffectiveFrom}) is not valid. (empty or null).");
             }
 
             Result<Date> contactEffectiveFrom = Date.Create(contactCommand.EffectiveFrom);
             if (contactEffectiveFrom.IsFailure)
             {
-                LambdaLogger.Log($"ERROR: ToContact: EffectiveFrom date failure.");
+                LambdaLogger.Log($"ERROR: CreatePatientCommand - Contact - EffectiveFrom ({contactCommand.EffectiveFrom}) date failure. ({contactEffectiveFrom.Error})");
                 throw new ValidationException(contactEffectiveFrom.Error);
             }
 
@@ -291,7 +308,7 @@ namespace Application.Commands.CreatePatient
             Result<Date> contactEffectiveTo = Date.Create(contactCommand.EffectiveTo);
             if (contactEffectiveTo.IsFailure)
             {
-                LambdaLogger.Log($"ERROR: ToContract: EffectiveTo date failure.");
+                LambdaLogger.Log($"ERROR: CreatePatientCommand - Contact - EffectiveTo ({contactCommand.EffectiveTo}) date failure. ({contactEffectiveTo.Error})");
                 throw new ValidationException(contactEffectiveTo.Error);
             }
 

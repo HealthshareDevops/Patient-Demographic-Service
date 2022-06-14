@@ -7,7 +7,7 @@ namespace Domain.Enums
     {
         public static readonly ContactUsage B = new ContactUsage(1, "B", "Business", "Business address");
         public static readonly ContactUsage E = new ContactUsage(2, "E", "Emergency", "Emergency address");
-        public static readonly ContactUsage P = new ContactUsage(2, "P", "Personal", "Personal address");
+        public static readonly ContactUsage P = new ContactUsage(3, "P", "Personal", "Personal address");
 
         public static readonly ContactUsage[] AllContactUsages= { B, E, P };
 
