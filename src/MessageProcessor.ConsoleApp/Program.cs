@@ -51,7 +51,7 @@ namespace MessageProcessor.ConsoleApp
 
                 var payload = new
                 {
-                    Nhi = "ZZZ0008",
+                    Nhi = "ZZZ0016",
                     Title = "DR",
                     GivenName = "Went",
                     MiddleName = "Up The",
@@ -62,7 +62,7 @@ namespace MessageProcessor.ConsoleApp
                     NameSource = "BREG",
                     EffectiveFrom = "",
                     EffectiveTo = "",
-                    BirthDate = "19890118",
+                    BirthDate = "198901182",
                     BirthDateSource = "BRCT",
                     Gender = "F",
                     Ethnicities = new[] {
@@ -153,7 +153,7 @@ namespace MessageProcessor.ConsoleApp
                         //    IsPreferred =  false
                         //}
                     },
-                    EventDate = "20220501094501",
+                    EventDate = "20220502094501",
                     CreatedBy = "Rhapsody"
                 }; //end of payload
 
@@ -236,7 +236,7 @@ namespace MessageProcessor.ConsoleApp
                 updatePatientCommand.Id = majorPatnt.Id;
                 
                 if(!IsLatestMessage(updatePatientCommand.EventDate, majorPatnt.EventDate)) {
-                    Console.WriteLine($"WARN: Messge event date is earlier than existing one. Returning ...");
+                    Console.WriteLine($"WARN: MessageProcessor.Lambda.Function.AddOrUpdateEvent - Eventdate is earlier than already processed. New ({updatePatientCommand.EventDate}) - Old ({majorPatnt.EventDate}). Do NOT update.");
                     return;
                 }
                 
