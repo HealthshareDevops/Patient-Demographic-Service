@@ -96,7 +96,7 @@ namespace MessageProcessor.Lambda
                 response = await AddOrUpdateEvent(message, context);
             }
             
-            context.Logger.LogInformation($"INFO: {response}");
+            context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.ProcessMessageAsync - Response ({response})");
             context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.ProcessMessageAsync end ...");
 
             await Task.CompletedTask;
