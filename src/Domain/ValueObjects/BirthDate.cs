@@ -2,11 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using TimeZoneConverter;
 
 namespace Domain.ValueObjects
 {
     public class BirthDate : ValueObject
     {
+        const string TIMEZONE = "Pacific/Auckland";
+
         public string Value { get; }
         public DateTime DtValue { get; private set; }
 
@@ -35,7 +38,7 @@ namespace Domain.ValueObjects
             {
                 if (DateTime.TryParseExact(birthDate, "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var dt8))
                 {
-                    if (dt8 <= DateTime.Today)
+                    if (dt8 <= DatetimeNowInAppTimeZone())
                     {
                         return Result.Success(new BirthDate(birthDate, dt8));
                     }
@@ -54,7 +57,7 @@ namespace Domain.ValueObjects
             {
                 if (DateTime.TryParseExact(birthDate, "yyyyMM", CultureInfo.InvariantCulture, DateTimeStyles.None, out var dt6))
                 {
-                    if (dt6 <= DateTime.Today)
+                    if (dt6 <= DatetimeNowInAppTimeZone())
                     {
                         return Result.Success(new BirthDate(birthDate, dt6));
                     }
@@ -73,7 +76,7 @@ namespace Domain.ValueObjects
             {
                 if (DateTime.TryParseExact(birthDate, "yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var dt4))
                 {
-                    if (dt4 <= DateTime.Today)
+                    if (dt4 <= DatetimeNowInAppTimeZone())
                     {
                         return Result.Success(new BirthDate(birthDate, dt4));
                     }
@@ -100,6 +103,16 @@ namespace Domain.ValueObjects
         public static implicit operator string(BirthDate birthDate)
         {
             return birthDate.Value;
+        }
+
+        private static DateTime DatetimeNowInAppTimeZone()
+        {
+            var now = DateTime.Now;
+            if (TZConvert.TryGetTimeZoneInfo(TIMEZONE, out var tzInfo))
+            {
+                now = TimeZoneInfo.ConvertTime(now, tzInfo);
+            }
+            return now;
         }
     }
 }
