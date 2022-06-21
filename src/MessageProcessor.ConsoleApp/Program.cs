@@ -51,7 +51,7 @@ namespace MessageProcessor.ConsoleApp
 
                 var payload = new
                 {
-                    Nhi = "ZZZ0016",
+                    Nhi = "TEMP:1234567890",
                     Title = "DR",
                     GivenName = "Went",
                     MiddleName = "Up The",
@@ -62,7 +62,7 @@ namespace MessageProcessor.ConsoleApp
                     NameSource = "BREG",
                     EffectiveFrom = "",
                     EffectiveTo = "",
-                    BirthDate = "198901182",
+                    BirthDate = "19890118",
                     BirthDateSource = "BRCT",
                     Gender = "F",
                     Ethnicities = new[] {
@@ -153,7 +153,7 @@ namespace MessageProcessor.ConsoleApp
                         //    IsPreferred =  false
                         //}
                     },
-                    EventDate = "20220502094501",
+                    EventDate = "20220503094501",
                     CreatedBy = "Rhapsody"
                 }; //end of payload
 
@@ -211,12 +211,21 @@ namespace MessageProcessor.ConsoleApp
         {
             var createPatientCommand = JsonSerializer.Deserialize<CreatePatientCommand>(payloadJsonString);
 
+            // Simple check on Nhi before proceeding
+            var nhi = createPatientCommand.Nhi;
+            if (string.IsNullOrEmpty(nhi))
+            {
+                Console.WriteLine($"ERROR: MessageProcessor.Lambda.Function.AddOrUpdateEvent - Nhi ({createPatientCommand.Nhi}) should not be empty. (empty or null)");
+                throw new Exception($"Nhi should not be empty");
+            }
+            nhi = nhi.Trim().ToUpper();
+
             // Check patient exists in the system.
             // If patient does not exist in the system, create the record
             // If patient exists, Check NHI is major or minor
             // If only NHI is major, update the record
             // If NHI is minor, it means NHI (or patient) is already merged with other NHI, dont need to do anything.
-            var foundPatnt = _dbContext.Patients.Include(p => p.Identifiers).Where(p => p.Identifiers.Any(i => i.Nhi == createPatientCommand.Nhi)).ToList();
+            var foundPatnt = _dbContext.Patients.Include(p => p.Identifiers).Where(p => p.Identifiers.Any(i => i.Nhi == nhi)).ToList();
             if (foundPatnt.Count <= 0)
             {
                 Console.WriteLine($"INFO: NHI {createPatientCommand.Nhi} does not exist. Creating Patient ...");
@@ -236,7 +245,7 @@ namespace MessageProcessor.ConsoleApp
                 updatePatientCommand.Id = majorPatnt.Id;
                 
                 if(!IsLatestMessage(updatePatientCommand.EventDate, majorPatnt.EventDate)) {
-                    Console.WriteLine($"WARN: MessageProcessor.Lambda.Function.AddOrUpdateEvent - Eventdate is earlier than already processed. New ({updatePatientCommand.EventDate}) - Old ({majorPatnt.EventDate}). Do NOT update.");
+                    Console.WriteLine($"WARN: MessageProcessor.Lambda.Function.AddOrUpdateEvent - Eventdate for NHI ({updatePatientCommand.Nhi}) is earlier than already processed. New ({updatePatientCommand.EventDate}) - Old ({majorPatnt.EventDate}). Do NOT update.");
                     return;
                 }
                 
