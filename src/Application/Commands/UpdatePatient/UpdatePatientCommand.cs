@@ -103,7 +103,6 @@ namespace Application.Commands.UpdatePatient
                 //var title = Title.FromCode(request.Title);
                 //var suffix = Suffix.FromCode(request.Suffix);
                 //var namesource = NameSource.FromCode(request.NameSource);
-
                 var title = _dbContext.Titles.FirstOrDefault(x => x.Code == request.Title);
                 var suffix = _dbContext.Suffixes.FirstOrDefault(x => x.Code == request.Suffix);
                 var namesource = _dbContext.NameSources.FirstOrDefault(x => x.Code == request.NameSource);
@@ -143,14 +142,16 @@ namespace Application.Commands.UpdatePatient
                     throw new ValidationException(birthDate.Error);
                 }
 
-                var birthDateSource = BirthDateSource.FromCode(request.BirthDateSource);
+                //var birthDateSource = BirthDateSource.FromCode(request.BirthDateSource);
+                var birthDateSource = _dbContext.BirthDateSources.FirstOrDefault(x => x.Code == request.BirthDateSource);
                 if (birthDateSource is null)
                 {
                     LambdaLogger.Log($"ERROR: UpdatePatientCommandHandler.Handle - UpdatePatientCommand.BirthDateSource ({request.BirthDateSource}) should be valid. (null)");
                     throw new ValidationException($"BirthDateSource ({request.BirthDateSource}) is not valid.");
                 }
 
-                var gender = Gender.FromCode(request.Gender);
+                //var gender = Gender.FromCode(request.Gender);
+                var gender = _dbContext.Genders.FirstOrDefault(x => x.Code == request.Gender);
                 if (gender is null)
                 {
                     LambdaLogger.Log($"ERROR: UpdatePatientCommandHandler.Handle - UpdatePatientCommand.Gender ({request.Gender}) create failure. (null)");
@@ -178,7 +179,9 @@ namespace Application.Commands.UpdatePatient
                     //MHIP-147 - Tactial solution - MHIP-148 would resolve this with a permanent code set solution.
                     if (ethnicityCommand.Code == "NSP")
                         ethnicityCommand.Code = "99";
-                    var ethnicity = Ethnicity.FromCode(ethnicityCommand.Code);
+                    
+                    //var ethnicity = Ethnicity.FromCode(ethnicityCommand.Code);
+                    var ethnicity = _dbContext.Ethnicities.FirstOrDefault(x => x.Code == ethnicityCommand.Code);
                     if (ethnicity is null)
                     {
                         LambdaLogger.Log($"WARN: UpdatePatientCommandHandler.Handle - UpdatePatientCommand.Ethnicity ({ethnicityCommand.Code}) is not valid. (null)");
@@ -207,6 +210,7 @@ namespace Application.Commands.UpdatePatient
                 patnt.UpdatePatientInfo(birthDate.Value, birthDateSource, gender, humanNames, addresses, ethnicities, contacts, request.CreatedBy, request.EventDate);
 
                 LambdaLogger.Log($"INFO: UpdatePatientCommandHandler.Handle - Patient updating to database...");
+
                 await _dbContext.SaveChangesAsync(cancellationToken);
                 LambdaLogger.Log($"INFO: UpdatePatientCommandHandler.Handle -  Patient updated to database. Id ({patnt.Id})");
 
