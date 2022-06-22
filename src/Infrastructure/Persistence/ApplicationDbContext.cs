@@ -35,7 +35,7 @@ namespace Infrastructure.Persistence
         public DbSet<AddressType> AddressTypes { get; set; }
         public DbSet<Country> Countries { get; set; }
         public DbSet<Domicile> Domiciles { get; set; }
-        public DbSet<Ethnicity> Ethnicity { get; set; }
+        public DbSet<Ethnicity> Ethnicities { get; set; }
 
 
         public DbSet<ContactUsage> ContactUsages { get; set; }

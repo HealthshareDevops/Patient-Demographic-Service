@@ -71,22 +71,13 @@ namespace MessageProcessor.ConsoleApp
                             Description = "11 [New Zealander]"
                         },
                         new {
-                            Code = "11",
-                            Description = "11 [New Zealander]"
-                        },
-                        new {
-                            Code = "NSP",
+                            Code = "12",
                             Description = "Not Specified"
                         },
                         new {
-                            Code = "NSP",
+                            Code = "21",
                             Description = "Not Specified"
-                        },
-                         new {
-                            Code = "43",
-                            Description = "Indian"
-                        },
-
+                        }
                     },
                     Addresses = new[] {
                         new {
@@ -125,15 +116,15 @@ namespace MessageProcessor.ConsoleApp
                         }
                     },
                     Contacts = new[] {
-                        //new {
-                        //    ContactType = "A",
-                        //    ContactUsage = "E",
-                        //    Detail = "hello contact",
-                        //    IsProtected = false,
-                        //    EffectiveFrom = "20220101",
-                        //    EffectiveTo = "20220228",
-                        //    IsPreferred =  false
-                        //},
+                        new {
+                            ContactType = "A",
+                            ContactUsage = "E",
+                            Detail = "hello contact",
+                            IsProtected = false,
+                            EffectiveFrom = "20220101",
+                            EffectiveTo = "20220228",
+                            IsPreferred =  false
+                        },
                         new {
                             ContactType = "PH",
                             ContactUsage = "PRN",
@@ -143,17 +134,18 @@ namespace MessageProcessor.ConsoleApp
                             EffectiveTo = "",
                             IsPreferred =  false
                         },
-                        //new {
-                        //    ContactType = "NET",
-                        //    ContactUsage = "PRN",
-                        //    Detail = "test@api.com",
-                        //    IsProtected = false,
-                        //    EffectiveFrom = "20220225",
-                        //    EffectiveTo = "",
-                        //    IsPreferred =  false
-                        //}
+                        new {
+                            ContactType = "NET",
+                            ContactUsage = "PRN",
+                            Detail = "test@api.com",
+                            IsProtected = false,
+                            EffectiveFrom = "20220225",
+                            EffectiveTo = "",
+                            IsPreferred =  false
+                        }
                     },
-                    EventDate = "20220502094501",
+                    EventDate = "20220503095001",
+
                     CreatedBy = "Rhapsody"
                 }; //end of payload
 

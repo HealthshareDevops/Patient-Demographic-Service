@@ -11,10 +11,15 @@ namespace Application.Common.Interfaces
     public interface IApplicationDbContext
     {
         DbSet<Patient> Patients { get; set; }
-        
+
+        DbSet<BirthDateSource> BirthDateSources { get; set; }
+        DbSet<Gender> Genders { get; set; }
+        DbSet<Ethnicity> Ethnicities { get; set; }
+
         DbSet<Title> Titles { get; set; }
         DbSet<Suffix> Suffixes { get; set; }
         DbSet<NameSource> NameSources { get; set; }
+        
         DbSet<AddressFormat> AddressFormats { get; set; }
         DbSet<AddressType> AddressTypes { get; set; }
         DbSet<Country> Countries { get; set; }
