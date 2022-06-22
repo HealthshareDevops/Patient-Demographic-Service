@@ -51,7 +51,7 @@ namespace MessageProcessor.ConsoleApp
 
                 var payload = new
                 {
-                    Nhi = "ZZZ0016",
+                    Nhi = "ZZZ0032",
                     Title = "DR",
                     GivenName = "Went",
                     MiddleName = "Up The",
@@ -62,7 +62,7 @@ namespace MessageProcessor.ConsoleApp
                     NameSource = "BREG",
                     EffectiveFrom = "",
                     EffectiveTo = "",
-                    BirthDate = "198901182",
+                    BirthDate = "19890118",
                     BirthDateSource = "BRCT",
                     Gender = "F",
                     Ethnicities = new[] {

@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using TimeZoneConverter;
 
 namespace Domain.ValueObjects
 {
@@ -107,12 +106,17 @@ namespace Domain.ValueObjects
 
         private static DateTime DatetimeNowInAppTimeZone()
         {
-            var now = DateTime.Now;
-            if (TZConvert.TryGetTimeZoneInfo(TIMEZONE, out var tzInfo))
+            try
             {
-                now = TimeZoneInfo.ConvertTime(now, tzInfo);
+                
+                var tzInfo = TimeZoneInfo.FindSystemTimeZoneById(TIMEZONE);
+                return TimeZoneInfo.ConvertTime(DateTime.Now, tzInfo);
+
+            } catch(Exception e)
+            {
+                // ToDo: Do we need to log
+                return DateTime.Now;
             }
-            return now;
         }
     }
 }

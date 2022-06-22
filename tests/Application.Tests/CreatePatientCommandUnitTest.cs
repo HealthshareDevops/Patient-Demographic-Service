@@ -118,7 +118,7 @@ namespace Application.Tests
             var ex = await Assert.ThrowsAsync<ValidationException>(() => _createPatientCommandHandler.Handle(request, CancellationToken.None));
 
             // Assert
-            Assert.Equal($"birthDate should be valid.", ex.Message);
+            Assert.Equal($"birthDate should not be empty.", ex.Message);
         }
 
         [Theory]
