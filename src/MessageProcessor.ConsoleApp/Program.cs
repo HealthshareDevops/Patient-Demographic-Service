@@ -51,7 +51,7 @@ namespace MessageProcessor.ConsoleApp
 
                 var payload = new
                 {
-                    Nhi = "ZZZ0032",
+                    Nhi = "TEMP:1234567890",
                     Title = "DR",
                     GivenName = "Went",
                     MiddleName = "Up The",
@@ -71,13 +71,22 @@ namespace MessageProcessor.ConsoleApp
                             Description = "11 [New Zealander]"
                         },
                         new {
-                            Code = "12",
+                            Code = "11",
+                            Description = "11 [New Zealander]"
+                        },
+                        new {
+                            Code = "NSP",
                             Description = "Not Specified"
                         },
                         new {
-                            Code = "21",
+                            Code = "NSP",
                             Description = "Not Specified"
-                        }
+                        },
+                         new {
+                            Code = "43",
+                            Description = "Indian"
+                        },
+
                     },
                     Addresses = new[] {
                         new {
@@ -116,15 +125,15 @@ namespace MessageProcessor.ConsoleApp
                         }
                     },
                     Contacts = new[] {
-                        new {
-                            ContactType = "A",
-                            ContactUsage = "E",
-                            Detail = "hello contact",
-                            IsProtected = false,
-                            EffectiveFrom = "20220101",
-                            EffectiveTo = "20220228",
-                            IsPreferred =  false
-                        },
+                        //new {
+                        //    ContactType = "A",
+                        //    ContactUsage = "E",
+                        //    Detail = "hello contact",
+                        //    IsProtected = false,
+                        //    EffectiveFrom = "20220101",
+                        //    EffectiveTo = "20220228",
+                        //    IsPreferred =  false
+                        //},
                         new {
                             ContactType = "PH",
                             ContactUsage = "PRN",
@@ -134,18 +143,17 @@ namespace MessageProcessor.ConsoleApp
                             EffectiveTo = "",
                             IsPreferred =  false
                         },
-                        new {
-                            ContactType = "NET",
-                            ContactUsage = "PRN",
-                            Detail = "test@api.com",
-                            IsProtected = false,
-                            EffectiveFrom = "20220225",
-                            EffectiveTo = "",
-                            IsPreferred =  false
-                        }
+                        //new {
+                        //    ContactType = "NET",
+                        //    ContactUsage = "PRN",
+                        //    Detail = "test@api.com",
+                        //    IsProtected = false,
+                        //    EffectiveFrom = "20220225",
+                        //    EffectiveTo = "",
+                        //    IsPreferred =  false
+                        //}
                     },
-                    EventDate = "20220503095001",
-
+                    EventDate = "20220503094501",
                     CreatedBy = "Rhapsody"
                 }; //end of payload
 
@@ -203,12 +211,21 @@ namespace MessageProcessor.ConsoleApp
         {
             var createPatientCommand = JsonSerializer.Deserialize<CreatePatientCommand>(payloadJsonString);
 
+            // Simple check on Nhi before proceeding
+            var nhi = createPatientCommand.Nhi;
+            if (string.IsNullOrEmpty(nhi))
+            {
+                Console.WriteLine($"ERROR: MessageProcessor.Lambda.Function.AddOrUpdateEvent - Nhi ({createPatientCommand.Nhi}) should not be empty. (empty or null)");
+                throw new Exception($"Nhi should not be empty");
+            }
+            nhi = nhi.Trim().ToUpper();
+
             // Check patient exists in the system.
             // If patient does not exist in the system, create the record
             // If patient exists, Check NHI is major or minor
             // If only NHI is major, update the record
             // If NHI is minor, it means NHI (or patient) is already merged with other NHI, dont need to do anything.
-            var foundPatnt = _dbContext.Patients.Include(p => p.Identifiers).Where(p => p.Identifiers.Any(i => i.Nhi == createPatientCommand.Nhi)).ToList();
+            var foundPatnt = _dbContext.Patients.Include(p => p.Identifiers).Where(p => p.Identifiers.Any(i => i.Nhi == nhi)).ToList();
             if (foundPatnt.Count <= 0)
             {
                 Console.WriteLine($"INFO: NHI {createPatientCommand.Nhi} does not exist. Creating Patient ...");
@@ -228,7 +245,7 @@ namespace MessageProcessor.ConsoleApp
                 updatePatientCommand.Id = majorPatnt.Id;
                 
                 if(!IsLatestMessage(updatePatientCommand.EventDate, majorPatnt.EventDate)) {
-                    Console.WriteLine($"WARN: MessageProcessor.Lambda.Function.AddOrUpdateEvent - Eventdate is earlier than already processed. New ({updatePatientCommand.EventDate}) - Old ({majorPatnt.EventDate}). Do NOT update.");
+                    Console.WriteLine($"WARN: MessageProcessor.Lambda.Function.AddOrUpdateEvent - Eventdate for NHI ({updatePatientCommand.Nhi}) is earlier than already processed. New ({updatePatientCommand.EventDate}) - Old ({majorPatnt.EventDate}). Do NOT update.");
                     return;
                 }
                 

@@ -84,9 +84,46 @@ namespace Application.Tests
 
             // Act
             var ex = await Assert.ThrowsAsync<ValidationException>(() => _createPatientCommandHandler.Handle(request, CancellationToken.None));
-            
+
             // Assert
             Assert.Equal("Nhi should not be empty", ex.Message);
+        }
+
+        [Theory]
+        [InlineData("zzz0001")]
+        [InlineData("ZZZ0008")]
+        [InlineData("ZAB00081")]
+        [InlineData("ZZZ0032")]
+        [InlineData("Temp:12345678")]
+        [InlineData("T-12345678")]
+        public async Task Should_Create_Patient_With_Any_NHI_Value_Except_Null_And_Empty(string nhi)
+        {
+            // Arrange
+            var request = new CreatePatientCommand()
+            {
+                Nhi = nhi,
+                Title = "SIR",
+                GivenName = "Jack",
+                MiddleName = "",
+                FamilyName = "Doe",
+                Suffix = "1ST",
+                IsPreferred = true,
+                IsProtected = true,
+                NameSource = "BRCT",
+                EffectiveFrom = "",
+                EffectiveTo = "",
+                BirthDate = "19920118",
+                BirthDateSource = "BRCT",
+                Gender = "M",
+                CreatedBy = "Rhapsody"
+            };
+
+            // Act
+            var res = await _createPatientCommandHandler.Handle(request, CancellationToken.None);
+            var pat = _dbContext.Patients.ToList();
+
+            // Assert
+            Assert.Equal(nhi.ToUpper(), pat[0].Identifiers[0].Nhi);
         }
 
         [Theory]
@@ -119,6 +156,7 @@ namespace Application.Tests
 
             // Assert
             Assert.Equal($"birthDate should not be empty.", ex.Message);
+
         }
 
         [Theory]
@@ -155,7 +193,6 @@ namespace Application.Tests
             // Assert
             Assert.Equal($"birthDate should be valid.", ex.Message);
         }
-
 
         [Fact]
         public async Task Should_Throw_Exception_With_Future_BirthDate()

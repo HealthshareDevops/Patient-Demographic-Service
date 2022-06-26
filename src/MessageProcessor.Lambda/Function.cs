@@ -4,6 +4,7 @@ using Application.Commands.CreatePatient;
 using Application.Commands.MergePatientIdentifier;
 using Application.Commands.UpdatePatient;
 using Application.Common.Interfaces;
+using Domain.ValueObjects;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -116,12 +117,21 @@ namespace MessageProcessor.Lambda
             context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.AddOrUpdateEvent start ...");
             var createPatientCommand = JsonSerializer.Deserialize<CreatePatientCommand>(message.Body);
 
+            // Simple check on Nhi before proceeding
+            var nhi = createPatientCommand.Nhi;
+            if (string.IsNullOrEmpty(nhi))
+            {
+                Console.WriteLine($"ERROR: MessageProcessor.Lambda.Function.AddOrUpdateEvent - Nhi ({createPatientCommand.Nhi}) should not be empty. (empty or null)");
+                throw new Exception($"Nhi should not be empty");
+            }
+            nhi = nhi.Trim().ToUpper();
+
             // Check patient exists in the system.
             // If patient does not exist in the system, create the record
             // If patient exists, Check NHI is major or minor
             // If only NHI is major, update the record
             // If NHI is minor, it means NHI (or patient) is already merged with other NHI, dont need to do anything.
-            var foundPatnts = _dbContext.Patients.Include(p => p.Identifiers).Where(p => p.Identifiers.Any(i => i.Nhi == createPatientCommand.Nhi)).ToList();
+            var foundPatnts = _dbContext.Patients.Include(p => p.Identifiers).Where(p => p.Identifiers.Any(i => i.Nhi == nhi)).ToList();
             if (foundPatnts.Count <= 0)
             {
                 context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.AddOrUpdateEvent - NHI ({createPatientCommand.Nhi}) does NOT exist. Create Patient.");
@@ -130,10 +140,10 @@ namespace MessageProcessor.Lambda
             else
             {
                 context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.AddOrUpdateEvent - NHI ({createPatientCommand.Nhi}) exists. Update Patient.");
-                var majorPatnt = foundPatnts.Where(p => p.Identifiers.Any(i => i.Nhi == createPatientCommand.Nhi && i.IsMajor)).SingleOrDefault();
+                var majorPatnt = foundPatnts.Where(p => p.Identifiers.Any(i => i.Nhi == nhi && i.IsMajor)).SingleOrDefault();
                 if(majorPatnt is null)
                 {
-                    context.Logger.LogInformation($"WARN: MessageProcessor.Lambda.Function.AddOrUpdateEvent - NHI ({createPatientCommand.Nhi}) is MINOR. Do NOT update.");
+                    context.Logger.LogWarning($"WARN: MessageProcessor.Lambda.Function.AddOrUpdateEvent - NHI ({createPatientCommand.Nhi}) is MINOR. Do NOT update.");
                     return -1;
                 }
                 var updatePatientCommand = JsonSerializer.Deserialize<UpdatePatientCommand>(message.Body);

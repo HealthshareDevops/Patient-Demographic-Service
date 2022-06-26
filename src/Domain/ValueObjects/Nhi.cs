@@ -31,22 +31,25 @@ namespace Domain.ValueObjects
                 return Result.Failure<Nhi>("Nhi should not be empty");
             }
 
-            nhi = nhi.Trim();
+            nhi = nhi.Trim().ToUpper();
 
-            if (nhi.Length != 7)
-            {
-                return Result.Failure<Nhi>("Nhi should be length 7");
-            }
+            // Remove validation
+            // MHIP-240
+            // NHI is free text and accept anything, no validation
+            //if (nhi.Length != 7)
+            //{
+            //    return Result.Failure<Nhi>("Nhi should be length 7");
+            //}
 
-            if (!Regex.IsMatch(nhi, "^[A-HJ-NP-Z]{3}[0-9]{2}[A-HJ-NP-Z0-9]{2}$"))
-            {
-                return Result.Failure<Nhi>("Nhi format should be valid.");
-            }
+            //if (!Regex.IsMatch(nhi, "^[A-HJ-NP-Z]{3}[0-9]{2}[A-HJ-NP-Z0-9]{2}$"))
+            //{
+            //    return Result.Failure<Nhi>("Nhi format should be valid.");
+            //}
 
-            if (!IsValidCheckSum(nhi))
-            {
-                return Result.Failure<Nhi>("Nhi checksum should be valid.");
-            }
+            //if (!IsValidCheckSum(nhi))
+            //{
+            //    return Result.Failure<Nhi>("Nhi checksum should be valid.");
+            //}
 
             return Result.Success(new Nhi(nhi));
         }
