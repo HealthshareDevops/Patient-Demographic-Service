@@ -45,7 +45,7 @@ namespace MessageProcessor.Lambda
             _mediator = ServiceProvider.GetService<IMediator>();
             _dbContext = ServiceProvider.GetService<IApplicationDbContext>();
         }
-        
+
         /// <summary>
         /// This method is called for every Lambda invocation. This method takes in an SQS event object and can be used 
         /// to respond to SQS messages.
@@ -55,21 +55,24 @@ namespace MessageProcessor.Lambda
         /// <returns></returns>
         public async Task FunctionHandler(SQSEvent evnt, ILambdaContext context)
         {
-            try
-            {
-                context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.FunctionHandler START ...");
 
-                foreach (var message in evnt.Records)
+            context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.FunctionHandler START ...");
+
+            foreach (var message in evnt.Records)
+            {
+                try
                 {
                     await ProcessMessageAsync(message, context);
                 }
-
-                context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.FunctionHandler END ...");
-            } catch(Exception ex)
-            {
-                context.Logger.Log(ex.Message);
-                throw;
+                catch (Exception ex)
+                {
+                    context.Logger.Log(ex.Message);
+                    throw;
+                }
             }
+
+            context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.FunctionHandler END ...");
+
         }
 
         private async Task ProcessMessageAsync(SQSEvent.SQSMessage message, ILambdaContext context)
