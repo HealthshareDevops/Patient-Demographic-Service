@@ -55,9 +55,8 @@ namespace MessageProcessor.Lambda
         /// <returns></returns>
         public async Task FunctionHandler(SQSEvent evnt, ILambdaContext context)
         {
-
             context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.FunctionHandler START ...");
-            context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.FunctionHandler - Number of messages in the batch: ({evnt.Records.Count})"); 
+            context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.FunctionHandler - Number of messages in the batch ({evnt.Records.Count})"); 
 
             foreach (var message in evnt.Records)
             {
@@ -68,12 +67,10 @@ namespace MessageProcessor.Lambda
                 catch (Exception ex)
                 {
                     context.Logger.Log(ex.Message);
-                    throw;
                 }
             }
 
             context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.FunctionHandler END ...");
-
         }
 
         private async Task ProcessMessageAsync(SQSEvent.SQSMessage message, ILambdaContext context)
