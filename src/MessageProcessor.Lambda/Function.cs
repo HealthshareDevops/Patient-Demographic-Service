@@ -57,6 +57,7 @@ namespace MessageProcessor.Lambda
         {
 
             context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.FunctionHandler START ...");
+            context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.FunctionHandler - Number of messages in the batch: ({evnt.Records.Count})"); 
 
             foreach (var message in evnt.Records)
             {
