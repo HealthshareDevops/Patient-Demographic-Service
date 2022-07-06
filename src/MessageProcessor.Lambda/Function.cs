@@ -28,6 +28,7 @@ namespace MessageProcessor.Lambda
 
         private readonly IMediator _mediator;
         private readonly IApplicationDbContext _dbContext;
+        private readonly IMessageQueueService _messageQueueService;
 
         /// <summary>
         /// Default constructor. This constructor is used by Lambda to construct the instance. When invoked in a Lambda environment
@@ -44,6 +45,7 @@ namespace MessageProcessor.Lambda
             ServiceProvider = Startup.ConfigureServices(Configuration);
             _mediator = ServiceProvider.GetService<IMediator>();
             _dbContext = ServiceProvider.GetService<IApplicationDbContext>();
+            _messageQueueService = ServiceProvider.GetService<IMessageQueueService>();
         }
 
         /// <summary>
@@ -56,20 +58,22 @@ namespace MessageProcessor.Lambda
         public async Task FunctionHandler(SQSEvent evnt, ILambdaContext context)
         {
             context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.FunctionHandler START ...");
-            context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.FunctionHandler - Number of messages in the batch ({evnt.Records.Count})"); 
-
+            context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.FunctionHandler - Number of messages in the batch ({evnt.Records.Count})");
+            var messageErred = 0;
             foreach (var message in evnt.Records)
             {
                 try
                 {
                     await ProcessMessageAsync(message, context);
+                    await _messageQueueService.DeleteMessageAsync(message.ReceiptHandle);
                 }
                 catch (Exception ex)
                 {
                     context.Logger.Log(ex.Message);
+                    messageErred++;
                 }
             }
-
+            if (messageErred > 0) throw new Exception($"ERROR: MessageProcessor.Lambda.Function.FunctionHandler - There are some errored messages in this batch processing. Check DLQ for errored messages. Num errored ({messageErred})");
             context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.FunctionHandler END ...");
         }
 
@@ -78,7 +82,7 @@ namespace MessageProcessor.Lambda
             context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.ProcessMessageAsync start ...");
             context.Logger.LogInformation($"INFO: Message Id: {message.MessageId}");
             context.Logger.LogInformation($"INFO: Message Body: {message.Body}");
-
+            
             long response = 0L;
 
             var jsonDocument = JsonDocument.Parse(message.Body);
