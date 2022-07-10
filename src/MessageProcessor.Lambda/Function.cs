@@ -4,6 +4,7 @@ using Application.Commands.CreatePatient;
 using Application.Commands.MergePatientIdentifier;
 using Application.Commands.UpdatePatient;
 using Application.Common.Interfaces;
+using Domain.ValueObjects;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -56,13 +57,14 @@ namespace MessageProcessor.Lambda
         {
             try
             {
-                
-                context.Logger.LogLine($"INFO: MessageProcessor.Lamba.FunctionHandler is called.");
-                
+                context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.FunctionHandler START ...");
+
                 foreach (var message in evnt.Records)
                 {
                     await ProcessMessageAsync(message, context);
                 }
+
+                context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.FunctionHandler END ...");
             } catch(Exception ex)
             {
                 context.Logger.Log(ex.Message);
@@ -72,9 +74,9 @@ namespace MessageProcessor.Lambda
 
         private async Task ProcessMessageAsync(SQSEvent.SQSMessage message, ILambdaContext context)
         {
-            context.Logger.LogLine($"INFO: MessageProcessor.Lambda.ProcessMessageAsync start...");
-            context.Logger.LogLine($"INFO: Processing MessageId: {message.MessageId}");
-            context.Logger.LogLine($"INFO: Message Body: {message.Body}");
+            context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.ProcessMessageAsync start ...");
+            context.Logger.LogInformation($"INFO: Message Id: {message.MessageId}");
+            context.Logger.LogInformation($"INFO: Message Body: {message.Body}");
 
             long response = 0L;
 
@@ -86,49 +88,62 @@ namespace MessageProcessor.Lambda
 
             if(eventType == "MergePatient")
             {
-                context.Logger.LogLine($"INFO: MessageProcessor.Lambda.ProcessMessageAsync(): EventType is MergePatient");
-                response = await MergeEvent(message, response);
+                context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.ProcessMessageAsync - EventType (MergePatient)");
+                response = await MergeEvent(message, response, context);
             }
             else
             {
-                context.Logger.LogLine($"INFO: MessageProcessor.Lambda.ProcessMessageAsync(): EventType is empty. Calling AddOrUpdate");
+                context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.ProcessMessageAsync - EventType (AddOrUpdate)");
                 response = await AddOrUpdateEvent(message, context);
             }
             
-            context.Logger.LogLine($"INFO: {response}");
-            context.Logger.LogLine($"INFO: MessageProcessor.Lambda.ProcessMessageAsync end...");
+            context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.ProcessMessageAsync - Response ({response})");
+            context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.ProcessMessageAsync end ...");
+
             await Task.CompletedTask;
         }
 
-        private async Task<long> MergeEvent(SQSEvent.SQSMessage message, long response)
+        private async Task<long> MergeEvent(SQSEvent.SQSMessage message, long response, ILambdaContext context)
         {
+            context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.MergeEvent start ...");
             var mergePatientCommand = JsonSerializer.Deserialize<MergePatientIdentifierCommand>(message.Body);
             response = await _mediator.Send(mergePatientCommand);
+            context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.MergeEvent end ...");
             return response;
         }
 
         private async Task<long> AddOrUpdateEvent(SQSEvent.SQSMessage message, ILambdaContext context)
         {
+            context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.AddOrUpdateEvent start ...");
             var createPatientCommand = JsonSerializer.Deserialize<CreatePatientCommand>(message.Body);
+
+            // Simple check on Nhi before proceeding
+            var nhi = createPatientCommand.Nhi;
+            if (string.IsNullOrEmpty(nhi))
+            {
+                Console.WriteLine($"ERROR: MessageProcessor.Lambda.Function.AddOrUpdateEvent - Nhi ({createPatientCommand.Nhi}) should not be empty. (empty or null)");
+                throw new Exception($"Nhi should not be empty");
+            }
+            nhi = nhi.Trim().ToUpper();
 
             // Check patient exists in the system.
             // If patient does not exist in the system, create the record
             // If patient exists, Check NHI is major or minor
             // If only NHI is major, update the record
             // If NHI is minor, it means NHI (or patient) is already merged with other NHI, dont need to do anything.
-            var foundPatnts = _dbContext.Patients.Include(p => p.Identifiers).Where(p => p.Identifiers.Any(i => i.Nhi == createPatientCommand.Nhi)).ToList();
+            var foundPatnts = _dbContext.Patients.Include(p => p.Identifiers).Where(p => p.Identifiers.Any(i => i.Nhi == nhi)).ToList();
             if (foundPatnts.Count <= 0)
             {
-                context.Logger.LogLine($"INFO: MessageProcessor.Lambda.ProcessMessageAsync(): NHI {createPatientCommand.Nhi} does not exist. Creating Patient ...");
+                context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.AddOrUpdateEvent - NHI ({createPatientCommand.Nhi}) does NOT exist. Create Patient.");
                 return await _mediator.Send(createPatientCommand);
             }
             else
             {
-                context.Logger.LogLine($"INFO: MessageProcessor.Lambda.ProcessMessageAsync(): NHI {createPatientCommand.Nhi} exists. Updating Patient ...");
-                var majorPatnt = foundPatnts.Where(p => p.Identifiers.Any(i => i.Nhi == createPatientCommand.Nhi && i.IsMajor)).SingleOrDefault();
+                context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.AddOrUpdateEvent - NHI ({createPatientCommand.Nhi}) exists. Update Patient.");
+                var majorPatnt = foundPatnts.Where(p => p.Identifiers.Any(i => i.Nhi == nhi && i.IsMajor)).SingleOrDefault();
                 if(majorPatnt is null)
                 {
-                    context.Logger.LogLine($"WARN: MessageProcessor.Lambda.ProcessMessageAsync(): NHI {createPatientCommand.Nhi} is minor. Returning ...");
+                    context.Logger.LogWarning($"WARN: MessageProcessor.Lambda.Function.AddOrUpdateEvent - NHI ({createPatientCommand.Nhi}) is MINOR. Do NOT update.");
                     return -1;
                 }
                 var updatePatientCommand = JsonSerializer.Deserialize<UpdatePatientCommand>(message.Body);
@@ -136,7 +151,7 @@ namespace MessageProcessor.Lambda
 
                 if(!IsLatestMessage(updatePatientCommand.EventDate, majorPatnt.EventDate, context))
                 {
-                    context.Logger.LogLine($"WARN: MessageProcessor.Lambda.ProcessMessageAsync(): Messge event date is earlier than existing one. Returning ...");
+                    context.Logger.LogInformation($"WARN: MessageProcessor.Lambda.Function.AddOrUpdateEvent - Eventdate is earlier than already processed. New ({updatePatientCommand.EventDate}) - Old ({majorPatnt.EventDate}). Do NOT update.");
                     return -1;
                 }
                 return await _mediator.Send(updatePatientCommand);
@@ -147,11 +162,11 @@ namespace MessageProcessor.Lambda
         {
             if (!DateTime.TryParseExact(newEventDt, "yyyyMMddHHmmss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var newMsgEventDt))
             {
-                context.Logger.LogLine($"WARN: EventDate of incoming message is null or empty or not valid. EventDate {newEventDt}. After parse {newMsgEventDt.ToString()}");
+                context.Logger.LogInformation($"WARN: EventDate of incoming message is null or empty or not valid. EventDate {newEventDt}. After parse {newMsgEventDt.ToString()}");
             }
             if (!DateTime.TryParseExact(curEventDt, "yyyyMMddHHmmss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var curMsgEventDt))
             {
-                context.Logger.LogLine($"WARN: EventDate of last message is null or empty or not valid. EventDate {newEventDt}. After parse {newMsgEventDt.ToString()}");
+                context.Logger.LogInformation($"WARN: EventDate of last message is null or empty or not valid. EventDate {newEventDt}. After parse {newMsgEventDt.ToString()}");
             }
             return newMsgEventDt > curMsgEventDt;
         }

@@ -318,4 +318,8 @@ CREATE UNIQUE NONCLUSTERED INDEX IX_Identifiers_Nhi_IsMajor_Unique_Filtered
 ON Identifiers(Nhi, IsMajor)
 WHERE IsMajor = 1;
 
-
+/**
+ *
+ */
+ALTER TABLE Identifiers
+ALTER COLUMN Nhi NVARCHAR(50) NOT NULL

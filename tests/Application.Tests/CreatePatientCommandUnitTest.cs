@@ -3,6 +3,7 @@ using Application.Common.Exceptions;
 using Application.Common.Interfaces;
 using Application.Tests.Common;
 using Moq;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -83,9 +84,145 @@ namespace Application.Tests
 
             // Act
             var ex = await Assert.ThrowsAsync<ValidationException>(() => _createPatientCommandHandler.Handle(request, CancellationToken.None));
-            
+
             // Assert
             Assert.Equal("Nhi should not be empty", ex.Message);
+        }
+
+        [Theory]
+        [InlineData("zzz0001")]
+        [InlineData("ZZZ0008")]
+        [InlineData("ZAB00081")]
+        [InlineData("ZZZ0032")]
+        [InlineData("Temp:12345678")]
+        [InlineData("T-12345678")]
+        public async Task Should_Create_Patient_With_Any_NHI_Value_Except_Null_And_Empty(string nhi)
+        {
+            // Arrange
+            var request = new CreatePatientCommand()
+            {
+                Nhi = nhi,
+                Title = "SIR",
+                GivenName = "Jack",
+                MiddleName = "",
+                FamilyName = "Doe",
+                Suffix = "1ST",
+                IsPreferred = true,
+                IsProtected = true,
+                NameSource = "BRCT",
+                EffectiveFrom = "",
+                EffectiveTo = "",
+                BirthDate = "19920118",
+                BirthDateSource = "BRCT",
+                Gender = "M",
+                CreatedBy = "Rhapsody"
+            };
+
+            // Act
+            var res = await _createPatientCommandHandler.Handle(request, CancellationToken.None);
+            var pat = _dbContext.Patients.ToList();
+
+            // Assert
+            Assert.Equal(nhi.ToUpper(), pat[0].Identifiers[0].Nhi);
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData(null)]
+        public async Task Should_Throw_Exception_With_Null_And_Empty_BirthDate(string birthdate)
+        {
+            // Arrange
+            var request = new CreatePatientCommand()
+            {
+                Nhi = "ZZZ0008",
+                Title = "SIR",
+                GivenName = "Jack",
+                MiddleName = "",
+                FamilyName = "Doe",
+                Suffix = "1ST",
+                IsPreferred = true,
+                IsProtected = true,
+                NameSource = "BRCT",
+                EffectiveFrom = "",
+                EffectiveTo = "",
+                BirthDate = birthdate,
+                BirthDateSource = "BRCT",
+                Gender = "M",
+                CreatedBy = "Rhapsody"
+            };
+
+            // Act
+            var ex = await Assert.ThrowsAsync<ValidationException>(() => _createPatientCommandHandler.Handle(request, CancellationToken.None));
+
+            // Assert
+            Assert.Equal($"birthDate should not be empty.", ex.Message);
+
+        }
+
+        [Theory]
+        [InlineData("2")]
+        [InlineData("20220")]
+        [InlineData("2022012")]
+        [InlineData("202201123")]
+        [InlineData("abcd")]
+        public async Task Should_Throw_Exception_Invalid_BirthDate(string birthdate)
+        {
+            // Arrange
+            var request = new CreatePatientCommand()
+            {
+                Nhi = "ZZZ0008",
+                Title = "SIR",
+                GivenName = "Jack",
+                MiddleName = "",
+                FamilyName = "Doe",
+                Suffix = "1ST",
+                IsPreferred = true,
+                IsProtected = true,
+                NameSource = "BRCT",
+                EffectiveFrom = "",
+                EffectiveTo = "",
+                BirthDate = birthdate,
+                BirthDateSource = "BRCT",
+                Gender = "M",
+                CreatedBy = "Rhapsody"
+            };
+
+            // Act
+            var ex = await Assert.ThrowsAsync<ValidationException>(() => _createPatientCommandHandler.Handle(request, CancellationToken.None));
+
+            // Assert
+            Assert.Equal($"birthDate should be valid.", ex.Message);
+        }
+
+        [Fact]
+        public async Task Should_Throw_Exception_With_Future_BirthDate()
+        {
+            // Arrange
+            var birthdate = DateTime.Now.AddDays(1).ToString("yyyyMMdd");
+            var request = new CreatePatientCommand()
+            {
+                Nhi = "ZZZ0008",
+                Title = "SIR",
+                GivenName = "Jack",
+                MiddleName = "",
+                FamilyName = "Doe",
+                Suffix = "1ST",
+                IsPreferred = true,
+                IsProtected = true,
+                NameSource = "BRCT",
+                EffectiveFrom = "",
+                EffectiveTo = "",
+                BirthDate = birthdate,
+                BirthDateSource = "BRCT",
+                Gender = "M",
+                CreatedBy = "Rhapsody"
+            };
+
+            // Act
+            var ex = await Assert.ThrowsAsync<ValidationException>(() => _createPatientCommandHandler.Handle(request, CancellationToken.None));
+
+            // Assert
+            Assert.Equal($"birthDate should not be future date.", ex.Message);
         }
     }
 }
