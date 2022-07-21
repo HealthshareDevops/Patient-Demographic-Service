@@ -38,6 +38,7 @@ namespace Application.Commands.UpdatePatient
         public List<UpdateContactCommand> Contacts { get; set; } = new List<UpdateContactCommand>();
         public string CreatedBy { get; set; }
         public string EventDate { get; set; }
+        public string MessageId { get; set; } = string.Empty; // Queue Message Id if exists for tracking on error
     }
 
     public class UpdatePatientCommandHandler : IRequestHandler<UpdatePatientCommand, long>
@@ -222,7 +223,7 @@ namespace Application.Commands.UpdatePatient
             }
             catch (Exception e)
             {
-                LambdaLogger.Log($"ERROR: Exception in UpdatePatientCommandHandler - Nhi ({request.Nhi}) - {e.Message}");
+                LambdaLogger.Log($"ERROR: Exception in UpdatePatientCommandHandler - MessageId ({request.MessageId}), CreatedBy ({request.CreatedBy}), Nhi ({request.Nhi}) - {e.Message}");
                 LambdaLogger.Log($"ERROR: Exception in UpdatePatientCommandHandler InnerException Message - {e.InnerException?.Message}");
                 throw;
             }

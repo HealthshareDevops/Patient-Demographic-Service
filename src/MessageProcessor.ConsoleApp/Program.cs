@@ -162,7 +162,7 @@ namespace MessageProcessor.ConsoleApp
                 //    EventId = Guid.NewGuid().ToString(),
                 //    EventType = "MergePatient",
                 //    NhiOfPatientWithCurrentMajorNhi = "ZZZ0016",
-                //    NhiOfPatientWhoWillRecieveNewMajor = "ZZZ0008"
+                //    NhiOfPatientWhoWillReceiveNewMajor = "ZZZ0008"
                 //};
 
                 var payloadJsonString = JsonSerializer.Serialize(payload);

@@ -19,6 +19,8 @@ namespace Application.Commands.MergePatientIdentifier
         public string Nhi { get; set; }
         public string NhiOfPatientWithCurrentMajorNhi { get; set; }
         public string NhiOfPatientWhoWillReceiveNewMajor { get; set; }
+        public string CreatedBy { get; set; } = string.Empty;
+        public string MessageId { get; set; } = string.Empty; // Queue Message Id if exists for tracking on error
     }
 
     //Handler
@@ -84,7 +86,7 @@ namespace Application.Commands.MergePatientIdentifier
                 return curntPatntWhoWillRecieveNewMajorNhi.Id;
             } catch(Exception e)
             {
-                LambdaLogger.Log($"ERROR: Exception in MergePatientCommandHandler - Current Major Nhi ({request.NhiOfPatientWithCurrentMajorNhi}), New Major Nhi ({request.NhiOfPatientWhoWillReceiveNewMajor}) - {e.Message}");
+                LambdaLogger.Log($"ERROR: Exception in MergePatientCommandHandler - MessageId ({request.MessageId}), CreatedBy ({request.CreatedBy}), Current Major Nhi ({request.NhiOfPatientWithCurrentMajorNhi}), New Major Nhi ({request.NhiOfPatientWhoWillReceiveNewMajor}) - {e.Message}");
                 LambdaLogger.Log($"ERROR: Exception in MergePatientCommandHandler InnerException Message - {e.InnerException?.Message}");
                 throw;
             }
