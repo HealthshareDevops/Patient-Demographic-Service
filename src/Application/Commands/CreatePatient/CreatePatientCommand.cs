@@ -36,6 +36,7 @@ namespace Application.Commands.CreatePatient
         public List<CreateContactCommand> Contacts { get; set; } = new List<CreateContactCommand>();
         public string CreatedBy { get; set; }
         public string EventDate { get; set; }
+        public string MessageId { get; set; } = string.Empty; // Queue Message Id if exists for tracking on error
     }
 
     public class CreatePatientCommandHandler : IRequestHandler<CreatePatientCommand, long>
@@ -197,7 +198,7 @@ namespace Application.Commands.CreatePatient
             }
             catch (Exception e)
             {
-                LambdaLogger.Log($"ERROR: Exception in CreatePatientCommandHandler - Nhi ({request.Nhi}) - {e.Message}");
+                LambdaLogger.Log($"ERROR: Exception in CreatePatientCommandHandler - MessageId ({request.MessageId}), CreatedBy ({request.CreatedBy}), Nhi ({request.Nhi}) - {e.Message}");
                 LambdaLogger.Log($"ERROR: Exception in CreatePatientCommandHandler InnerException Message - {e.InnerException?.Message}");
                 throw;
             }

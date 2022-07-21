@@ -107,6 +107,8 @@ namespace MessageProcessor.Lambda
         {
             context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.MergeEvent start ...");
             var mergePatientCommand = JsonSerializer.Deserialize<MergePatientIdentifierCommand>(message.Body);
+            mergePatientCommand.MessageId = message.MessageId;
+
             response = await _mediator.Send(mergePatientCommand);
             context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.MergeEvent end ...");
             return response;
@@ -116,12 +118,13 @@ namespace MessageProcessor.Lambda
         {
             context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.AddOrUpdateEvent start ...");
             var createPatientCommand = JsonSerializer.Deserialize<CreatePatientCommand>(message.Body);
+            createPatientCommand.MessageId = message.MessageId;
 
             // Simple check on Nhi before proceeding
             var nhi = createPatientCommand.Nhi;
             if (string.IsNullOrEmpty(nhi))
             {
-                Console.WriteLine($"ERROR: MessageProcessor.Lambda.Function.AddOrUpdateEvent - Nhi ({createPatientCommand.Nhi}) should not be empty. (empty or null)");
+                Console.WriteLine($"ERROR: MessageProcessor.Lambda.Function.AddOrUpdateEvent - MessageId ({createPatientCommand.MessageId}), CreatedBy({createPatientCommand.MessageId = message.MessageId}), Nhi ({createPatientCommand.Nhi}) should not be empty. (empty or null)");
                 throw new Exception($"Nhi should not be empty");
             }
             nhi = nhi.Trim().ToUpper();
@@ -148,6 +151,7 @@ namespace MessageProcessor.Lambda
                 }
                 var updatePatientCommand = JsonSerializer.Deserialize<UpdatePatientCommand>(message.Body);
                 updatePatientCommand.Id = majorPatnt.Id;
+                updatePatientCommand.MessageId = message.MessageId;
 
                 if(!IsLatestMessage(updatePatientCommand.EventDate, majorPatnt.EventDate, context))
                 {
