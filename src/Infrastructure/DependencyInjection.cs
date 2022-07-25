@@ -16,7 +16,8 @@ namespace Infrastructure
             services.Configure<CognitoSettings>(configuration.GetSection(nameof(CognitoSettings)));
             services.Configure<SqsSettings>(configuration.GetSection(nameof(SqsSettings)));
             services.Configure<SNSSettings>(configuration.GetSection(nameof(SNSSettings)));
-           
+            services.Configure<SQSMessageQueueSettings>(configuration.GetSection(nameof(SQSMessageQueueSettings)));
+
             services.AddAWSService<IAmazonSQS>();
             services.AddAWSService<IAmazonSimpleNotificationService>();
             
@@ -24,6 +25,7 @@ namespace Infrastructure
             services.AddTransient<IApplicationDbContext>(s => new ApplicationDbContext(configuration.GetConnectionString("DefaultConnection")));
             services.AddScoped<IMissingDataQueueService, SqsMissingDataQueueService>();
             services.AddScoped<INewPatientNotificationService, SNSNewPatientNotificationService>();
+            services.AddScoped<IMessageQueueService, SQSMessageQueueService>();
 
             return services;
         }
