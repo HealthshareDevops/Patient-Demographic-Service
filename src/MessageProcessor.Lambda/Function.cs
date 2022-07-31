@@ -3,6 +3,7 @@ using Amazon.Lambda.SQSEvents;
 using Application.Commands.CreatePatient;
 using Application.Commands.MergePatientIdentifier;
 using Application.Commands.UpdatePatient;
+using Application.Common.Exceptions;
 using Application.Common.Interfaces;
 using Domain.ValueObjects;
 using MediatR;
@@ -28,6 +29,7 @@ namespace MessageProcessor.Lambda
 
         private readonly IMediator _mediator;
         private readonly IApplicationDbContext _dbContext;
+        private readonly IMessageQueueService _messageQueueService;
 
         /// <summary>
         /// Default constructor. This constructor is used by Lambda to construct the instance. When invoked in a Lambda environment
@@ -44,8 +46,9 @@ namespace MessageProcessor.Lambda
             ServiceProvider = Startup.ConfigureServices(Configuration);
             _mediator = ServiceProvider.GetService<IMediator>();
             _dbContext = ServiceProvider.GetService<IApplicationDbContext>();
+            _messageQueueService = ServiceProvider.GetService<IMessageQueueService>();
         }
-        
+
         /// <summary>
         /// This method is called for every Lambda invocation. This method takes in an SQS event object and can be used 
         /// to respond to SQS messages.
@@ -55,21 +58,30 @@ namespace MessageProcessor.Lambda
         /// <returns></returns>
         public async Task FunctionHandler(SQSEvent evnt, ILambdaContext context)
         {
-            try
-            {
-                context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.FunctionHandler START ...");
+            context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.FunctionHandler START ...");
+            context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.FunctionHandler - Number of messages in the batch ({evnt.Records.Count})");
 
-                foreach (var message in evnt.Records)
+            var messageErred = 0;
+            foreach (var message in evnt.Records)
+            {
+                try
                 {
                     await ProcessMessageAsync(message, context);
+                    await _messageQueueService.DeleteMessageAsync(message.ReceiptHandle);
                 }
-
-                context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.FunctionHandler END ...");
-            } catch(Exception ex)
-            {
-                context.Logger.Log(ex.Message);
-                throw;
+                catch (Exception ex)
+                {
+                    context.Logger.Log(ex.Message);
+                    messageErred++;
+                }
             }
+
+            if (messageErred > 0)
+            {
+                throw new MessageErrorException($"ERROR: MessageProcessor.Lambda.Function.FunctionHandler - There are some errored messages in this batch processing. Check DLQ for errored messages. Num errored ({messageErred})");
+            }
+
+            context.Logger.LogInformation($"INFO: MessageProcessor.Lambda.Function.FunctionHandler END ...");
         }
 
         private async Task ProcessMessageAsync(SQSEvent.SQSMessage message, ILambdaContext context)

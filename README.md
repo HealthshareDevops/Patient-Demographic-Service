@@ -62,6 +62,7 @@ The CloudFormation provisions resources as follows:
     5. /PatientDemographicService/&lt;environment&gt;/SNSSettings/NewPatientTopicARN	
     6. /PatientDemographicService/&lt;environment&gt;/SqsSettings/SendMessage	
     7. /PatientDemographicService/&lt;environment&gt;/SqsSettings/Url
+    8. /PatientDemographicService/&lt;environment&gt;/SQSMessageQueueSettings/QueueUrl
 
 # Software design
 ![Patient-Demographic-Service software design](pds-project-structure.jpg)
